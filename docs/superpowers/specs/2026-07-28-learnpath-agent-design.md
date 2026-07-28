@@ -62,7 +62,7 @@ Re-planning triggers after every quiz submission, against a fixed passing thresh
 
 ## Web UI flow
 
-A small Flask app, Jinja templates, no frontend framework — matching `docs-dashboard`'s style. Five screens:
+A small FastAPI app, Jinja2 templates, no frontend framework — matching `docs-dashboard`'s and `searcher`'s actual convention. Five screens:
 
 1. **Start** — free-text goal + starting-level picker. Submitting creates a learner row and triggers the first planning call.
 2. **Current path** — the ordered recommended sequence with track/level/duration badges, plus a "Why this path" panel: per-item rationale and the overall plan summary. This is the screen that actually demonstrates the concept.
@@ -80,12 +80,12 @@ Every test mocks the Gemini client — the full suite runs offline, no API key r
 - Rule-based fallback planner: fully deterministic, testable with no mocking at all.
 - Quiz grading.
 - Plan-diff computation (kept/added/removed/reordered).
-- Flask routes via Flask's test client, with the planner mocked or swapped for the rule-based fallback.
+- FastAPI routes via `TestClient`, with the planner mocked or swapped for the rule-based fallback.
 
 ## Repo & tech stack
 
 - New top-level directory at `~/Documents/learnpath-agent` (sibling to `JudgeDred`, `RAG-project`, `agentic-example`), its own git repo.
-- Python, Flask, Pydantic, `google-genai` (Gemini free tier, `gemini-2.5-flash` per `JudgeDred`'s existing pattern), SQLite (stdlib `sqlite3`), pytest.
+- Python, FastAPI, Jinja2, Pydantic, `google-genai` (Gemini free tier, `gemini-2.5-flash` per `JudgeDred`'s existing pattern), SQLite (stdlib `sqlite3`), pytest.
 - README with an elevator pitch in the same voice as the other project READMEs (problem → what it does → why it's built this way → quick start).
 - Once built and working: a follow-up (separate, later) step adds a project card to `portfolio.md`/`.html`'s "AI Portfolio Projects" section and the homepage — not part of this build.
 
