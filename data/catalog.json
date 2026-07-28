@@ -1,0 +1,870 @@
+[
+  {
+    "id": "rag-fundamentals",
+    "title": "RAG Fundamentals: Retrieval Meets Generation",
+    "type": "course",
+    "level": "beginner",
+    "track": "RAG",
+    "duration_minutes": 15,
+    "content": "Retrieval-Augmented Generation (RAG) pairs a language model with an external knowledge source so it can answer questions using information it was never trained on. Instead of relying only on what the model memorized during training, a RAG system retrieves relevant text chunks from a document store at query time and inserts them into the model's prompt as context. This course walks through the three core stages of a RAG pipeline: indexing (splitting source documents into chunks and storing them so they can be searched later), retrieval (given a user's question, finding the chunks most relevant to it), and generation (handing the retrieved chunks to the model along with the original question so it can produce a grounded answer). You'll learn why chunking strategy matters -- split documents at the wrong boundaries and you separate a question from its answer before the model even sees it -- and why 'stuffing everything into a huge context window' is not the same thing as RAG: a system with no retrieval step, just a large prompt, has no way to prioritize what's actually relevant, and costs far more in tokens. By the end of this course you'll be able to explain, in plain language, what problem RAG solves, what its three stages are, and one concrete failure mode that breaks the pipeline even when the underlying model is capable.",
+    "quiz": [
+      {
+        "question": "What are the three core stages of a RAG pipeline, in order?",
+        "options": ["Indexing, retrieval, generation", "Training, fine-tuning, deployment", "Generation, retrieval, indexing", "Chunking, training, inference"],
+        "correct_index": 0
+      },
+      {
+        "question": "Why is 'just stuffing everything into a huge context window' not the same as RAG?",
+        "options": ["It uses a different programming language", "It has no retrieval step to prioritize what's relevant, and costs more tokens", "It only works with images, not text", "It requires a GPU cluster to run"],
+        "correct_index": 1
+      },
+      {
+        "question": "Why does chunking strategy matter in a RAG system?",
+        "options": ["It doesn't matter, any chunk size works equally well", "Bad chunk boundaries can separate a question from its answer before the model sees it", "Chunking only affects how fast the UI renders", "Chunking is only relevant for image data"],
+        "correct_index": 1
+      }
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "rag-bootcamp",
+    "title": "RAG Bootcamp: From Fundamentals to Production Patterns",
+    "type": "learning_path",
+    "level": "beginner",
+    "track": "RAG",
+    "duration_minutes": 45,
+    "content": "A bundled sequence covering RAG from first principles through common production pitfalls: what problem retrieval-augmented generation solves, how chunking and retrieval quality affect answer accuracy, and how teams evaluate whether a RAG system is actually working. Complete the linked courses in order.",
+    "quiz": [],
+    "certification_eligible": false,
+    "related_item_ids": ["rag-fundamentals", "rag-chunking-strategies", "rag-evaluation-basics"]
+  },
+  {
+    "id": "rag-capstone-certification",
+    "title": "RAG Practitioner Certification Assessment",
+    "type": "course",
+    "level": "advanced",
+    "track": "RAG",
+    "duration_minutes": 30,
+    "content": "This capstone assessment validates practical RAG knowledge across indexing, retrieval quality, and evaluation. Before attempting it, you should be comfortable explaining chunking tradeoffs, the difference between recall and precision in a retrieval step, and how to detect when a RAG system is hallucinating despite having the right document retrieved. The questions probe judgment calls, not just definitions: given a scenario where a RAG system retrieves the correct document but still gives a wrong answer, can you identify whether the fault lies in retrieval, prompt assembly, or the generation step itself? Passing this assessment is meant to signal you could debug a real RAG system in production, not just describe one in the abstract.",
+    "quiz": [
+      {"question": "A RAG system retrieves the correct source document but still answers incorrectly. Where is the fault most likely to be?", "options": ["Always the retriever", "Could be prompt assembly or generation, not necessarily retrieval", "Always the vector database", "Always the chunk size"], "correct_index": 1},
+      {"question": "What does 'recall' measure in a retrieval step?", "options": ["How fast the query runs", "The fraction of relevant documents that were actually retrieved", "How many tokens the answer uses", "The model's temperature setting"], "correct_index": 1},
+      {"question": "Which of these is a sign a RAG system may be hallucinating despite good retrieval?", "options": ["The answer cites the retrieved document accurately", "The answer includes specific facts not present in any retrieved chunk", "The answer is short", "The answer takes longer to generate"], "correct_index": 1},
+      {"question": "What is this capstone primarily assessing?", "options": ["Memorized definitions only", "Practical judgment about where failures occur across the RAG pipeline", "Typing speed", "Knowledge of an unrelated programming language"], "correct_index": 1}
+    ],
+    "certification_eligible": true,
+    "related_item_ids": []
+  },
+  {
+    "id": "rag-chunking-strategies",
+    "title": "Chunking Strategies: Splitting Documents Without Losing Meaning",
+    "type": "course",
+    "level": "beginner",
+    "track": "RAG",
+    "duration_minutes": 15,
+    "content": "How you split source documents into chunks determines whether retrieval can ever find the right answer, no matter how good your search algorithm is. This course compares fixed-size chunking (splitting every N characters or tokens, fast but blind to sentence and paragraph boundaries), recursive character splitting (trying paragraph breaks first, then sentences, then words, so chunks stay semantically coherent), and semantic chunking (using embedding similarity to find natural topic breaks). You'll learn the classic tradeoff: chunks that are too small lose surrounding context, so a retrieved sentence like 'it costs $49 per month' becomes useless without knowing what 'it' refers to; chunks that are too large dilute the embedding, mixing several topics into one vector so the chunk stops matching any single query well and wastes tokens on irrelevant text. You'll also learn why most production systems add overlap (for example a 50-100 token overlap between consecutive chunks) so that a fact sitting right at a boundary still appears intact in at least one chunk.",
+    "quiz": [
+      {"question": "What is the main problem with chunks that are too small?", "options": ["They take longer to embed", "They can lose the surrounding context needed to make sense of the retrieved fact", "They are always more expensive to store", "They can't be indexed at all"], "correct_index": 1},
+      {"question": "Why do production RAG systems often use overlapping chunks?", "options": ["To make the vector database file larger for no reason", "So a fact sitting near a chunk boundary still appears intact in at least one chunk", "Overlap speeds up the language model's inference", "Overlap is required by every embedding model's API"], "correct_index": 1},
+      {"question": "A document is split into 300-token chunks with zero overlap, and a key fact spans the last 20 tokens of one chunk and the first 30 of the next. What is the likely outcome?", "options": ["Retrieval will always find both chunks together", "Neither chunk alone may contain the complete fact, hurting retrieval quality", "The embedding model will automatically merge them", "This has no effect on RAG performance"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "rag-evaluation-basics",
+    "title": "Evaluating RAG Systems: Beyond 'Does the Answer Look Right?'",
+    "type": "course",
+    "level": "intermediate",
+    "track": "RAG",
+    "duration_minutes": 20,
+    "content": "A RAG system can fail in the retriever, the generator, or both, and eyeballing final answers rarely tells you which. This course introduces the standard split between retrieval metrics and generation metrics. Retrieval metrics like precision (what fraction of retrieved chunks are actually relevant) and recall (what fraction of relevant chunks were retrieved) tell you whether the search step is working, independent of what the model does with the results. Generation metrics like faithfulness (does the answer only state things supported by the retrieved chunks) and answer relevance (does the answer actually address the question) tell you whether the model used good context well. You'll learn why a golden dataset of representative questions with known correct answers and known relevant source chunks is essential: without it you can't separate 'the retriever found the wrong document' from 'the retriever found the right document but the model ignored it.' You'll also see why automated frameworks (like RAGAS-style faithfulness scoring using an LLM judge) are useful for catching regressions at scale, but should be spot-checked against human judgment.",
+    "quiz": [
+      {"question": "A RAG system gives a wrong answer. Retrieval metrics show high recall for that query. What does this suggest?", "options": ["The retriever is definitely broken", "The problem is more likely in generation (the model ignored or misused good context)", "The vector database is corrupted", "Nothing can be concluded"], "correct_index": 1},
+      {"question": "What does a 'faithfulness' metric measure in RAG evaluation?", "options": ["How fast the answer was generated", "Whether the answer only states things supported by the retrieved chunks", "How many chunks were retrieved", "The size of the embedding model"], "correct_index": 1},
+      {"question": "Why is a golden dataset with known relevant chunks important for RAG evaluation?", "options": ["It lets you separate retrieval failures from generation failures", "It's only needed for marketing purposes", "It replaces the need for any retrieval step", "It guarantees zero hallucinations"], "correct_index": 0}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "rag-vector-databases",
+    "title": "Vector Databases: How Similarity Search Actually Works",
+    "type": "course",
+    "level": "intermediate",
+    "track": "RAG",
+    "duration_minutes": 20,
+    "content": "Vector databases store embeddings (numeric representations of text meaning) and let you ask 'which stored vectors are closest to this query vector?' at scale. This course covers why exact nearest-neighbor search becomes too slow once you have millions of vectors, and how approximate nearest neighbor (ANN) algorithms like HNSW (Hierarchical Navigable Small World graphs) trade a small amount of accuracy for massive speed gains by building a graph structure that lets search skip most of the dataset. You'll learn why cosine similarity (or dot product on normalized vectors) is the standard distance metric for text embeddings, how embedding dimensionality (384, 768, 1536, etc.) affects both storage cost and retrieval quality, and why metadata filtering (restricting search to, say, documents from the last 30 days or a specific customer) needs to be combined carefully with vector search rather than applied as an afterthought. You'll also learn when a vector database is overkill: if your corpus is small or queries are mostly exact keyword lookups, a simpler full-text search index can outperform embeddings on both cost and accuracy.",
+    "quiz": [
+      {"question": "Why do production systems use approximate nearest neighbor search instead of exact search?", "options": ["Approximate search is always more accurate", "Exact search becomes too slow at scale; ANN trades a little accuracy for large speed gains", "Exact search doesn't work with embeddings at all", "ANN is required by law for AI systems"], "correct_index": 1},
+      {"question": "When might a vector database be the wrong choice for a search problem?", "options": ["Never, vector search is always superior", "When the corpus is small or queries are mostly exact keyword lookups, where full-text search may do better", "When you have more than 100 documents", "When you need any kind of filtering"], "correct_index": 1},
+      {"question": "What is a key risk of bolting metadata filtering onto vector search as an afterthought?", "options": ["It has no effect on results", "It can silently return irrelevant results or miss relevant ones if the filter and similarity search aren't combined correctly", "It always doubles storage costs", "It disables cosine similarity entirely"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "rag-agentic-rag-patterns",
+    "title": "Agentic RAG: Retrieval as a Tool, Not a Fixed Pipeline Step",
+    "type": "course",
+    "level": "advanced",
+    "track": "RAG",
+    "duration_minutes": 25,
+    "content": "Classic RAG retrieves once, then generates once -- a fixed pipeline. Agentic RAG instead gives the model retrieval as a tool it can call repeatedly and reason about, which matters for multi-hop questions that no single retrieval pass can answer (for example, 'which of our vendors had the highest renewal cost increase compared to last year's contract?' requires finding two separate documents and comparing them). This course covers iterative retrieve-reason loops where the model decides whether it has enough evidence yet or needs to search again with a refined query, query decomposition (breaking a complex question into sub-questions that are each independently retrievable), and query rewriting (reformulating a vague user question into a more retrievable form before searching). You'll also learn about self-critique patterns, where the model checks its own draft answer against the retrieved evidence before finalizing, catching cases where it drifted from the sources. The core judgment call this course builds: recognizing when a question is genuinely multi-hop (static single-shot RAG will fail) versus when it just looks complex but is answerable from one good retrieval.",
+    "quiz": [
+      {"question": "What distinguishes agentic RAG from classic single-shot RAG?", "options": ["Agentic RAG never uses embeddings", "The model can call retrieval repeatedly and decide whether it has enough evidence, rather than retrieving once and generating once", "Agentic RAG is only for image data", "There is no difference, just marketing"], "correct_index": 1},
+      {"question": "Why does a multi-hop question like comparing two vendor contracts challenge classic single-shot RAG?", "options": ["It requires finding and combining evidence from separate retrieval steps that one search pass won't surface together", "Multi-hop questions are always shorter than single-hop ones", "Classic RAG can't handle numbers", "It requires a different embedding model entirely"], "correct_index": 0},
+      {"question": "What is 'query decomposition' in an agentic RAG system?", "options": ["Deleting the user's original query", "Breaking a complex question into sub-questions that are each independently retrievable", "Compressing the vector database", "A method for fine-tuning the generator model"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "rag-hybrid-search-reranking",
+    "title": "Hybrid Search and Reranking: When Embeddings Alone Aren't Enough",
+    "type": "course",
+    "level": "advanced",
+    "track": "RAG",
+    "duration_minutes": 25,
+    "content": "Dense embedding search is excellent at matching meaning but surprisingly weak at exact-match lookups: a query for a specific model number, error code, or product SKU can retrieve semantically 'close' but factually wrong chunks because embeddings compress away rare tokens. Hybrid search combines dense vector search with sparse keyword search (commonly BM25, a classic term-frequency ranking algorithm) and merges the two ranked lists, so exact terms still surface even when their embedding neighbors look similar. This course also covers reranking: after an initial retrieval step returns, say, the top 50 candidate chunks cheaply, a more expensive cross-encoder model rescoring the query against each candidate individually can reorder them far more accurately than the original similarity score, because a cross-encoder actually reads the query and chunk together rather than comparing pre-computed vectors. You'll learn the practical pattern: cheap broad retrieval first, expensive precise reranking second, applied only to a small candidate set to keep latency and cost reasonable.",
+    "quiz": [
+      {"question": "Why might a query for an exact product SKU fail with pure dense embedding search?", "options": ["Embeddings compress away rare or exact tokens, so semantically 'close' but factually wrong chunks can outrank the exact match", "Dense search cannot process numbers at all", "SKUs are too long to embed", "This never happens in practice"], "correct_index": 0},
+      {"question": "What is the typical two-stage pattern for combining retrieval and reranking?", "options": ["Rerank first on the whole corpus, then retrieve", "Cheap broad retrieval over the full corpus first, then expensive precise reranking on a small candidate set", "Only ever use one stage", "Reranking replaces retrieval entirely"], "correct_index": 1},
+      {"question": "Why is a cross-encoder reranker generally more accurate than the original similarity score, but also more expensive?", "options": ["It reads the query and each candidate chunk together instead of comparing pre-computed vectors, which costs more compute per comparison", "It uses a smaller model with fewer parameters", "It skips the embedding step entirely for free", "Cross-encoders are not actually more accurate"], "correct_index": 0}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-what-is-an-llm-really",
+    "title": "What Is an LLM, Really?",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 12,
+    "content": "A large language model is, at its core, a statistical model trained to predict the next token given the tokens before it, learned from an enormous corpus of text. This course demystifies what that means in practice: the model has no database of facts it looks up, no memory of specific training documents it can cite, and no built-in notion of 'true' versus 'false' -- it has learned patterns of what text tends to follow other text, at a scale detailed enough that those patterns encode a remarkable amount of world knowledge and reasoning-like behavior. You'll learn why this framing explains both LLM strengths (fluent, context-sensitive generation across almost any topic) and their characteristic weaknesses (confident-sounding fabrication when the learned patterns don't actually contain the answer, sensitivity to how a question is phrased, and no reliable way to know what it doesn't know). Understanding an LLM as 'next-token prediction at scale' rather than as a search engine or a reasoning engine is the single most useful mental model for predicting when it will succeed and when it will quietly fail.",
+    "quiz": [
+      {"question": "What is the most accurate description of what an LLM fundamentally does?", "options": ["Looks up facts in an internal database", "Predicts the next token given prior tokens, based on patterns learned from training text", "Executes retrieval queries against the internet in real time", "Runs a symbolic logic engine over the input"], "correct_index": 1},
+      {"question": "Why can an LLM produce confident-sounding but false statements?", "options": ["It deliberately tries to deceive users", "It generates plausible-sounding text based on learned patterns, with no built-in fact-checking against a source of truth", "It is copying errors from a corrupted database", "This only happens with very old models"], "correct_index": 1},
+      {"question": "Why is 'next-token prediction at scale' a more useful mental model than 'search engine' for predicting LLM behavior?", "options": ["Because it explains both fluent generation and confident fabrication as two sides of the same mechanism", "Because search engines are technically identical to LLMs", "Because it means the model always tells the truth", "It isn't useful; both models are equivalent"], "correct_index": 0}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-tokens-and-context-windows",
+    "title": "Tokens, Context Windows, and Why They Matter",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 12,
+    "content": "Language models don't read text character by character or word by word -- they read tokens, chunks of text produced by a tokenizer (commonly byte-pair encoding), where a token might be a whole common word, a word fragment, or even a single punctuation mark. This course explains why 'the quick brown fox' might be 4 tokens while an uncommon word like 'antidisestablishmentarianism' could be split into 6 or more, and why this matters for both cost (providers bill per token) and behavior (models can be worse at character-level tasks like counting letters, because they never see individual characters). You'll also learn what a context window is: the maximum number of tokens (input plus output combined, for most APIs) a model can process in one call, and what happens when you exceed it -- either an error, or silent truncation of the oldest content, depending on the system. You'll leave able to estimate roughly how many tokens a piece of text will consume and explain why a bigger context window isn't free: it increases both cost and, past a point, the risk that the model pays less attention to content buried in the middle.",
+    "quiz": [
+      {"question": "Why can an LLM sometimes struggle with a task like counting the letters in a word?", "options": ["It never learned the alphabet", "It processes text as tokens, which often don't correspond to individual characters", "It's a hardware limitation", "This never actually happens"], "correct_index": 1},
+      {"question": "What typically happens when your input plus expected output would exceed a model's context window?", "options": ["The model automatically upgrades itself", "You get an error or the oldest content gets silently truncated, depending on the system", "Nothing, all systems handle this perfectly by default", "The model pauses and waits for more memory"], "correct_index": 1},
+      {"question": "Why isn't a bigger context window simply 'free' upside with no downside?", "options": ["Larger context windows are illegal in some countries", "It increases cost and can increase the risk the model pays less attention to content buried in the middle", "Bigger context windows make the model slower to install", "There is no downside, bigger is strictly better"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-choosing-the-right-model",
+    "title": "Choosing the Right Model for the Job",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 18,
+    "content": "There is no single 'best' model -- only the best model for a given task, latency budget, and cost target. This course walks through a practical decision framework: start with task complexity (a simple classification or extraction task rarely needs a frontier reasoning model), then consider latency requirements (a real-time chat interface has very different tolerance than a nightly batch job), then cost at your expected volume (a 10x cost difference matters enormously at scale and barely at all for a prototype), then special requirements like reliable structured output, tool-calling ability, or a very long context window. You'll learn why teams frequently over-provision -- reaching for the largest, most expensive model by default -- and why a smaller model with a well-engineered prompt and good few-shot examples often matches a frontier model's accuracy on a narrow, well-specified task at a fraction of the cost and latency. You'll also learn to recognize the opposite mistake: under-provisioning on tasks that genuinely require strong multi-step reasoning, where a cheaper model fails silently by producing plausible-looking but wrong output.",
+    "quiz": [
+      {"question": "Why might a smaller, cheaper model be the right choice for a narrow, well-specified task?", "options": ["Smaller models are always more accurate", "With good prompting and examples, a smaller model can match a frontier model's accuracy on narrow tasks at much lower cost and latency", "Larger models cannot be used for simple tasks at all", "This is never true in practice"], "correct_index": 1},
+      {"question": "What is a common mistake teams make when selecting a model?", "options": ["Always choosing the cheapest option regardless of task", "Over-provisioning by defaulting to the largest, most expensive model even for simple tasks", "Never considering latency at all", "Testing multiple models before committing"], "correct_index": 1},
+      {"question": "What is a risk of under-provisioning on a task that requires genuine multi-step reasoning?", "options": ["The system will always crash with a visible error", "The cheaper model may fail silently, producing plausible-looking but incorrect output", "Nothing, cost is the only relevant factor", "The task will simply run faster"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-reading-a-model-card",
+    "title": "Reading a Model Card",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 15,
+    "content": "A model card is a provider's documentation summarizing a model's training data, intended uses, known limitations, benchmark performance, and safety evaluations -- and learning to read one critically is a core skill for picking models responsibly. This course covers what to look for: training data composition and cutoff date (does it know about recent events or your domain's jargon), stated intended use and out-of-scope uses (a model card explicitly warning against medical or legal advice use is a real signal, not boilerplate), and benchmark scores presented with context (a leaderboard number without knowing which exact benchmark version, whether the test set could have leaked into training data, or whether the benchmark measures anything relevant to your use case, is close to meaningless on its own). You'll also learn to look for license terms, since some 'open' models restrict commercial use or require attribution, and safety evaluation summaries, which tell you what red-teaming was done and what failure modes are already known before you ever run the model yourself.",
+    "quiz": [
+      {"question": "Why should a benchmark score on a model card be read with skepticism rather than taken at face value?", "options": ["Benchmark scores are always fabricated", "Without knowing the exact benchmark, possible test-set contamination, and relevance to your use case, the number alone tells you little", "Benchmarks never change over time", "Model cards don't include benchmarks"], "correct_index": 1},
+      {"question": "Why does a model card's 'out-of-scope uses' section matter?", "options": ["It's just legal boilerplate with no practical meaning", "It signals real limitations, like explicitly warning against medical or legal advice use", "It only applies to open-weight models", "It replaces the need for any testing"], "correct_index": 1},
+      {"question": "What should you check on a model card before assuming you can use a model commercially?", "options": ["The color scheme of the documentation", "The license terms, since some 'open' models restrict commercial use", "The number of parameters only", "Nothing, all models can be used commercially"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-open-weight-vs-closed-models",
+    "title": "Open-Weight vs. Closed Models",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 18,
+    "content": "Open-weight models (like Llama or Mistral) publish their trained parameters for anyone to download, run, and fine-tune, while closed models (like GPT, Claude, or Gemini) are only accessible through a provider's API. This course covers the real tradeoffs behind that choice: open-weight models give you full control over hosting, data privacy (nothing leaves your infrastructure), and the ability to fine-tune on proprietary data, at the cost of you owning all the infrastructure, scaling, and reliability engineering yourself. Closed models typically offer the most capable frontier performance and zero infrastructure burden, but you're sending data to a third party, subject to their rate limits, pricing changes, and deprecation schedules. You'll learn a key nuance often missed: 'open' doesn't always mean 'free to use however you want' -- some open-weight licenses restrict commercial use above a certain scale or require attribution, so the licensing terms matter as much as the technical access model. You'll leave able to match a project's constraints (data sensitivity, budget, need for customization, team's infra capacity) to the right category.",
+    "quiz": [
+      {"question": "What is a key benefit of open-weight models over closed API-only models?", "options": ["They are always more accurate", "They give you control over hosting and data privacy since nothing needs to leave your infrastructure", "They never have any licensing restrictions", "They require no engineering effort at all"], "correct_index": 1},
+      {"question": "What is a common misconception about 'open' models?", "options": ["That they are all trained the same way", "That 'open' always means unrestricted commercial use, when some licenses restrict scale or require attribution", "That they can never be fine-tuned", "That they are always smaller than closed models"], "correct_index": 1},
+      {"question": "A team has strict data-residency requirements and in-house ML infrastructure. Which model category is likely a better fit?", "options": ["A closed API-only model, regardless of requirements", "An open-weight model they can self-host to keep data in-house", "Neither option can satisfy data-residency requirements", "The choice has no bearing on data residency"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-how-llms-generate-text",
+    "title": "How LLMs Generate Text: Autoregression and Sampling",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 15,
+    "content": "LLMs generate text one token at a time, feeding each generated token back in as input to predict the next one -- a process called autoregressive generation. At each step, the model produces a probability distribution over its entire vocabulary (via a softmax function), and a sampling strategy decides which token to actually pick. This course covers the key sampling parameters that shape output: temperature (scaling the distribution -- low temperature makes the model pick high-probability tokens almost deterministically, high temperature flattens the distribution toward more surprising, creative choices), top-p / nucleus sampling (only sampling from the smallest set of tokens whose cumulative probability exceeds p, cutting off the unlikely long tail), and top-k (restricting sampling to only the k most likely tokens). You'll learn why 'hallucination' is not a separate bug bolted onto an otherwise-truthful system, but a natural consequence of a model that is always generating the statistically plausible next token -- there is no built-in step where it checks generated content against ground truth, so a fluent, grammatically perfect sentence can still be entirely fabricated.",
+    "quiz": [
+      {"question": "What does 'autoregressive' mean in the context of LLM text generation?", "options": ["The model generates the entire response at once", "The model generates one token at a time, feeding each output back in to predict the next", "The model only works on regression problems, not text", "The model regenerates its own weights during inference"], "correct_index": 1},
+      {"question": "What effect does a higher temperature setting have on generation?", "options": ["It makes the model deterministic and always pick the single most likely token", "It flattens the probability distribution, increasing the chance of more surprising or creative token choices", "It has no effect on output at all", "It only affects how fast tokens are generated"], "correct_index": 1},
+      {"question": "Why is hallucination best understood as a natural consequence of how LLMs generate text, rather than a separate bug?", "options": ["Because the model is deliberately programmed to lie", "Because the model always generates the statistically plausible next token with no built-in fact-check against ground truth", "Because hallucination only occurs due to hardware errors", "Because it only happens with very small models"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-prompting-basics",
+    "title": "Prompting Basics: Structure, Examples, and Output Format",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 15,
+    "content": "A well-structured prompt reliably improves output quality more than almost any other lever available to you, and this course covers the foundational structure: clear task instructions stated up front, relevant context the model needs to complete the task, and an explicit description of the desired output format (a JSON schema, a specific list length, a tone). You'll learn about few-shot prompting -- including one or more worked examples of input-and-desired-output pairs directly in the prompt -- and why it often outperforms lengthy abstract instructions, because showing the model exactly what 'good' looks like removes ambiguity that a written description can leave open. You'll also learn the difference between a system prompt (persistent instructions that apply across a whole conversation, like persona or constraints) and a user prompt (the specific task or question at hand) at a high level -- this course introduces the distinction, while the Context Engineering track goes deeper on how to actually architect what goes into each. A recurring theme: specificity beats generality; a vague instruction like 'be helpful' produces far less consistent output than a precise one describing exactly what a good answer contains.",
+    "quiz": [
+      {"question": "Why does few-shot prompting (showing worked examples) often outperform long abstract instructions?", "options": ["Examples are always shorter than instructions", "Showing exactly what 'good' output looks like removes ambiguity that written descriptions can leave open", "Few-shot prompting uses a different model entirely", "It doesn't outperform abstract instructions in practice"], "correct_index": 1},
+      {"question": "What is the practical difference between a system prompt and a user prompt at a high level?", "options": ["There is no difference", "A system prompt holds persistent instructions/persona across a conversation, while a user prompt is the specific task at hand", "A system prompt is always shorter than a user prompt", "User prompts are only used for images"], "correct_index": 1},
+      {"question": "Why does a vague instruction like 'be helpful' tend to produce less consistent output than a specific one?", "options": ["Vague instructions are technically invalid JSON", "It leaves the model to guess what 'helpful' means in this context, versus a precise description of what a good answer contains", "The model ignores vague instructions entirely", "Vague instructions cost more tokens"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-fine-tuning-vs-prompting",
+    "title": "Fine-Tuning vs. Prompting vs. RAG: Choosing the Right Lever",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 20,
+    "content": "Teams often reach for fine-tuning to solve problems that prompting or RAG would solve faster and cheaper, and this course builds the judgment to tell them apart. Prompt engineering (including few-shot examples) is fast to iterate, requires no training infrastructure, and is the right first step for most problems, especially ones about format, tone, or task framing. RAG is the right tool when the problem is 'the model doesn't know this specific fact or this changed recently' -- it injects fresh, retrievable knowledge without touching the model's weights. Fine-tuning changes the model's weights on a custom dataset, and it's the right tool for a narrower set of problems: teaching a very consistent output style or format the model doesn't reliably produce even with good prompting, adapting to a specialized vocabulary or writing style at scale, or reducing prompt length (and therefore cost) for a repeated task once you know the exact desired behavior. You'll learn the common mistake: fine-tuning on facts, hoping the model will 'know' new information reliably -- fine-tuning is poor at reliably injecting new factual knowledge and terrible at keeping that knowledge current, which is exactly what RAG is built for instead.",
+    "quiz": [
+      {"question": "What is fine-tuning generally the wrong tool for?", "options": ["Teaching a consistent output format", "Reliably injecting new, frequently-changing factual knowledge into the model", "Adapting to a specialized vocabulary", "Reducing prompt length for a repeated task"], "correct_index": 1},
+      {"question": "When is RAG the better choice over fine-tuning?", "options": ["When you need the model to know specific facts that change frequently over time", "When you want to change the model's output tone permanently", "When you have no data to work with at all", "RAG and fine-tuning solve identical problems"], "correct_index": 0},
+      {"question": "Why is prompt engineering usually the right first step before considering fine-tuning?", "options": ["It requires training infrastructure", "It's fast to iterate and solves a large share of problems, especially around format and framing, without touching model weights", "It's slower than fine-tuning", "Prompting never works for format-related problems"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-embeddings-explained",
+    "title": "Embeddings Explained: Turning Meaning Into Vectors",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 18,
+    "content": "An embedding model converts a piece of text into a fixed-length vector of numbers positioned so that semantically similar text ends up close together in that vector space -- 'a friendly dog' and 'a happy puppy' land nearer each other than either does to 'quarterly tax filing.' This course covers how embedding models are typically trained using contrastive learning (pulling similar pairs closer, pushing dissimilar pairs apart) and how the resulting vectors get used: similarity search (the backbone of RAG retrieval), clustering (grouping similar documents without labels), and classification (using vector distance to a set of labeled examples). You'll learn the important distinction between an embedding model and a generative LLM: an embedding model doesn't generate text at all, it only produces a numeric representation, and the two are often entirely different model architectures even when offered by the same provider. You'll also learn about the practical tradeoff in embedding dimensionality -- higher-dimensional vectors (1536 or more) can capture finer-grained distinctions but cost more to store and search, while smaller vectors (384-768) are cheaper and often sufficient for narrower domains.",
+    "quiz": [
+      {"question": "What is the fundamental difference between an embedding model and a generative LLM?", "options": ["There is no difference, they're interchangeable", "An embedding model produces a numeric vector representing meaning; it does not generate text", "Embedding models are always larger than generative models", "Generative models cannot use embeddings at all"], "correct_index": 1},
+      {"question": "What is the practical tradeoff of using a higher-dimensional embedding (e.g. 1536) versus a smaller one (e.g. 384)?", "options": ["Higher dimensions are always strictly worse", "Higher dimensions can capture finer distinctions but cost more to store and search", "Dimensionality has no effect on cost or quality", "Smaller embeddings can't be used for search at all"], "correct_index": 1},
+      {"question": "How are embedding models typically trained to place similar text close together in vector space?", "options": ["Contrastive learning, pulling similar pairs closer and pushing dissimilar pairs apart", "Random initialization with no training at all", "By memorizing a lookup table of every possible sentence", "By fine-tuning on labeled sentiment data only"], "correct_index": 0}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-scaling-laws-and-limits",
+    "title": "Scaling Laws and Their Limits",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 25,
+    "content": "Scaling laws describe an empirical relationship: as you increase model parameters, training data, and compute together in the right proportions, a model's training loss decreases in a predictable, smooth curve. This course covers the Chinchilla-style finding that many earlier large models were undertrained relative to their size -- for a fixed compute budget, a smaller model trained on proportionally more data often outperforms a larger model trained on less data. You'll learn why scaling laws predict smooth improvement in loss, but do not straightforwardly predict which specific capabilities will appear or when -- the debate over 'emergent abilities' (capabilities that seem to appear suddenly past a certain scale rather than improving gradually) is contested precisely because it's unclear how much of that appearance is a real phenomenon versus an artifact of how a capability is measured. You'll leave with the practical implication: bigger is not automatically better for a given deployment, because scaling laws describe training loss on average, not whether a larger model is worth its extra latency and cost for your specific, narrower task, where a smaller well-trained model may already saturate the metrics you actually care about.",
+    "quiz": [
+      {"question": "What did Chinchilla-style scaling law research find about many earlier large models?", "options": ["They were perfectly optimally trained", "Many were undertrained relative to their size; a smaller model on proportionally more data could outperform them for the same compute budget", "Model size has no relationship to training data needs", "Larger models always need less data"], "correct_index": 1},
+      {"question": "Why is the debate over 'emergent abilities' contested among researchers?", "options": ["Because scaling laws are entirely disproven", "Because it's unclear how much apparent sudden capability jumps are real versus artifacts of how the capability is measured", "Because no one has ever measured model capabilities before", "Because emergent abilities only apply to embedding models"], "correct_index": 1},
+      {"question": "Why doesn't a scaling law finding that bigger models have lower average training loss mean 'always deploy the biggest model'?", "options": ["Scaling laws are only theoretical and never validated", "A smaller, well-trained model may already saturate the metrics that matter for a specific narrow task, at lower latency and cost", "Bigger models are always cheaper to run", "Training loss and deployment value are the same thing"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-inference-optimization",
+    "title": "Inference Optimization: KV Caching, Batching, and Quantization",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 25,
+    "content": "Running a trained model efficiently at inference time is a distinct engineering problem from training it, and this course covers the core techniques that make production LLM serving affordable. KV (key-value) caching stores the attention keys and values computed for earlier tokens so each new token generation step doesn't have to recompute attention over the entire prior sequence from scratch -- without it, autoregressive generation would get quadratically slower as output grows. Batching groups multiple concurrent requests together so the GPU processes them in parallel rather than one at a time, dramatically improving throughput at the cost of some added latency per individual request. Quantization reduces the numerical precision of model weights (from 16-bit down to 8-bit or 4-bit representations), shrinking memory footprint and speeding up computation at a small, often acceptable cost in output quality. You'll also learn why inference cost is frequently bottlenecked by memory bandwidth (how fast weights can be read from memory) rather than raw compute, which is why techniques like speculative decoding (using a small draft model to propose several tokens that a larger model verifies in one pass) can meaningfully speed up generation.",
+    "quiz": [
+      {"question": "What problem does KV caching solve during autoregressive generation?", "options": ["It reduces the number of parameters in the model", "It avoids recomputing attention over the entire prior sequence for every new token, preventing quadratic slowdown", "It compresses the model's weights permanently", "It eliminates the need for a GPU"], "correct_index": 1},
+      {"question": "Why is inference often bottlenecked by memory bandwidth rather than raw compute?", "options": ["GPUs have no memory bandwidth limits", "Reading model weights from memory fast enough is often the limiting factor, which is why techniques like speculative decoding help", "Compute is always the bottleneck, never memory", "This is only true for CPUs, not GPUs"], "correct_index": 1},
+      {"question": "What tradeoff does quantization introduce?", "options": ["It has no tradeoffs, only benefits", "It reduces memory footprint and speeds up computation, at a small often-acceptable cost in output quality", "It always doubles the model's accuracy", "It only works for training, not inference"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "llmf-capstone-certification",
+    "title": "LLM Fundamentals Certification Assessment",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Fundamentals",
+    "duration_minutes": 30,
+    "content": "This capstone validates core LLM fundamentals judgment across model mechanics, deployment tradeoffs, and model selection. Before attempting it you should be comfortable explaining autoregressive generation and why it produces confident fabrication, the practical differences between fine-tuning, prompting, and RAG as levers for changing model behavior, how scaling laws relate to real deployment decisions, and the tradeoffs between open-weight and closed models. The questions are scenario-based: given a team defaulting to the largest available model for a simple classification task, can you identify the likely inefficiency and a better alternative? Given a team fine-tuning to inject fast-changing facts, can you identify why that approach will keep going stale? Passing signals you can make sound, cost-aware model and technique choices in a real project, not just recite definitions.",
+    "quiz": [
+      {"question": "A team fine-tunes a model weekly to keep it updated on fast-changing product prices. What is the core problem with this approach?", "options": ["Fine-tuning is illegal for factual data", "Fine-tuning is a poor mechanism for keeping frequently-changing facts current; RAG is better suited to this", "Fine-tuning is always faster than RAG", "There is no problem with this approach"], "correct_index": 1},
+      {"question": "A simple sentiment classification task is routed to the largest, most expensive frontier model by default. What's the likely issue?", "options": ["This is optimal and should always be done", "It's likely over-provisioned; a smaller model with good prompting could match accuracy at far lower cost and latency", "Large models cannot perform classification tasks", "Sentiment classification requires the largest model available"], "correct_index": 1},
+      {"question": "Why does an LLM's autoregressive, next-token nature make hallucination an inherent risk rather than a rare bug?", "options": ["Because it generates the statistically plausible next token with no built-in ground-truth check", "Because hallucination is caused by a separate faulty subsystem", "Because only fine-tuned models hallucinate", "Because hallucination only occurs at high temperature settings"], "correct_index": 0},
+      {"question": "What is this capstone primarily assessing?", "options": ["Ability to recite textbook definitions verbatim", "Practical, scenario-based judgment about model behavior, technique selection, and deployment tradeoffs", "Speed of prompt writing", "Knowledge of an unrelated domain"], "correct_index": 1}
+    ],
+    "certification_eligible": true,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-what-is-a-multi-agent-system",
+    "title": "What Is a Multi-Agent System?",
+    "type": "course",
+    "level": "beginner",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 15,
+    "content": "A multi-agent system uses two or more distinct LLM-powered agents, each with its own role, instructions, and often its own tools, that coordinate to complete a task no single agent handles as well alone. This course introduces the core idea by contrasting it with a single agent with many tools: a single research-and-writing agent juggling fact lookup, outlining, and prose polishing in one prompt tends to do all three adequately but none excellently, while splitting the work into a researcher agent, an outliner agent, and a writer agent -- each with a narrow, well-defined job and a prompt tuned specifically for it -- often produces better results per step, at the cost of added coordination complexity and latency. You'll learn the common introductory patterns: pipeline (agents run in a fixed sequence, each consuming the previous one's output), manager-worker (one orchestrator agent decides what to delegate and to whom), and debate (multiple agents propose and critique each other's answers before converging). The judgment call this course builds: recognizing when a problem is complex and heterogeneous enough to benefit from splitting across agents, versus when it's simple enough that a single well-prompted agent is faster, cheaper, and just as good.",
+    "quiz": [
+      {"question": "What is a core motivation for splitting a task across multiple specialized agents instead of one general agent?", "options": ["It's always cheaper to run more agents", "A narrowly-scoped agent with a tuned prompt for one job often outperforms one agent juggling many different jobs at once", "Multi-agent systems eliminate the need for any prompting", "It reduces the total number of API calls needed"], "correct_index": 1},
+      {"question": "What is the 'manager-worker' multi-agent pattern?", "options": ["Agents run in a strict fixed sequence with no decision-making", "One orchestrator agent decides what to delegate and to which specialist agent", "All agents run completely independently with no coordination", "A pattern used only for image generation"], "correct_index": 1},
+      {"question": "When might a single well-prompted agent be a better choice than a multi-agent system?", "options": ["Never, multi-agent is always superior", "When the task is simple enough that added coordination complexity and latency from multiple agents isn't worth it", "Only when the budget is unlimited", "Single agents cannot use tools"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-orchestrator-vs-swarm-patterns",
+    "title": "Orchestrator vs. Swarm: Two Coordination Patterns",
+    "type": "course",
+    "level": "beginner",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 15,
+    "content": "Multi-agent systems generally coordinate in one of two broad shapes: centralized orchestration, where a single planning agent decides the task breakdown and explicitly delegates each piece to the right specialist agent, or decentralized swarm coordination, where peer agents communicate and negotiate among themselves without a designated controller. This course covers the tradeoffs: orchestrator patterns are more predictable and easier to debug (there's one place to look for 'why did the system decide this'), but the orchestrator becomes a single point of failure and a potential bottleneck as task complexity grows. Swarm patterns can be more resilient (no single agent's failure stops everything) and can scale to more agents more gracefully, but are harder to reason about and debug, since the emergent behavior comes from many local interactions rather than one visible plan. You'll learn that most production systems today lean orchestrator-style because predictability and debuggability matter enormously when real money or user-facing decisions are on the line, and true decentralized swarms remain more common in research settings than in shipped products.",
+    "quiz": [
+      {"question": "What is a key advantage of the orchestrator pattern over a swarm pattern?", "options": ["It scales infinitely with zero bottlenecks", "It's more predictable and easier to debug since there's one place to inspect the decision-making", "It never fails", "It requires no planning agent at all"], "correct_index": 1},
+      {"question": "What is a key risk of the centralized orchestrator pattern?", "options": ["It has no risks at all", "The orchestrator can become a single point of failure and a bottleneck as complexity grows", "It cannot delegate tasks to specialist agents", "It always produces worse results than swarms"], "correct_index": 1},
+      {"question": "Why do most production multi-agent systems today lean toward orchestrator-style coordination rather than true decentralized swarms?", "options": ["Swarms are technically impossible to build", "Predictability and debuggability matter a great deal when real decisions or money are on the line", "Orchestrators are always cheaper to run", "Swarms require more agents than orchestrators"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-agent-communication-protocols",
+    "title": "Agent Communication: How Agents Actually Pass State",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 20,
+    "content": "As soon as you have more than one agent, you need a concrete answer to 'how does agent B find out what agent A learned?' This course covers the main mechanisms: shared memory or a blackboard (a common store all agents read from and write to, useful when many agents need visibility into evolving shared state), direct message passing (agent A's output is explicitly routed as agent B's input, giving tight control over exactly what each agent sees), and structured handoff objects (rather than passing raw conversation transcripts, agents pass a defined schema -- like 'findings: [...], open_questions: [...], confidence: 0.8' -- that the next agent can reliably parse). You'll learn why naively concatenating the entire conversation history and handing it to every subsequent agent breaks down as systems grow: it burns context window and cost on irrelevant history, and buries the specific handoff information the next agent actually needs inside a wall of text it has to re-derive relevance from. You'll also learn why this is a genuinely emerging area -- protocols standardizing how agents discover and call each other's capabilities (distinct from how a single agent calls a tool) are still actively being defined across the industry.",
+    "quiz": [
+      {"question": "What is a key drawback of simply concatenating the full conversation history and passing it to every subsequent agent?", "options": ["It always produces a parsing error", "It burns context window and cost on irrelevant history and buries the specific information the next agent needs", "It is technically impossible to implement", "It has no drawbacks, it's the recommended approach"], "correct_index": 1},
+      {"question": "What is a 'structured handoff object' in multi-agent communication?", "options": ["A raw, unformatted transcript of the whole conversation", "A defined schema (like findings, open questions, confidence) that the next agent can reliably parse instead of raw text", "A single shared database with no schema at all", "A method that only works for two agents, never more"], "correct_index": 1},
+      {"question": "When is a shared memory or blackboard pattern most useful?", "options": ["When only one agent will ever exist", "When many agents need visibility into evolving shared state rather than a tightly controlled point-to-point handoff", "When you want to minimize all communication between agents", "Only for image-generation tasks"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-task-decomposition-and-delegation",
+    "title": "Task Decomposition and Delegation",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 20,
+    "content": "A planner agent's job is to break a high-level goal into subtasks that specialist agents can execute, and getting the granularity right is one of the harder design decisions in a multi-agent system. This course covers the two failure directions: over-decomposition, where a task is split into so many tiny subtasks that the coordination overhead (deciding what to delegate next, passing state between steps, handling each handoff) costs more in latency and complexity than it saves, and under-decomposition, where a single agent is handed a task that's still too broad and heterogeneous, causing the same quality problems a single generalist agent has in the first place. You'll learn practical heuristics: decompose along genuinely different skill boundaries (research vs. writing vs. fact-checking) rather than arbitrary step counts, and delegate a subtask to a specialist agent only when that subtask needs meaningfully different instructions, tools, or context than the rest of the work -- if two 'subtasks' would use nearly identical prompts and tools, they probably belong to the same agent.",
+    "quiz": [
+      {"question": "What is 'over-decomposition' in multi-agent task planning?", "options": ["Splitting a task so finely that coordination overhead outweighs any benefit", "Never splitting a task at all", "Assigning every subtask to the same agent", "A pattern that only applies to single-agent systems"], "correct_index": 0},
+      {"question": "What is a practical heuristic for deciding whether two subtasks should be handled by separate specialist agents?", "options": ["Always split every task into exactly three subtasks", "Split along genuinely different skill boundaries; if two subtasks would use nearly identical prompts and tools, keep them together", "Split based on how many words the task description contains", "Never split any task under any circumstances"], "correct_index": 1},
+      {"question": "What is the risk of under-decomposition?", "options": ["Too much coordination overhead between agents", "The same quality problems as a single overloaded generalist agent, since the subtask is still too broad", "It always causes a system crash", "It has no risks, more decomposition is always better"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-handling-agent-failures-and-loops",
+    "title": "Handling Agent Failures and Runaway Loops",
+    "type": "course",
+    "level": "advanced",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 25,
+    "content": "Multi-agent systems introduce a failure mode single-agent systems rarely see: runaway loops, where an agent (or a pair of agents handing off to each other) repeats the same unproductive action indefinitely -- calling the same tool with slightly varied arguments, or two agents endlessly 'discussing' without converging on an answer -- silently consuming tokens and money until something external stops it. This course covers the standard defenses: hard iteration limits (cap the number of steps or handoffs and force a fallback once reached), timeout and retry policies with backoff (distinguish a transient failure worth retrying from a persistent one that should stop the loop), circuit breakers (once a specific tool or agent has failed repeatedly, stop calling it and route around it instead of retrying blindly), and human-in-the-loop escalation (when automated recovery is exhausted, surface the state to a person rather than continuing to spend). You'll learn why monitoring token and cost consumption in real time, not just after the fact, matters specifically for multi-agent systems -- a runaway loop that would cost a few cents in a single-agent system can multiply across several looping agents into a very expensive bill before anyone notices.",
+    "quiz": [
+      {"question": "Why are runaway loops a distinct concern in multi-agent systems compared to single-agent systems?", "options": ["They can never happen in multi-agent systems", "Two or more agents handing off to each other without converging can multiply cost and token usage much faster than a single agent looping alone", "Multi-agent systems have no tools to call", "Loops only affect latency, never cost"], "correct_index": 1},
+      {"question": "What does a circuit breaker do in this context?", "options": ["It permanently shuts down the entire system after one failure", "After a tool or agent fails repeatedly, it stops calling it and routes around it instead of blindly retrying", "It increases the retry rate for failing components", "It has nothing to do with failure handling"], "correct_index": 1},
+      {"question": "Why does real-time cost monitoring matter specifically for multi-agent systems?", "options": ["Cost monitoring is irrelevant to multi-agent systems", "A runaway loop across multiple agents can multiply into a large bill much faster than in a single-agent system, before anyone notices after the fact", "Multi-agent systems never incur any cost", "Monitoring only matters for single-agent deployments"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-multi-agent-security-boundaries",
+    "title": "Security Boundaries in Multi-Agent Systems",
+    "type": "course",
+    "level": "advanced",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 25,
+    "content": "Every handoff between agents is a new opportunity for an attack to slip through, and this course covers why multi-agent systems need more deliberate security design than single-agent ones. Prompt injection risk compounds across handoffs: if agent A retrieves an untrusted document containing hidden instructions and passes its output to agent B without validation, agent B may execute those injected instructions believing they came from a trusted source, even if agent A's own prompt was well-defended. You'll learn the core mitigations: least-privilege permission scoping (give each agent access only to the specific tools and data it strictly needs for its role, so a compromised agent has limited blast radius), sandboxing tool execution (run risky actions like code execution or file access in an isolated environment with restricted permissions, not directly on production infrastructure), and validating outputs at each handoff boundary (treating another agent's output as untrusted input, the same way you'd treat user input, rather than assuming it's safe because it came from 'your own system'). The core mental shift this course builds: in a multi-agent system, trust doesn't automatically transfer across a handoff just because both sides are agents you built.",
+    "quiz": [
+      {"question": "Why does prompt injection risk compound across agent handoffs?", "options": ["It doesn't; injection risk is identical to single-agent systems", "An agent can pass along injected instructions from an untrusted source, and a downstream agent may execute them believing they're trusted", "Agents cannot pass any information to each other", "Only the first agent in a chain can be compromised"], "correct_index": 1},
+      {"question": "What does 'least-privilege permission scoping' mean for multi-agent security?", "options": ["Giving every agent full access to all tools and data for convenience", "Giving each agent access only to the specific tools and data it strictly needs, limiting blast radius if compromised", "Removing all permissions from every agent", "A pattern that only applies to human users, not agents"], "correct_index": 1},
+      {"question": "Why should an agent's output be validated at a handoff boundary rather than trusted automatically?", "options": ["Because outputs from your own agents are always safe by definition", "Because another agent's output should be treated as untrusted input, just like user input, since trust doesn't automatically transfer across a handoff", "Validation is unnecessary overhead with no security benefit", "Only user input ever needs validation, never agent output"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "mas-capstone-certification",
+    "title": "Multi-Agent Systems Certification Assessment",
+    "type": "course",
+    "level": "advanced",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 30,
+    "content": "This capstone validates practical multi-agent systems judgment: choosing coordination patterns, decomposing tasks at the right granularity, defending against runaway loops, and securing handoffs between agents. Before attempting it you should be comfortable explaining when a task benefits from splitting across specialist agents versus when a single agent is sufficient, the tradeoffs between orchestrator and swarm coordination, and why trust does not automatically transfer across an agent handoff. The questions are scenario-driven: given a system where two agents are endlessly handing a task back and forth without converging, can you name the right defense? Given an agent that retrieves an untrusted document and passes its output downstream unchecked, can you identify the security gap? Passing signals you could design and debug a real multi-agent system, not just describe the concepts.",
+    "quiz": [
+      {"question": "Two agents in a pipeline keep handing a task back and forth without ever converging on a final answer. What's the most direct fix?", "options": ["Add more agents to the loop", "Add a hard iteration limit with a fallback once it's reached", "Increase each agent's context window", "Nothing can be done about this"], "correct_index": 1},
+      {"question": "An agent retrieves an untrusted web document and passes its raw output to a second agent, which then executes a suggested action without checks. What is the security gap?", "options": ["There is no gap; agent output is always safe", "The second agent trusted unvalidated content from a handoff, allowing potential prompt injection to propagate", "The gap is that too few agents were used", "The gap is unrelated to security, only to cost"], "correct_index": 1},
+      {"question": "A task is genuinely complex with clearly distinct skill requirements (research, drafting, fact-checking). What does this suggest?", "options": ["It should always be handled by a single generalist agent", "It's a reasonable candidate for decomposition across specialist agents along those skill boundaries", "It should never be automated at all", "It requires a swarm pattern specifically, never an orchestrator"], "correct_index": 1},
+      {"question": "What is this capstone primarily assessing?", "options": ["Memorization of agent framework names", "Practical judgment about coordination, decomposition, failure handling, and security in multi-agent systems", "Speed of writing prompts", "Knowledge of an unrelated topic"], "correct_index": 1}
+    ],
+    "certification_eligible": true,
+    "related_item_ids": []
+  },
+  {
+    "id": "eval-why-eval-llm-apps",
+    "title": "Why Evaluating LLM Applications Is Different",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Evaluation & Testing",
+    "duration_minutes": 15,
+    "content": "Traditional software testing relies on deterministic assertions: given this input, the output must exactly equal that value. LLM applications break this model because the same prompt can produce different, and often equally valid, phrasings on different runs -- there frequently isn't one single 'correct' output to assert against. This course introduces the mental shift required: instead of binary pass/fail per test case, LLM evaluation typically works with rubrics (a set of criteria a good answer must satisfy, like 'cites the source document' or 'stays under 100 words'), reference-based scoring (comparing against one or more example-good answers using similarity rather than exact match), and aggregate pass rates across a test set rather than expecting 100% on every single case. You'll learn why this makes evaluation an ongoing statistical practice rather than a one-time gate: a prompt or model change might improve the pass rate from 82% to 88% overall while making a handful of previously-passing cases newly fail, and catching that kind of tradeoff requires running a consistent test set on every change, not just spot-checking a few examples by hand.",
+    "quiz": [
+      {"question": "Why do exact-match assertions, common in traditional software testing, break down for LLM applications?", "options": ["LLMs never produce text output", "The same prompt can produce different, equally valid phrasings, so there often isn't one single correct output to match exactly", "Exact-match assertions work perfectly fine for LLMs", "LLM outputs are always identical across runs"], "correct_index": 1},
+      {"question": "What does it mean to think of LLM evaluation as an 'aggregate pass rate' rather than binary pass/fail?", "options": ["Every single test case must pass or the system fails entirely", "You track the percentage of a test set that meets rubric criteria, since perfect scores on every case aren't a realistic bar", "Pass rates are irrelevant to LLM applications", "This approach is only used for image models"], "correct_index": 1},
+      {"question": "Why might a prompt change that raises overall pass rate from 82% to 88% still be worth scrutinizing carefully?", "options": ["A higher pass rate is always strictly better with no downside", "It could newly break a handful of previously-passing cases even while improving the average, which only a consistent test set run on every change would catch", "Pass rate changes are never meaningful", "This scenario is impossible in practice"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "eval-golden-datasets-and-test-sets",
+    "title": "Building Golden Datasets and Test Sets",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Evaluation & Testing",
+    "duration_minutes": 15,
+    "content": "A golden dataset is a curated set of representative inputs paired with expert-verified expected outputs (or grading criteria), and it's the foundation every other evaluation technique builds on. This course covers what makes a golden dataset useful rather than superficial: it should include realistic examples pulled from actual usage (not just easy, hand-picked cases that make the system look good), deliberately include edge cases (ambiguous questions, missing information, unusual phrasing) that stress-test the system's failure modes, and include a handful of adversarial examples designed to probe specific known weaknesses (like a question designed to tempt the model into fabricating an answer when it should say 'I don't know'). You'll learn why a golden dataset needs versioning just like code: as your application changes -- new features, new document sources, new user populations -- the dataset that was representative six months ago may no longer reflect real usage, and evaluating against a stale dataset can give false confidence that a change is safe when it hasn't actually been tested against the traffic patterns that matter now.",
+    "quiz": [
+      {"question": "Why is it a mistake to build a golden dataset only from easy, hand-picked examples?", "options": ["Easy examples are cheaper to collect", "It won't stress-test the system's real failure modes and can give false confidence", "Golden datasets should never include real user data", "This is actually the recommended practice"], "correct_index": 1},
+      {"question": "Why does a golden dataset need to be versioned and periodically refreshed?", "options": ["Because datasets expire automatically after 30 days by convention", "Because as an application's usage and data sources evolve, a stale dataset may no longer reflect real traffic, giving false confidence", "Versioning has no real benefit for evaluation datasets", "Golden datasets never need to change once created"], "correct_index": 1},
+      {"question": "What is the purpose of including adversarial examples in a golden dataset, such as a question designed to tempt fabrication?", "options": ["To make the dataset artificially harder for no reason", "To probe specific known weaknesses, like whether the model says 'I don't know' instead of fabricating an answer", "Adversarial examples should never be included in evaluation", "To test the speed of the retrieval system only"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "eval-llm-as-judge",
+    "title": "LLM-as-Judge: Scaling Evaluation Without Losing Trust",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Evaluation & Testing",
+    "duration_minutes": 20,
+    "content": "Human review of every model output doesn't scale, so many teams use a second LLM call to grade the first model's output against a rubric or reference answer -- a technique called LLM-as-judge. This course covers why it's useful (it can evaluate thousands of examples for a fraction of the cost and time of human review, and can be run automatically on every change) and its well-documented biases: position bias (in pairwise comparisons, the judge can favor whichever answer appears first or second, regardless of quality), verbosity bias (judges often rate longer answers as better even when they aren't more correct), and self-preference bias (a judge model can rate outputs from its own model family more favorably). You'll learn the standard mitigations: randomizing answer order in pairwise comparisons, explicitly instructing the judge to penalize unnecessary length, calibrating the judge periodically against a small human-labeled sample to check it still agrees with human judgment, and using a different model family as judge than the one being evaluated where self-preference bias is a concern.",
+    "quiz": [
+      {"question": "What is 'position bias' in LLM-as-judge pairwise comparisons?", "options": ["The judge always picks the technically correct answer", "The judge can favor whichever answer appears first or second in the comparison, regardless of actual quality", "Position bias only affects human graders, not LLM judges", "It refers to the physical location of the server"], "correct_index": 1},
+      {"question": "Why should teams periodically calibrate an LLM judge against human-labeled samples?", "options": ["Calibration is unnecessary once a judge prompt is written", "To check the judge still agrees with human judgment and catch drift in its scoring over time", "To make the judge run faster", "To eliminate the need for a golden dataset entirely"], "correct_index": 1},
+      {"question": "Why might using a different model family as the judge help mitigate self-preference bias?", "options": ["It has no effect on self-preference bias", "A judge from the same family as the model being evaluated may systematically rate that model's own outputs more favorably", "Different model families cannot be used as judges at all", "Self-preference bias only occurs with human judges"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "eval-metrics-beyond-accuracy",
+    "title": "Metrics Beyond Accuracy: Faithfulness, Cost, and Latency",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Evaluation & Testing",
+    "duration_minutes": 20,
+    "content": "Optimizing an LLM application for a single metric, like accuracy against a test set, can silently break something else that matters just as much to real users. This course covers the fuller set of dimensions worth tracking: faithfulness or groundedness (does the answer only make claims supported by available evidence, distinct from whether the answer happens to be correct by coincidence), helpfulness and relevance (does the response actually address what the user needed, separate from factual correctness), latency (how long a user waits, which shapes whether a product feels usable regardless of answer quality), cost per query (which determines whether a feature is economically viable at scale), and safety metrics like toxicity or policy-violation rate. You'll learn a concrete example of the tension: a prompt change that adds several reasoning steps might raise accuracy by 5 points on your test set while tripling latency and cost per query -- whether that's a good trade depends entirely on the product's context, and a team that only tracks accuracy will make that call blind to the other costs.",
+    "quiz": [
+      {"question": "Why is 'faithfulness' a distinct metric from raw answer correctness?", "options": ["They measure exactly the same thing", "An answer can be coincidentally correct without being supported by the retrieved or available evidence", "Faithfulness only applies to image outputs", "Correctness is always a subset of faithfulness with no distinction"], "correct_index": 1},
+      {"question": "A prompt change raises accuracy by 5 points but triples latency and cost. Why is tracking only accuracy risky here?", "options": ["Because accuracy is the only metric that ever matters", "Because the team would make the tradeoff decision blind to costs that matter just as much to the product", "Because latency and cost are unrelated to LLM applications", "Tracking multiple metrics is never useful"], "correct_index": 1},
+      {"question": "Which of these is an example of a safety-related evaluation metric?", "options": ["Number of tokens generated", "Toxicity or policy-violation rate", "Retrieval recall", "Embedding dimensionality"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "eval-regression-testing-for-prompts",
+    "title": "Regression Testing for Prompts and Models",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Evaluation & Testing",
+    "duration_minutes": 25,
+    "content": "A small prompt tweak, a model version upgrade, or a change to a retrieval pipeline can silently regress behavior that used to work -- and without a systematic check, that regression often isn't caught until a user reports it. This course covers building CI-style evaluation suites: running your golden test set automatically on every prompt or model change, tracking metric deltas (not just an overall pass rate but per-category breakdowns, so a regression hidden inside a small subgroup of cases doesn't get averaged away), and gating deploys on a defined threshold (a prompt change that drops accuracy on a specific case category below an agreed bar blocks the release rather than shipping and hoping). You'll learn why model version upgrades deserve the same regression discipline as your own prompt changes -- a provider's 'improved' model update can change output formatting, verbosity, or reasoning style in ways that break a system tuned around the old model's quirks, even though the new model is better on the provider's own benchmarks.",
+    "quiz": [
+      {"question": "Why is tracking only an overall pass rate insufficient for catching regressions?", "options": ["Overall pass rate is always sufficient", "A regression hidden in a small subgroup of cases can get averaged away and go unnoticed in the aggregate number", "Pass rates cannot be tracked over time", "Regressions never occur in LLM systems"], "correct_index": 1},
+      {"question": "Why should upgrading to a provider's newer model version go through the same regression testing as a prompt change?", "options": ["Newer models are always strictly better with no risk", "A model upgrade can change formatting, verbosity, or reasoning style in ways that break a system tuned around the old model's behavior", "Model upgrades never affect application behavior", "Regression testing only applies to prompt changes, never model changes"], "correct_index": 1},
+      {"question": "What does it mean to 'gate deploys on a defined threshold' in this context?", "options": ["Deploying regardless of test results", "Blocking a release if a change drops a metric below an agreed bar on the test set, rather than shipping and hoping", "Only testing after the deploy has already happened", "Removing the test suite before deploying"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "eval-adversarial-and-red-team-testing",
+    "title": "Adversarial and Red-Team Testing for LLM Applications",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Evaluation & Testing",
+    "duration_minutes": 25,
+    "content": "Standard evaluation checks whether a system does what it's supposed to do; red-teaming checks whether it can be made to do what it's not supposed to do. This course covers the main categories of adversarial testing for LLM applications: prompt injection attempts (inputs crafted to override the system's instructions, often hidden inside retrieved documents or user-supplied content), jailbreak attempts (multi-step conversational strategies designed to get a model to bypass its safety guidelines), and data exfiltration probes (testing whether a malicious input can trick an agent with tool access into leaking sensitive data through a tool call or an unexpected output channel). You'll learn why red-teaming needs to be a systematic, ongoing practice rather than a one-time pre-launch checkbox: new jailbreak and injection techniques are discovered continuously across the industry, a fix for one specific attack pattern rarely generalizes to variations of it, and any meaningful change to prompts, tools, or the underlying model can reopen previously-closed vulnerabilities, so the red-team test suite needs to run on a recurring basis just like your functional regression suite.",
+    "quiz": [
+      {"question": "What is the core difference between standard evaluation and red-team testing?", "options": ["They are the same thing under different names", "Standard evaluation checks whether a system does what it should; red-teaming checks whether it can be made to do what it shouldn't", "Red-teaming only applies to non-LLM software", "Standard evaluation is more thorough than red-teaming in every case"], "correct_index": 1},
+      {"question": "Why is red-teaming best treated as an ongoing practice rather than a one-time pre-launch check?", "options": ["Because new injection and jailbreak techniques are discovered continuously, and changes to prompts or models can reopen old vulnerabilities", "Because red-teaming becomes unnecessary once done a single time", "Because attacks never evolve over time", "Because red-teaming is only relevant during initial development"], "correct_index": 0},
+      {"question": "What is a 'data exfiltration probe' testing for in an agentic LLM application?", "options": ["Whether the model can count tokens accurately", "Whether a malicious input can trick an agent with tool access into leaking sensitive data through an unexpected channel", "Whether the model's response time is acceptable", "Whether the embedding model is properly indexed"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "tools-what-are-agent-tools",
+    "title": "What Are Agent Tools?",
+    "type": "course",
+    "level": "beginner",
+    "track": "Agent Tools & Skills",
+    "duration_minutes": 15,
+    "content": "An agent tool is a function the model can choose to invoke -- like searching the web, querying a database, or sending an email -- described to the model with a name, a description of what it does, and a schema for its parameters, rather than something the model executes directly itself. This course covers the basic loop: the model reads the user's request plus the list of available tools and their descriptions, decides whether calling a tool would help, and if so outputs a structured request naming the tool and its arguments; your application code then actually executes that function (the model never runs code itself) and returns the result back to the model, which can use it to continue reasoning or produce a final answer. You'll learn why this is a fundamentally different capability than pure text generation: a model that can only generate text can describe what it would do, while a model with tool access can actually cause things to happen in the world -- look up a real-time price, modify a real record, send a real message -- which is exactly why tool access introduces new categories of risk that plain text generation doesn't have.",
+    "quiz": [
+      {"question": "Who actually executes the function when a model 'calls a tool'?", "options": ["The model executes the code directly itself", "Your application code executes the function; the model only requests it be called with certain arguments", "Neither; tool calls are purely symbolic and never run", "The tool executes itself with no application code involved"], "correct_index": 1},
+      {"question": "What fundamentally distinguishes tool-using agents from models that only generate text?", "options": ["Tool-using agents are always more accurate at pure text tasks", "Tool-using agents can actually cause real-world effects (like modifying a record), not just describe what they would do", "There is no meaningful difference", "Tool use eliminates the need for any prompting"], "correct_index": 1},
+      {"question": "What information does a model need about a tool in order to decide whether and how to call it?", "options": ["Only the tool's internal source code", "The tool's name, a description of what it does, and a schema for its parameters", "Nothing; models call tools randomly", "The tool's execution time in milliseconds only"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "tools-function-calling-basics",
+    "title": "Function Calling Basics: Schemas, Parsing, and the Execution Loop",
+    "type": "course",
+    "level": "beginner",
+    "track": "Agent Tools & Skills",
+    "duration_minutes": 15,
+    "content": "This course walks through the mechanics of function calling end to end: each tool is defined with a JSON schema describing its parameters (name, type, whether required, a description), the model outputs a structured call matching that schema when it decides to use the tool, your code parses and validates that structured output before executing anything, the function runs and produces a result, and that result is fed back into the model's context so it can continue the conversation or task with the new information. You'll learn how modern APIs handle multiple tool calls requested in a single turn (the model might request three lookups at once, which your code can potentially execute in parallel), and why validating the model's proposed arguments before execution matters -- a model can occasionally propose a malformed or nonsensical argument (a negative quantity, a nonexistent ID), and executing it directly without validation can cause real harm downstream, exactly the way you'd validate any external, untrusted input in traditional software.",
+    "quiz": [
+      {"question": "What should happen to a model's proposed tool arguments before your code executes them?", "options": ["They should be executed immediately with no checks", "They should be parsed and validated, the same way you'd validate any untrusted external input", "They should be ignored entirely", "They should be re-sent to the model without ever executing"], "correct_index": 1},
+      {"question": "Why might a model request multiple tool calls in a single turn?", "options": ["This is never possible with modern APIs", "It may need several independent lookups at once, which can potentially be executed in parallel", "Multiple tool calls always indicate a bug", "Each turn is limited to exactly one tool call by definition"], "correct_index": 1},
+      {"question": "What defines a tool's expected parameters so the model can produce valid structured calls?", "options": ["A JSON schema describing parameter names, types, and whether they're required", "The tool's internal implementation code", "A free-text paragraph with no formal structure", "Nothing; the model guesses parameters freely"], "correct_index": 0}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "tools-designing-good-tool-schemas",
+    "title": "Designing Good Tool Schemas",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Agent Tools & Skills",
+    "duration_minutes": 20,
+    "content": "A tool's schema is effectively a prompt the model reads before deciding whether and how to call it, and poorly designed schemas cause real failures: wrong tool selection, malformed arguments, or the model giving up on tool use entirely. This course covers the practical principles: give each tool a clear, specific name and description that distinguishes it from similar tools (two tools named 'search' and 'lookup' with vague, overlapping descriptions invite the model to guess wrong), use tight parameter typing rather than accepting loosely-typed free text wherever a constrained type (an enum, a number with bounds) is possible, since constraints reduce the space of invalid calls the model can produce, and write parameter descriptions that specify format and units explicitly (a 'date' parameter should say what format is expected, a 'price' parameter should say what currency). You'll learn a common anti-pattern: exposing many narrow, single-purpose tools that do almost the same thing (get_user_by_id, get_user_by_email, get_user_by_username) instead of consolidating into fewer, well-scoped tools with clear parameters (get_user with an identifier-type field) -- more tools means more opportunities for the model to pick the wrong one, especially as the tool list grows.",
+    "quiz": [
+      {"question": "Why can having many narrow, overlapping tools (like get_user_by_id, get_user_by_email) hurt an agent's reliability?", "options": ["It has no effect on reliability", "More similar tools give the model more opportunities to pick the wrong one, especially as the tool list grows", "Narrow tools are always faster to execute", "Models can only ever see one tool at a time regardless of how many exist"], "correct_index": 1},
+      {"question": "Why prefer tight parameter typing (like an enum) over free text where possible?", "options": ["Free text is always invalid JSON", "Constrained types reduce the space of invalid or malformed calls the model can produce", "Tight typing makes the tool run faster on the server", "There's no benefit; typing is purely cosmetic"], "correct_index": 1},
+      {"question": "Why should a 'date' parameter's description explicitly state the expected format?", "options": ["Format doesn't matter since all date formats are equivalent", "Without an explicit format, the model may produce a date string that doesn't match what your code expects, causing parsing failures", "Descriptions are ignored by the model entirely", "Only numeric parameters need format specifications"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "tools-error-handling-for-tool-calls",
+    "title": "Error Handling for Tool Calls",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Agent Tools & Skills",
+    "duration_minutes": 20,
+    "content": "Tool calls fail in production for all the usual reasons software fails: network timeouts, invalid arguments, downstream services returning errors, rate limits. This course covers why returning a clear, structured error message back to the model -- rather than a raw stack trace, or worse, silently swallowing the failure and returning nothing -- lets the model adjust its next step intelligently: retry with corrected arguments, try an alternative tool, or tell the user it couldn't complete the request, instead of either crashing the whole interaction or confidently proceeding as if the tool had succeeded. You'll learn the difference between transient errors worth retrying automatically (a timeout, a rate limit with a retry-after header) and permanent errors that shouldn't be retried blindly (an invalid ID that will never become valid, a permissions error), and why unbounded automatic retries on a persistent failure is itself a runaway-loop risk -- you need a retry cap and a clear fallback path once it's exhausted, mirroring the same failure-handling discipline used in traditional distributed systems.",
+    "quiz": [
+      {"question": "Why is returning a structured error message to the model better than silently swallowing a tool failure?", "options": ["Silently swallowing failures is always the safer choice", "A structured error lets the model adjust intelligently (retry, try an alternative, or inform the user) instead of proceeding as if it succeeded", "Structured errors are only useful for human developers, never for models", "There's no difference in outcome either way"], "correct_index": 1},
+      {"question": "What distinguishes a transient error from a permanent one in tool-call error handling?", "options": ["There is no meaningful distinction", "Transient errors (like timeouts) are worth retrying automatically; permanent errors (like an invalid ID) will never succeed on retry", "Permanent errors should always be retried indefinitely", "Transient errors should never be retried"], "correct_index": 1},
+      {"question": "Why does unbounded automatic retrying on a persistent tool failure pose a risk?", "options": ["It has no risk since retries are always cheap", "It can become a runaway-loop scenario, consuming tokens and time with no path to resolution unless capped with a fallback", "Retrying is always instantaneous and free", "This only applies to single-agent systems, not tool calls"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "tools-tool-selection-at-scale",
+    "title": "Tool Selection at Scale: When You Have Dozens of Tools",
+    "type": "course",
+    "level": "advanced",
+    "track": "Agent Tools & Skills",
+    "duration_minutes": 25,
+    "content": "An agent with five well-described tools rarely picks the wrong one; an agent with fifty tools frequently does, simply because the model has to hold every tool's name, description, and schema in context and reason about all of them at once for every single decision. This course covers strategies for scaling tool access without scaling confusion: tool retrieval, where you use a lightweight search step (often embedding-based, similar to RAG) to surface only the handful of tools likely relevant to the current request, rather than exposing the full catalog every turn; hierarchical tool routing, where a first, cheap classification step picks a broad category (e.g. 'billing', 'scheduling', 'search') and only then exposes the narrower set of tools within that category; and grouping related tools into coherent toolsets that get enabled or disabled together based on context, rather than managing relevance at the level of each individual tool. You'll learn the underlying principle connecting all three approaches: the model's tool-selection accuracy depends heavily on how much irrelevant option-space it has to filter through at decision time, so reducing the visible tool surface for any given request is often a bigger lever than improving any individual tool's description.",
+    "quiz": [
+      {"question": "Why does an agent with fifty available tools tend to select the wrong one more often than an agent with five?", "options": ["Larger tool counts always improve selection accuracy", "The model has to reason about every tool's name, description, and schema at once, and more options increase the chance of picking wrong", "Tool count has no effect on selection accuracy", "This only happens with older, smaller models"], "correct_index": 1},
+      {"question": "What is 'tool retrieval' as a strategy for scaling tool access?", "options": ["Exposing the entire tool catalog on every single turn", "Using a lightweight search step to surface only the tools likely relevant to the current request", "Removing tools permanently once the catalog grows too large", "A method for compressing tool schemas into fewer bytes"], "correct_index": 1},
+      {"question": "What is the underlying principle connecting tool retrieval, hierarchical routing, and toolset grouping?", "options": ["They all aim to increase the number of visible tools at once", "Reducing the visible, irrelevant tool surface for a given request often improves selection accuracy more than refining any single tool's description", "They are unrelated strategies with no shared principle", "They all require fine-tuning a new model"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "tools-agent-skills-and-composability",
+    "title": "Agent Skills and Composability",
+    "type": "course",
+    "level": "advanced",
+    "track": "Agent Tools & Skills",
+    "duration_minutes": 25,
+    "content": "A 'skill' is a step up from a raw tool: a packaged bundle of instructions, examples, and often one or more underlying tools that together teach an agent how to competently perform a specific, reusable procedure -- like 'draft a customer refund email following our policy' or 'summarize a call transcript into structured notes' -- rather than exposing a single low-level function and hoping the model figures out the right sequence of calls and framing on its own every time. This course covers why skills matter as a design layer: they encode not just what a tool does but how and when to use it well, captured once by an expert and reused reliably across many invocations, instead of re-deriving that judgment from scratch in every prompt. You'll learn about composability -- skills that can invoke other skills, letting you build higher-level capabilities out of lower-level ones, similar to how software functions call other functions -- and the practical challenges this introduces at scale: skill discovery (how does an agent find the right skill among many available), versioning (what happens to agents relying on a skill when that skill's instructions change), and avoiding the same tool-selection confusion that plagues large flat tool lists, just one layer up.",
+    "quiz": [
+      {"question": "What distinguishes a 'skill' from a raw, low-level tool?", "options": ["A skill is simply a tool renamed for marketing purposes", "A skill packages instructions, examples, and often tools together to teach an agent how to competently perform a reusable procedure, not just expose a single function", "Skills cannot call any underlying tools", "There is no meaningful distinction between the two"], "correct_index": 1},
+      {"question": "What does 'composability' mean in the context of agent skills?", "options": ["Skills can invoke other skills, building higher-level capabilities out of lower-level ones", "Skills must always be used in complete isolation from one another", "Composability refers only to how skills are stored in a database", "Skills cannot be combined under any circumstances"], "correct_index": 0},
+      {"question": "What challenge does skill versioning introduce at scale?", "options": ["Versioning has no practical implications", "Agents relying on a skill may behave differently or break when that skill's underlying instructions change", "Versioning only matters for raw tools, never for skills", "Skills never need to change once created"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-what-is-context-engineering",
+    "title": "What Is Context Engineering?",
+    "type": "course",
+    "level": "beginner",
+    "track": "Context Engineering",
+    "duration_minutes": 15,
+    "content": "Context engineering is the discipline of deciding exactly what information goes into a model's context window for a given call -- the system instructions, any retrieved documents, prior conversation history, tool definitions and their outputs, and the current user request -- and in what order and format, so the model has precisely what it needs and nothing that distracts from it. This course frames context engineering as broader than 'prompt engineering': prompt engineering typically focuses on how you word a single instruction, while context engineering is about architecting the whole assembly of information a model sees on every call, especially in systems with retrieval, tools, and multi-turn conversation where the context is dynamically built up rather than a single static prompt someone wrote once. You'll learn why this matters more as systems grow more complex: a simple single-turn Q&A prompt has little to architect, but an agent juggling retrieved documents, a long conversation history, several tool schemas, and evolving task state has a real design problem in deciding what's relevant enough to include, what to summarize, and what to drop, given a fixed and costly context budget.",
+    "quiz": [
+      {"question": "How does context engineering differ from narrower 'prompt engineering'?", "options": ["They are exactly the same practice", "Context engineering is the broader discipline of architecting everything that goes into the context window, not just wording a single instruction", "Prompt engineering only applies to image models", "Context engineering only concerns system prompts, nothing else"], "correct_index": 1},
+      {"question": "Why does context engineering become a bigger design problem as systems grow more complex?", "options": ["It doesn't; complexity has no bearing on context design", "Systems with retrieval, tools, and long conversations must actively decide what's relevant, what to summarize, and what to drop within a fixed, costly context budget", "More complex systems automatically have unlimited context windows", "Context engineering only matters for the very first prompt in a conversation"], "correct_index": 1},
+      {"question": "What does context engineering include beyond just the system prompt?", "options": ["Only the system prompt matters; everything else is irrelevant", "Retrieved documents, conversation history, tool definitions and outputs, and the current request, in addition to system instructions", "Only the user's most recent message", "Nothing beyond the model's training data"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-system-prompts-vs-user-prompts",
+    "title": "System Prompts vs. User Prompts vs. Conversation History",
+    "type": "course",
+    "level": "beginner",
+    "track": "Context Engineering",
+    "duration_minutes": 15,
+    "content": "Most chat-based LLM APIs distinguish between a system message (persistent instructions, persona, and constraints that should apply across the whole interaction), user messages (the specific request or question at a given turn), and, over a multi-turn conversation, an accumulating history of prior turns. This course covers how models tend to weight these differently -- system instructions are generally treated as higher-priority framing that should hold even as the conversation continues, while user messages carry the immediate task -- and the common mistake of cramming everything into the system prompt: a system prompt bloated with information that's really turn-specific (like details only relevant to the current question) becomes stale or irrelevant as the conversation moves on, while genuinely persistent rules get buried in a wall of situational detail. You'll learn the practical guideline: put durable behavior rules, persona, and constraints in the system prompt; put the actual task, question, and any turn-specific data in the user message; and let conversation history do the job of carrying forward what's actually been discussed, rather than re-stating it in the system prompt each time.",
+    "quiz": [
+      {"question": "What is a common mistake when structuring system prompts?", "options": ["Keeping them too short", "Cramming turn-specific information into the system prompt, where it becomes stale and buries genuinely persistent rules", "Never including any instructions at all", "Only using system prompts for single-turn conversations"], "correct_index": 1},
+      {"question": "What content is best suited for the system prompt versus the user message?", "options": ["Everything belongs in the system prompt regardless of type", "Durable behavior rules, persona, and constraints belong in the system prompt; the actual task and turn-specific data belong in the user message", "The user message should contain the persona and constraints", "There's no meaningful distinction between the two message types"], "correct_index": 1},
+      {"question": "How do models generally treat system instructions relative to user messages over a conversation?", "options": ["System instructions are ignored after the first turn", "System instructions are generally treated as higher-priority framing that should hold throughout the conversation", "User messages always override system instructions completely", "There's no difference in how either is weighted"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-context-window-budgeting",
+    "title": "Context Window Budgeting",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Context Engineering",
+    "duration_minutes": 20,
+    "content": "Every token in a model's context window costs money and competes for the model's limited attention, so treating the context window as a scarce, deliberately allocated budget -- rather than an unlimited scratchpad -- is a core context engineering skill. This course covers how to think about allocating that budget across competing needs: system instructions and tool schemas (often fixed, paid on every call), retrieved knowledge (variable, should scale with how much evidence the query genuinely needs, not a fixed chunk count regardless of question complexity), conversation history (grows unboundedly over a long session unless actively managed), and headroom for the model's own output. You'll learn practical budgeting techniques: setting explicit token caps per section, truncating or summarizing the oldest conversation turns once a threshold is hit rather than letting history grow unchecked, and dynamically adjusting how many retrieved chunks to include based on a relevance-score cutoff rather than always including a fixed top-k regardless of how relevant they actually are. The core skill this course builds: recognizing when a system's cost or quality problems trace back to poor context budgeting -- too much irrelevant history, too many low-relevance retrieved chunks -- rather than the underlying model being inadequate.",
+    "quiz": [
+      {"question": "Why should context window allocation be treated as a deliberate budget rather than an unlimited scratchpad?", "options": ["Context windows are free and unlimited in practice", "Every token costs money and competes for the model's limited attention, so allocation choices directly affect cost and quality", "Budgeting only matters for image-based models", "There is no cost associated with context length"], "correct_index": 1},
+      {"question": "Why is always including a fixed top-k number of retrieved chunks, regardless of relevance, a weaker approach than a relevance-score cutoff?", "options": ["Fixed top-k is always the better approach", "It can include low-relevance chunks that waste budget on queries needing little evidence, or omit needed evidence on queries needing more", "Relevance scores are never available in retrieval systems", "Chunk count has no effect on context budget"], "correct_index": 1},
+      {"question": "A system's answers are getting worse and slower as conversations get longer. What is a likely context-budgeting culprit?", "options": ["The model has stopped working entirely", "Unbounded conversation history is accumulating and crowding out budget for more relevant content", "This can only be caused by a change in the underlying model", "Longer conversations always improve answer quality with no downside"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-memory-and-state-management",
+    "title": "Memory and State Management for Conversational Agents",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Context Engineering",
+    "duration_minutes": 20,
+    "content": "Conversational agents need to track two different kinds of memory: short-term memory, the state relevant to the current session (what's been discussed in this conversation so far), and long-term memory, information that should persist and be recalled across separate sessions (a user's stated preferences, past decisions, ongoing project context). This course covers common techniques for each: a sliding window that keeps only the most recent N turns in context, summarization buffers that periodically condense older turns into a compact summary rather than dropping them entirely, and external memory stores (often a simple database or a vector store) that hold long-term facts the agent can retrieve when relevant, rather than trying to keep everything in the live context window indefinitely. You'll learn a real risk with long-term memory that's easy to overlook: stale or incorrect information persisting across sessions can actively mislead an agent later -- if a user's preference or a fact changes and the memory store isn't updated or invalidated, the agent may confidently apply outdated information in a later session, which can be harder to detect and debug than a single-session context problem because the wrong information didn't even originate in the current conversation.",
+    "quiz": [
+      {"question": "What is the difference between short-term and long-term memory for a conversational agent?", "options": ["There is no meaningful difference", "Short-term memory covers the current session's state; long-term memory persists and is recalled across separate sessions", "Long-term memory only applies to a single conversation turn", "Short-term memory is always stored in a vector database"], "correct_index": 1},
+      {"question": "What is a real risk of long-term memory stores that's easy to overlook?", "options": ["Long-term memory has no risks at all", "Stale or incorrect information can persist across sessions and mislead the agent later, in a way that's hard to trace back to its origin", "Long-term memory always self-corrects automatically", "Long-term memory can only ever improve agent performance"], "correct_index": 1},
+      {"question": "What does a summarization buffer do that a plain sliding window doesn't?", "options": ["It discards all older turns with no trace", "It condenses older turns into a compact summary rather than dropping them entirely, preserving some information as context grows", "It has an identical effect to a sliding window", "It only applies to system prompts"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-context-compression-techniques",
+    "title": "Context Compression Techniques",
+    "type": "course",
+    "level": "advanced",
+    "track": "Context Engineering",
+    "duration_minutes": 25,
+    "content": "As conversations, retrieved evidence, and tool outputs accumulate, keeping every raw token in context becomes expensive and eventually infeasible, so this course covers techniques for compressing context while preserving what actually matters. Summarizing older turns condenses a long transcript into a shorter representation of what was discussed, trading some nuance and exact wording for a large reduction in token count. Extracting structured facts goes further, pulling out just the specific data points a later step will need (like a set of key-value facts established earlier in the conversation) rather than keeping a prose summary at all, which is often more reliable for information a downstream step needs to use precisely. Prompt caching, offered by several providers, lets you avoid recomputing and re-paying for a stable prefix (like a long system prompt or a set of few-shot examples) across repeated calls, which isn't compression in the traditional sense but achieves a similar practical goal of not re-processing the same context repeatedly. You'll learn the central tradeoff underlying all compression: the more aggressively you compress, the more you risk losing a specific detail that turns out to matter later, so compression decisions should be informed by what a task is likely to need, not applied uniformly regardless of context.",
+    "quiz": [
+      {"question": "What is the central tradeoff involved in context compression?", "options": ["Compression has no tradeoffs; more compression is always better", "More aggressive compression risks losing specific details that may matter later, so it should be informed by what a task actually needs", "Compression always improves accuracy with no cost", "Compression only affects latency, never accuracy"], "correct_index": 1},
+      {"question": "Why might extracting structured facts be more reliable than a prose summary for information a downstream step needs precisely?", "options": ["Prose summaries always retain more precision", "Structured extraction pulls out specific data points cleanly rather than relying on a summary that may paraphrase or drop exact values", "Structured facts cannot be stored or retrieved later", "There's no difference between the two approaches"], "correct_index": 1},
+      {"question": "How does prompt caching relate to context compression, even though it isn't compression in the traditional sense?", "options": ["It has no relationship to context management at all", "It avoids recomputing and re-paying for a stable prefix across repeated calls, achieving a similar practical goal of not reprocessing the same context", "It permanently deletes old context from the model", "It only works for retrieved documents, never system prompts"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-multi-turn-context-drift",
+    "title": "Multi-Turn Context Drift and the 'Lost in the Middle' Effect",
+    "type": "course",
+    "level": "advanced",
+    "track": "Context Engineering",
+    "duration_minutes": 25,
+    "content": "Long conversations and long contexts don't just cost more -- they can measurably degrade an agent's behavior, a phenomenon this course covers under two related ideas. Context drift describes how, over many turns, a conversation can accumulate noise, tangents, and even outright contradictions (a user changes their mind, or an earlier assumption turns out to be wrong), and if the agent keeps weighing everything in the accumulated history equally, its behavior can drift away from the current, correct state of the task. The 'lost in the middle' effect describes a documented tendency for models to attend more reliably to information near the beginning and end of a long context than to content buried in the middle, meaning a critical instruction or fact placed in the middle of a very long prompt can be effectively under-weighted even though it's technically present. You'll learn practical mitigations for both: periodically re-injecting key instructions or the current, corrected state near the end of the context (closer to where the model is about to generate) rather than relying on something stated many turns ago, and actively pruning or correcting outdated information from history instead of letting contradictions accumulate silently.",
+    "quiz": [
+      {"question": "What is the 'lost in the middle' effect?", "options": ["Models perform equally well regardless of where information sits in a long context", "A documented tendency for models to attend less reliably to information placed in the middle of a long context compared to the beginning or end", "A bug that only affects very short prompts", "An effect that only applies to system prompts, never user content"], "correct_index": 1},
+      {"question": "Why can 'context drift' cause an agent to behave incorrectly even though the correct information was stated earlier in the conversation?", "options": ["The correct information is always weighted most heavily automatically", "If contradictions or outdated assumptions accumulate and are weighed equally with corrected information, the agent's behavior can drift away from the current correct state", "Context drift is not a real phenomenon", "Longer conversations always improve accuracy over time"], "correct_index": 1},
+      {"question": "What is a practical mitigation for the 'lost in the middle' effect on a critical instruction?", "options": ["Removing the instruction from the prompt entirely", "Re-injecting the key instruction closer to the end of the context, nearer to where the model is about to generate", "Always placing critical instructions in the exact middle of the prompt", "Increasing temperature to compensate"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "ctx-capstone-certification",
+    "title": "Context Engineering Certification Assessment",
+    "type": "course",
+    "level": "advanced",
+    "track": "Context Engineering",
+    "duration_minutes": 30,
+    "content": "This capstone validates practical context engineering judgment: architecting what goes into a model's context, budgeting a limited context window across competing needs, managing memory across sessions, and recognizing degradation from context drift or the 'lost in the middle' effect. Before attempting it you should be comfortable explaining the difference between prompt engineering and context engineering, how to allocate context budget across system instructions, retrieved knowledge, and history, and why compression and memory management both carry a real risk of losing or misapplying information. The questions are scenario-driven: given a long-running agent whose behavior degrades over a lengthy conversation, can you diagnose whether the cause is context drift, budget exhaustion, or a 'lost in the middle' placement issue, and propose the right fix? Passing signals you could debug a real context-management problem in production, not just define the terms.",
+    "quiz": [
+      {"question": "An agent's answers become inconsistent and occasionally contradict earlier correct statements as a conversation grows very long. What is the most likely cause?", "options": ["The model has run out of storage space", "Context drift, where accumulated noise and contradictions in history are being weighed alongside corrected information", "This is always caused by a hardware failure", "Long conversations never affect agent behavior"], "correct_index": 1},
+      {"question": "A critical instruction placed in the middle of a very long system prompt is being followed inconsistently. What is a likely explanation and fix?", "options": ["The instruction should be removed since it's clearly wrong", "The 'lost in the middle' effect; moving or re-injecting the instruction closer to the end of the context can help", "This is unrelated to context placement and can't be fixed", "Adding more unrelated content will resolve it"], "correct_index": 1},
+      {"question": "A system's cost and latency are climbing over a long session while quality also degrades. Where should you look first?", "options": ["The underlying model must be replaced immediately", "Context budgeting: unbounded history or excessive retrieved content may be crowding out relevant, current information", "This can only be a network issue", "Nothing can be done once a session grows long"], "correct_index": 1},
+      {"question": "What is this capstone primarily assessing?", "options": ["Memorization of context engineering terminology", "Practical judgment in diagnosing and fixing real context-management problems in a running system", "Speed of prompt writing", "Knowledge of an unrelated domain"], "correct_index": 1}
+    ],
+    "certification_eligible": true,
+    "related_item_ids": []
+  },
+  {
+    "id": "bill-how-token-pricing-works",
+    "title": "How Token Pricing Works",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Billing & Cost Models",
+    "duration_minutes": 15,
+    "content": "Most LLM providers price API usage per token, typically quoted as a rate per one million tokens, and understanding this billing unit is the foundation for every cost decision that follows. This course covers the basic calculation: total cost for a request equals input tokens processed times the input rate, plus output tokens generated times the output rate, and these two rates are usually different from each other. You'll walk through a concrete example: if a provider charges $3 per million input tokens and $15 per million output tokens, a request with a 2,000-token prompt and a 500-token response costs roughly (2,000 / 1,000,000 x $3) + (500 / 1,000,000 x $15) -- about $0.006 for input plus $0.0075 for output, around $0.0135 total, which sounds trivial per call but adds up quickly at scale: a feature serving 100,000 requests a day at that rate is already over $1,300 a day. You'll learn why teams need to estimate token counts before shipping a feature, not just track spend after the fact, since a seemingly small per-request cost can become a large recurring expense once multiplied by real usage volume.",
+    "quiz": [
+      {"question": "What are the two main components of the cost formula for a single LLM API request?", "options": ["Only the number of input tokens matters", "Input tokens times the input rate, plus output tokens times the output rate", "A flat fee regardless of token count", "Cost is based solely on latency, not tokens"], "correct_index": 1},
+      {"question": "Why do input and output tokens typically have different prices?", "options": ["They are always priced identically", "Providers set separate rates, and output tokens are usually priced higher reflecting the cost of generation", "Input tokens are never billed at all", "Pricing is randomly assigned per request"], "correct_index": 1},
+      {"question": "Why is it important to estimate token costs before shipping a feature, not just track spend afterward?", "options": ["Pre-launch estimation is unnecessary since costs are always negligible", "A small per-request cost can become a large recurring expense once multiplied by real usage volume, and estimating ahead avoids surprises", "Token costs cannot be estimated in advance under any circumstances", "Only output tokens ever need to be considered"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "bill-input-vs-output-token-costs",
+    "title": "Input vs. Output Token Costs: Why They Differ",
+    "type": "course",
+    "level": "beginner",
+    "track": "LLM Billing & Cost Models",
+    "duration_minutes": 15,
+    "content": "Across most providers, output tokens cost noticeably more per token than input tokens, often several times as much, and this course explains why that asymmetry exists and what it implies for how you design a system. Processing input tokens (the 'prefill' stage) can largely happen in parallel -- the model can process the entire prompt's tokens together in one pass. Generating output tokens happens autoregressively, one token at a time, where each new token depends on all the previous ones, making generation inherently more sequential and computationally expensive per token. You'll learn the practical design implication: a verbose system that generates long explanations, extensive reasoning traces, or repeats large amounts of input back in its output pays a disproportionate cost penalty compared to a system that's equally accurate but concise, and instructing a model to be appropriately brief (or asking for a structured, compact output format like a short JSON object instead of a long prose explanation) can meaningfully reduce cost without meaningfully reducing quality, in tasks where verbosity wasn't actually adding value.",
+    "quiz": [
+      {"question": "Why is generating output tokens generally more expensive per token than processing input tokens?", "options": ["Output tokens are billed the same as input tokens everywhere", "Output generation happens sequentially, one token depending on the previous ones, making it inherently more computationally expensive per token than parallel input processing", "Input tokens require more memory than output tokens", "There is no cost difference between input and output tokens"], "correct_index": 1},
+      {"question": "What is a practical cost-saving implication of the input/output pricing asymmetry?", "options": ["Always maximize output length regardless of task", "Instructing a model to be appropriately concise or using a compact output format can meaningfully reduce cost without reducing quality where verbosity wasn't adding value", "Input length has no bearing on cost at all", "Output pricing asymmetry is irrelevant to system design"], "correct_index": 1},
+      {"question": "Why can processing input tokens happen largely in parallel while output token generation cannot?", "options": ["Input and output are processed identically", "The model can process an entire prompt's tokens together in one pass, while each generated output token depends on all previous ones", "Parallel processing is only possible for output tokens", "This distinction doesn't actually exist"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "bill-prompt-caching-and-cost-savings",
+    "title": "Prompt Caching and Cost Savings",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Billing & Cost Models",
+    "duration_minutes": 20,
+    "content": "Many API calls share a large, stable prefix -- a long system prompt, a set of few-shot examples, a big block of reference material -- that's identical across many separate requests, and prompt caching lets a provider avoid reprocessing that shared prefix every single time, passing much of the savings on to you at a substantially reduced rate for the cached portion. This course covers how caching typically works in practice: the provider recognizes when a new request's beginning matches a previously-processed prompt exactly, reuses the already-computed internal representation for that matching prefix, and only pays full processing cost for the new, variable content appended after it. You'll learn the practical implication for how you structure prompts: to benefit from caching, put the stable, unchanging content first (system instructions, few-shot examples, static reference documents) and put the variable, request-specific content last (the current user question, request-specific data) -- reordering a prompt so the variable part comes first, even if the content is otherwise identical, can break the cache match and eliminate the savings entirely.",
+    "quiz": [
+      {"question": "What does prompt caching typically require in order to produce cost savings?", "options": ["Every request must be completely identical, including the variable parts", "A stable, unchanging prefix shared across requests that the provider can recognize and reuse without reprocessing", "Caching works regardless of prompt structure", "Caching only applies to output tokens, never input"], "correct_index": 1},
+      {"question": "Why should stable content (like system instructions) be placed before variable content (like the user's specific question) in a prompt to benefit from caching?", "options": ["Order has no effect on caching behavior", "Caching relies on matching a prefix exactly; putting variable content first would break the prefix match and eliminate savings", "Variable content should always come first for caching to work", "Caching only works if there is no variable content at all"], "correct_index": 1},
+      {"question": "What is the main cost benefit of prompt caching?", "options": ["It eliminates all API costs entirely", "It substantially reduces the cost of reprocessing a shared, stable prefix across multiple requests", "It only reduces latency, never cost", "It doubles the cost of every request as a tradeoff for speed"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "bill-choosing-models-for-cost-efficiency",
+    "title": "Choosing Models for Cost Efficiency: Routing and Cascading",
+    "type": "course",
+    "level": "intermediate",
+    "track": "LLM Billing & Cost Models",
+    "duration_minutes": 20,
+    "content": "Not every request in a real application needs the most capable, most expensive model available, and this course covers model routing (also called cascading): using a cheap, fast model to handle the easy majority of requests, and escalating only the genuinely hard cases to a more expensive, more capable model. A common pattern is a lightweight classifier or the cheap model itself attempting the task first with a confidence signal -- if confidence is high, return that answer; if confidence is low or the task is flagged as complex, re-route the request to a stronger model. You'll learn how to think about the cost-quality tradeoff curve this creates: routing well can capture most of the cost savings of always using the cheap model while capturing most of the quality of always using the expensive model, but routing poorly (a bad confidence signal, or a classifier that itself costs meaningfully more than the savings it's supposed to protect) can end up costing more than just picking one model consistently. The judgment call this course builds: recognizing when the added complexity and failure modes of a routing system are worth it for the cost savings at your actual traffic volume and difficulty distribution, versus when it's premature optimization for a system that doesn't have enough scale or difficulty variance to benefit.",
+    "quiz": [
+      {"question": "What is the core idea behind model routing or cascading for cost efficiency?", "options": ["Always using the most expensive model for every request", "Using a cheap model for easy requests and escalating only genuinely hard cases to a more expensive model", "Randomly assigning models to requests with no logic", "Using the cheapest model for every request regardless of difficulty"], "correct_index": 1},
+      {"question": "What can make a routing system end up costing more than just using one model consistently?", "options": ["Routing systems always save money with no downside", "A poor confidence signal or an expensive classification step can itself cost more than the savings it's meant to protect", "Routing is always free to implement", "This scenario is impossible in practice"], "correct_index": 1},
+      {"question": "When might model routing be premature optimization rather than a worthwhile investment?", "options": ["When traffic volume and task difficulty variance are too low to generate meaningful savings relative to the added complexity", "Routing is always worthwhile regardless of scale", "Only when using open-weight models", "Routing should always be implemented from day one"], "correct_index": 0}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "bill-batch-processing-for-cost-reduction",
+    "title": "Batch Processing for Cost Reduction",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Billing & Cost Models",
+    "duration_minutes": 25,
+    "content": "Several major providers offer a batch or asynchronous API mode that processes requests within a longer completion window (often within 24 hours) in exchange for a substantially discounted rate, commonly around half the price of real-time synchronous calls. This course covers when this tradeoff makes sense: workloads that are not latency-sensitive, like nightly re-scoring of a large document set, bulk classification of historical records, or generating a large batch of evaluation results, are ideal candidates, since the delay costs nothing in user experience but the discount meaningfully reduces spend at scale. You'll learn the corresponding limitations: batch mode typically doesn't support streaming responses back token-by-token, isn't suitable for anything with a real-time user waiting on the other end, and often has its own submission and result-retrieval mechanics distinct from the standard real-time API, requiring separate application logic to handle. You'll leave able to correctly classify a given workload as batch-appropriate or not, based on whether a delayed result is actually acceptable for that use case, not just based on the cost savings alone.",
+    "quiz": [
+      {"question": "What is the main tradeoff of using a batch or asynchronous API mode?", "options": ["Higher cost in exchange for faster results", "A substantially discounted rate in exchange for accepting a longer completion window and no real-time streaming", "No tradeoff; batch mode is strictly better in every way", "Batch mode only works with open-weight models"], "correct_index": 1},
+      {"question": "Which workload is a good candidate for batch processing?", "options": ["A real-time customer-facing chat interface", "Nightly re-scoring of a large historical document set with no user waiting on the result", "A live voice assistant", "Any workload requiring immediate streamed responses"], "correct_index": 1},
+      {"question": "Why is batch mode unsuitable for a real-time user-facing chat feature?", "options": ["Batch mode is actually faster than real-time APIs", "Batch mode doesn't support streaming and can take up to a completion window (often 24 hours), incompatible with a user waiting live", "Real-time features cannot use LLMs at all", "There is no difference between batch and real-time modes"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "bill-monitoring-and-budgeting-for-llm-spend",
+    "title": "Monitoring and Budgeting for LLM Spend",
+    "type": "course",
+    "level": "advanced",
+    "track": "LLM Billing & Cost Models",
+    "duration_minutes": 25,
+    "content": "As LLM features move from prototype to production, spend can grow unpredictably and silently unless it's actively monitored, and this course covers the practices that keep it under control. Per-request cost tracking (logging token counts and computed cost alongside every call, tagged with the feature, user, or team responsible) is the foundation, since without attribution you can see total spend rising but not know which feature or which change caused it. Alerting on spend anomalies (a sudden spike well above the historical baseline, which often signals a runaway agent loop, a bug causing retries, or an unexpected traffic surge) lets you catch cost problems within hours instead of discovering them at the end of a billing cycle. You'll learn why forecasting future spend as usage scales matters for planning, not just reacting: a feature that costs $50 a day at your current 1,000 daily users may cost $5,000 a day at 100,000 users, and understanding that scaling relationship before you hit it lets you make deliberate cost-efficiency investments (caching, routing, smaller models for simple cases) ahead of time rather than in a reactive scramble once a bill arrives that's ten times larger than expected.",
+    "quiz": [
+      {"question": "Why does per-request cost tracking need to be tagged with a feature, user, or team, rather than just tracking total spend?", "options": ["Tagging has no practical benefit over a single total number", "Without attribution, you can see total spend rising but not identify which feature or change is responsible", "Total spend tracking is always sufficient on its own", "Tagging is only useful for billing disputes with the provider"], "correct_index": 1},
+      {"question": "What does an unexpected spike in LLM spend, well above the historical baseline, often signal?", "options": ["Spend spikes are always random and meaningless", "A runaway agent loop, a retry bug, or an unexpected traffic surge worth investigating", "Spend spikes only ever indicate normal, expected growth", "This can only be caused by a pricing change from the provider"], "correct_index": 1},
+      {"question": "Why is forecasting future spend as usage scales valuable, beyond just monitoring current spend?", "options": ["Forecasting has no practical value since costs are always linear and predictable", "It reveals scaling relationships (like cost per user growing with volume) early enough to invest deliberately in cost-efficiency measures before a large unexpected bill arrives", "Forecasting is only relevant to providers, not application teams", "Current spend monitoring alone is always sufficient for planning"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": []
+  },
+  {
+    "id": "agentic-systems-bootcamp",
+    "title": "Agentic Systems Bootcamp: Coordinating Multiple Agents",
+    "type": "learning_path",
+    "level": "beginner",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 50,
+    "content": "A bundled sequence introducing multi-agent systems from first principles: what a multi-agent system is and when splitting work across specialist agents beats a single generalist agent, the tradeoffs between centralized orchestration and decentralized swarm coordination, and how agents actually pass state and results to one another without drowning each other in irrelevant context. Complete the linked courses in order to build a foundation before tackling failure handling and security in the advanced Multi-Agent Systems courses.",
+    "quiz": [],
+    "certification_eligible": false,
+    "related_item_ids": ["mas-what-is-a-multi-agent-system", "mas-orchestrator-vs-swarm-patterns", "mas-agent-communication-protocols"]
+  },
+  {
+    "id": "context-and-cost-fundamentals",
+    "title": "Context and Cost Fundamentals: Making Every Token Count",
+    "type": "learning_path",
+    "level": "beginner",
+    "track": "Context Engineering",
+    "duration_minutes": 45,
+    "content": "A bundled sequence connecting two disciplines that are really two sides of the same coin: what actually goes into a model's context window, and what that context costs you in tokens and dollars. Covers the fundamentals of context engineering, how to budget a limited context window deliberately, and how token-based pricing actually works, so you can reason about both quality and cost tradeoffs together rather than treating them as separate concerns. Complete the linked courses in order.",
+    "quiz": [],
+    "certification_eligible": false,
+    "related_item_ids": ["ctx-what-is-context-engineering", "ctx-context-window-budgeting", "bill-how-token-pricing-works"]
+  }
+]
