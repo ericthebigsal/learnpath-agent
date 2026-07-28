@@ -1,0 +1,35 @@
+from catalog import LEVEL_ORDER, levels_within
+from models import Catalog, CatalogItem, Level, Track
+
+TRACK_NAMES = [track.value for track in Track]
+
+
+def filter_candidates(
+    catalog: Catalog, goal_text: str, level: Level, completed_item_ids: set[str]
+) -> list[CatalogItem]:
+    goal_lower = goal_text.lower()
+    matched_tracks = [name for name in TRACK_NAMES if name.lower() in goal_lower]
+    allowed_levels = levels_within(level, spread=1)
+
+    if matched_tracks:
+        candidates = [
+            item
+            for item in catalog.items
+            if item.track.value in matched_tracks and item.level in allowed_levels
+        ]
+    else:
+        candidates = [item for item in catalog.items if item.level in allowed_levels]
+
+    return [item for item in candidates if item.id not in completed_item_ids]
+
+
+def current_level(starting_level: Level, progress: list[dict], catalog: Catalog) -> Level:
+    idx = LEVEL_ORDER.index(starting_level)
+    items_by_id = {item.id: item for item in catalog.items}
+
+    for entry in progress:
+        item = items_by_id.get(entry["item_id"])
+        if item is not None and item.level == LEVEL_ORDER[idx] and entry["quiz_score"] >= 90:
+            idx = min(idx + 1, len(LEVEL_ORDER) - 1)
+
+    return LEVEL_ORDER[idx]
