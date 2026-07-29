@@ -1,19 +1,24 @@
 {% extends "base.html" %}
 {% block title %}{{ item.title }} — learnpath-agent{% endblock %}
 {% block content %}
-<h1>{{ item.title }}</h1>
-<p class="content">{{ item.content }}</p>
+<article class="lesson">
+  <p class="eyebrow">{{ item.track.value }} &middot; {{ item.level.value }}</p>
+  <h1>{{ item.title }}</h1>
+  <p class="content">{{ item.content }}</p>
+</article>
 
 {% if item.quiz %}
-<form method="post" action="/item/{{ learner_id }}/{{ item.id }}/submit">
+<form class="quiz" method="post" action="/item/{{ learner_id }}/{{ item.id }}/submit">
+  <p class="quiz-eyebrow">Check your understanding</p>
   {% for question in item.quiz %}
   {% set question_index = loop.index0 %}
-  <fieldset>
+  <fieldset class="quiz-question">
     <legend>{{ question.question }}</legend>
     {% for option in question.options %}
-    <label>
+    <label class="quiz-option">
       <input type="radio" name="answer_{{ question_index }}" value="{{ loop.index0 }}" required>
-      {{ option }}
+      <span class="quiz-key">{{ "ABCDEFGH"[loop.index0] }}</span>
+      <span>{{ option }}</span>
     </label>
     {% endfor %}
   </fieldset>

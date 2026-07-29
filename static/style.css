@@ -1,102 +1,546 @@
+/* ---------------------------------------------------------------
+   learnpath-agent — design tokens
+   Signature: a literal "trail" rail — solid teal for the path taken,
+   dashed ochre for candidates the agent considered but didn't choose.
+   Same system reused on the path, diff, and history screens.
+---------------------------------------------------------------- */
+
 :root {
   color-scheme: light dark;
-  --border: #d0d0d0;
-  --muted: #666;
+
+  --paper: #EEF0EA;
+  --surface: #FFFFFF;
+  --ink: #171B1E;
+  --ink-muted: #52585C;
+  --border: #D8DBD3;
+
+  --taken: #0B6E5A;
+  --taken-tint: #E3F1EC;
+  --taken-border: #BEDED2;
+
+  --considered: #B8752A;
+  --considered-tint: #FAF0E2;
+  --considered-border: #ECD4AB;
+
+  --signal: #C43E2E;
+  --signal-tint: #FBEAE7;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14181A;
+    --surface: #1C2124;
+    --ink: #ECEFEA;
+    --ink-muted: #A7ADA9;
+    --border: #33393B;
+
+    --taken: #3FCBA6;
+    --taken-tint: #123A32;
+    --taken-border: #1F5C4C;
+
+    --considered: #E3A75B;
+    --considered-tint: #3A2C16;
+    --considered-border: #6B4E22;
+
+    --signal: #E77563;
+    --signal-tint: #3A1F1A;
+  }
+}
+
+/* ---------- base ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  line-height: 1.5;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
+
+.page { max-width: 760px; margin: 0 auto; padding: 0 1.5rem 4rem; }
 
 .site-header {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 1.25rem;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
 }
 
-.site-header a {
+.site-mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
   text-decoration: none;
-  color: inherit;
+  letter-spacing: -0.01em;
 }
 
-form label {
-  display: block;
-  margin-bottom: 0.5rem;
+.site-tag {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+h1 {
+  font-family: var(--font-display);
   font-weight: 600;
+  font-size: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
 }
 
-form input, form select, form textarea {
+h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--taken);
+  margin: 0 0 0.5rem;
+}
+
+a {
+  color: var(--taken);
+  transition: color 0.15s ease;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--taken);
+  outline-offset: 2px;
+}
+
+/* ---------- hero (start screen) ---------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+  padding: 1rem 0 2.5rem;
+}
+
+.hero-sub {
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  max-width: 46ch;
+  margin: 0;
+}
+
+.hero-trail { width: 90px; height: auto; justify-self: end; flex-shrink: 0; }
+.hero-trail-line { fill: none; stroke: var(--taken); stroke-width: 3; stroke-linecap: round; }
+.hero-trail-dot { fill: var(--taken); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-trail-line {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: draw-trail 1.6s ease-out forwards;
+  }
+  .hero-trail-dot {
+    opacity: 0;
+    animation: fade-in-dot 0.4s ease-out forwards;
+  }
+  .hero-trail-dot:nth-of-type(2) { animation-delay: 0.5s; }
+  .hero-trail-dot:nth-of-type(3) { animation-delay: 1.0s; }
+  .hero-trail-dot:nth-of-type(4) { animation-delay: 1.5s; }
+}
+
+@keyframes draw-trail { to { stroke-dashoffset: 0; } }
+@keyframes fade-in-dot { to { opacity: 1; } }
+
+@media (max-width: 640px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-trail { display: none; }
+}
+
+/* ---------- forms ---------- */
+
+.goal-form label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-muted);
+  margin-bottom: 0.4rem;
+}
+
+form textarea, form select {
   width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--surface);
 }
 
 button {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 4px;
-  background: #2c5aa0;
-  color: white;
+  font-family: var(--font-display);
   font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button:hover { background: var(--taken); }
+
+/* ---------- path screen ---------- */
+
+.path-header { margin-bottom: 1.5rem; }
+.goal { color: var(--ink-muted); margin: 0; }
+.goal-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  margin-right: 0.5rem;
 }
 
 .cert-banner {
-  background: #e6f4ea;
-  border: 1px solid #34a853;
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--signal-tint);
+  border: 1px solid var(--signal);
+  color: var(--signal);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.cert-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+  border: 2px solid var(--signal);
+  border-radius: 50%;
+  font-weight: 700;
 }
 
 .rationale-panel {
-  background: #f4f4f4;
-  border-left: 4px solid #2c5aa0;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+  background: var(--surface);
+  border-left: 3px solid var(--taken);
+  border-radius: 0 8px 8px 0;
+  padding: 0.9rem 1.1rem;
+  margin: 1.25rem 0 2rem;
 }
 
-.step-card {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
+.rationale-panel p { margin: 0; }
+
+.rationale-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  margin-bottom: 0.3rem;
 }
 
-.badge {
+/* the trail rail — solid teal line + numbered stops */
+
+.trail {
+  list-style: none;
+  margin: 2rem 0;
+  padding: 0;
+  position: relative;
+}
+
+.trail::before {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  bottom: 1rem;
+  width: 2px;
+  background: var(--taken);
+}
+
+.trail-stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.trail-stop:last-child { margin-bottom: 0; }
+
+.trail-marker {
+  position: relative;
+  z-index: 1;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--taken);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.trail-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
   display: inline-block;
-  font-size: 0.8rem;
-  background: #eee;
-  border-radius: 3px;
-  padding: 0.1rem 0.5rem;
-  margin-right: 0.3rem;
+  margin-bottom: 0.35rem;
 }
 
-.diff-added { color: #1a7f37; }
-.diff-removed { color: #b91c1c; }
-.diff-kept { color: var(--muted); }
+.trail-title:hover { color: var(--taken); }
+.trail-tags { margin-bottom: 0.4rem; }
+.trail-rationale { color: var(--ink-muted); margin: 0; font-size: 0.95rem; }
+
+/* ghost variant — candidates the agent considered but didn't pick */
+
+.trail-ghost::before {
+  background: repeating-linear-gradient(
+    to bottom, var(--considered) 0 6px, transparent 6px 12px
+  );
+}
+
+.trail-stop-ghost { margin-bottom: 1.25rem; }
+
+.trail-marker-ghost {
+  background: var(--paper);
+  border: 2px dashed var(--considered);
+  color: var(--considered);
+}
+
+.trail-title-ghost {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--considered);
+}
 
 .candidates-panel {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+  margin: 2rem 0;
+  border: 1px dashed var(--considered-border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem 0.25rem;
+  background: var(--considered-tint);
 }
 
 .candidates-panel summary {
   cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--considered);
   font-weight: 600;
 }
 
-.candidate-list {
-  margin-top: 0.5rem;
-  padding-left: 1.25rem;
+.candidates-panel[open] summary { margin-bottom: 0.75rem; }
+
+/* ---------- badges ---------- */
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--taken-tint);
+  border: 1px solid var(--taken-border);
+  color: var(--taken);
+  margin: 0 0.35rem 0.35rem 0;
 }
+
+.badge-ghost {
+  background: var(--considered-tint);
+  border-color: var(--considered-border);
+  color: var(--considered);
+}
+
+/* ---------- item / lesson / quiz ---------- */
+
+.lesson { margin-bottom: 2rem; }
+.content { font-size: 1.05rem; max-width: 68ch; margin: 0; }
+
+.quiz { border-top: 1px solid var(--border); padding-top: 1.5rem; }
+
+.quiz-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  margin: 0 0 1rem;
+}
+
+.quiz-question { border: none; padding: 0; margin: 0 0 1.5rem; }
+.quiz-question legend {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  padding: 0;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  background: var(--surface);
+  transition: border-color 0.15s ease;
+}
+
+.quiz-option:hover { border-color: var(--taken-border); }
+.quiz-option input[type="radio"] { margin-top: 0.2rem; accent-color: var(--taken); }
+
+.quiz-key {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink-muted);
+  min-width: 1.1rem;
+}
+
+/* ---------- path-updated (diff) screen ---------- */
+
+.score-line { font-size: 1.05rem; }
+.score { font-family: var(--font-mono); color: var(--taken); }
+
+.diff-rail { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.25rem 0 2rem; }
+
+.diff-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.diff-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink-muted);
+}
+
+.diff-row-added .diff-tag {
+  background: var(--taken-tint); color: var(--taken); border-color: var(--taken-border);
+}
+
+.diff-row-removed { opacity: 0.75; }
+.diff-row-removed .diff-tag {
+  background: var(--considered-tint); color: var(--considered); border-color: var(--considered-border);
+}
+.diff-row-removed span:last-child { text-decoration: line-through; text-decoration-color: var(--considered-border); }
+
+/* ---------- history (transcript + catalog) ---------- */
+
+.transcript {
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+
+.transcript-row {
+  display: grid;
+  grid-template-columns: 6.5rem 11rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+
+.transcript-trigger {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--taken);
+  font-weight: 600;
+}
+
+.transcript-time { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-muted); }
+.transcript-summary { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .transcript-row { grid-template-columns: 1fr; gap: 0.2rem; }
+}
+
+.catalog-table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0 2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.catalog-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+
+.catalog-table th, .catalog-table td {
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.catalog-table tbody tr:last-child td { border-bottom: none; }
+
+.catalog-table th {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-muted);
+  background: var(--paper);
+}
+
+.catalog-code { font-family: var(--font-mono); color: var(--taken); font-weight: 600; }
+
+.path-footer { margin-top: 2.5rem; }

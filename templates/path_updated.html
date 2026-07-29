@@ -1,17 +1,41 @@
 {% extends "base.html" %}
 {% block title %}Path Updated — learnpath-agent{% endblock %}
 {% block content %}
+<p class="eyebrow">Replanned</p>
 <h1>Path updated</h1>
-<p>You scored <strong>{{ score }}%</strong> on that quiz.</p>
+<p class="score-line">You scored <strong class="score">{{ score }}%</strong> on that quiz.</p>
 
-<div class="rationale-panel">{{ summary }}</div>
-
-<div class="diff">
-  {% if diff.added %}<p class="diff-added"><strong>Added:</strong> {{ diff.added | join(", ") }}</p>{% endif %}
-  {% if diff.removed %}<p class="diff-removed"><strong>Removed:</strong> {{ diff.removed | join(", ") }}</p>{% endif %}
-  {% if diff.kept %}<p class="diff-kept"><strong>Kept:</strong> {{ diff.kept | join(", ") }}</p>{% endif %}
-  {% if diff.reordered %}<p class="diff-reordered">The remaining items were also reordered.</p>{% endif %}
+<div class="rationale-panel">
+  <span class="rationale-label">What changed</span>
+  <p>{{ summary }}</p>
 </div>
 
-<p><a href="/path/{{ learner_id }}">Back to your path</a></p>
+<div class="diff-rail">
+  {% if diff.added %}
+  <div class="diff-row diff-row-added">
+    <span class="diff-tag">Added</span>
+    <span>{{ diff.added | join(", ") }}</span>
+  </div>
+  {% endif %}
+  {% if diff.removed %}
+  <div class="diff-row diff-row-removed">
+    <span class="diff-tag">Removed</span>
+    <span>{{ diff.removed | join(", ") }}</span>
+  </div>
+  {% endif %}
+  {% if diff.kept %}
+  <div class="diff-row diff-row-kept">
+    <span class="diff-tag">Kept</span>
+    <span>{{ diff.kept | join(", ") }}</span>
+  </div>
+  {% endif %}
+  {% if diff.reordered %}
+  <div class="diff-row diff-row-reordered">
+    <span class="diff-tag">Reordered</span>
+    <span>The remaining items were also resequenced.</span>
+  </div>
+  {% endif %}
+</div>
+
+<p class="path-footer"><a href="/path/{{ learner_id }}">Back to your path</a></p>
 {% endblock %}

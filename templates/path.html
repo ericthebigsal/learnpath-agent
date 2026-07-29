@@ -1,27 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Your Path — learnpath-agent{% endblock %}
 {% block content %}
-<h1>Your learning path</h1>
-<p class="goal"><strong>Goal:</strong> {{ learner.goal_text }}</p>
+<div class="path-header">
+  <p class="eyebrow">Your route</p>
+  <h1>Your learning path</h1>
+  <p class="goal"><span class="goal-label">Goal</span>{{ learner.goal_text }}</p>
+</div>
 
 {% if ready_tracks %}
 <div class="cert-banner">
-  Certification-ready: {{ ready_tracks | join(", ") }}
+  <span class="cert-stamp">✓</span>
+  <span>Certification-ready: {{ ready_tracks | join(", ") }}</span>
 </div>
 {% endif %}
 
 <div class="rationale-panel">
-  <strong>Why this path:</strong> {{ summary }}
+  <span class="rationale-label">Why this path</span>
+  <p>{{ summary }}</p>
 </div>
 
-<ol class="step-list">
+<ol class="trail">
   {% for step in steps %}
-  <li class="step-card">
-    <a href="/item/{{ learner_id }}/{{ step.item.id }}">{{ step.item.title }}</a>
-    <span class="badge">{{ step.item.track.value }}</span>
-    <span class="badge">{{ step.item.level.value }}</span>
-    <span class="badge">{{ step.item.duration_minutes }}m</span>
-    <p class="rationale">{{ step.rationale }}</p>
+  <li class="trail-stop">
+    <span class="trail-marker">{{ loop.index }}</span>
+    <div class="trail-body">
+      <a class="trail-title" href="/item/{{ learner_id }}/{{ step.item.id }}">{{ step.item.title }}</a>
+      <div class="trail-tags">
+        <span class="badge">{{ step.item.track.value }}</span>
+        <span class="badge">{{ step.item.level.value }}</span>
+        <span class="badge">{{ step.item.duration_minutes }}m</span>
+      </div>
+      <p class="trail-rationale">{{ step.rationale }}</p>
+    </div>
   </li>
   {% endfor %}
 </ol>
@@ -29,17 +39,22 @@
 {% if candidates %}
 <details class="candidates-panel">
   <summary>Candidates considered ({{ candidates | length }})</summary>
-  <ul class="candidate-list">
+  <ul class="trail trail-ghost">
     {% for candidate in candidates %}
-    <li>
-      {{ candidate.title }}
-      <span class="badge">{{ candidate.track.value }}</span>
-      <span class="badge">{{ candidate.level.value }}</span>
+    <li class="trail-stop trail-stop-ghost">
+      <span class="trail-marker trail-marker-ghost">&middot;</span>
+      <div class="trail-body">
+        <span class="trail-title trail-title-ghost">{{ candidate.title }}</span>
+        <div class="trail-tags">
+          <span class="badge badge-ghost">{{ candidate.track.value }}</span>
+          <span class="badge badge-ghost">{{ candidate.level.value }}</span>
+        </div>
+      </div>
     </li>
     {% endfor %}
   </ul>
 </details>
 {% endif %}
 
-<p><a href="/history/{{ learner_id }}">View plan history &amp; browse catalog</a></p>
+<p class="path-footer"><a href="/history/{{ learner_id }}">View plan history &amp; browse catalog</a></p>
 {% endblock %}

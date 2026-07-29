@@ -1,23 +1,28 @@
 {% extends "base.html" %}
 {% block title %}History — learnpath-agent{% endblock %}
 {% block content %}
+<p class="eyebrow">Registrar</p>
 <h1>Plan history</h1>
-<ol>
+<ol class="transcript">
   {% for entry in plan_log %}
-  <li>
-    <strong>{{ entry.trigger }}</strong> at {{ entry.created_at }} — {{ entry.summary }}
+  <li class="transcript-row">
+    <span class="transcript-trigger">{{ entry.trigger }}</span>
+    <span class="transcript-time">{{ entry.created_at }}</span>
+    <span class="transcript-summary">{{ entry.summary }}</span>
   </li>
   {% endfor %}
 </ol>
 
 <h2>Full catalog</h2>
-<table>
+<div class="catalog-table-wrap">
+<table class="catalog-table">
   <thead>
-    <tr><th>Title</th><th>Type</th><th>Track</th><th>Level</th><th>Duration</th></tr>
+    <tr><th>Code</th><th>Title</th><th>Type</th><th>Track</th><th>Level</th><th>Duration</th></tr>
   </thead>
   <tbody>
     {% for item in catalog %}
     <tr>
+      <td class="catalog-code">{{ item.track.value[:3] | upper }}&middot;{{ item.level.value[:3] | upper }}</td>
       <td>{{ item.title }}</td>
       <td>{{ item.type.value }}</td>
       <td>{{ item.track.value }}</td>
@@ -27,6 +32,7 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
-<p><a href="/path/{{ learner_id }}">Back to your path</a></p>
+<p class="path-footer"><a href="/path/{{ learner_id }}">Back to your path</a></p>
 {% endblock %}
