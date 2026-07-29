@@ -1,7 +1,7 @@
 from google.genai import types
 
 from catalog import LEVEL_ORDER, levels_within
-from models import Catalog, CatalogItem, Level, PlanResponse, PlanStep, Track
+from models import Catalog, CatalogItem, Level, PlanDiff, PlanResponse, PlanStep, Track
 
 TRACK_NAMES = [track.value for track in Track]
 
@@ -145,3 +145,15 @@ def certification_ready_tracks(catalog: Catalog, progress: list[dict]) -> list[s
                 ready.append(track_name)
 
     return ready
+
+
+def plan_diff(old_item_ids: list[str], new_item_ids: list[str]) -> PlanDiff:
+    old_set = set(old_item_ids)
+    new_set = set(new_item_ids)
+
+    kept = [item_id for item_id in new_item_ids if item_id in old_set]
+    added = [item_id for item_id in new_item_ids if item_id not in old_set]
+    removed = [item_id for item_id in old_item_ids if item_id not in new_set]
+    reordered = kept != [item_id for item_id in old_item_ids if item_id in new_set]
+
+    return PlanDiff(kept=kept, added=added, removed=removed, reordered=reordered)
