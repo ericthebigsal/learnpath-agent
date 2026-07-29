@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, Form, HTTPException, Request
@@ -25,7 +26,10 @@ db.init_db(DB_PATH)
 
 def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, bool, list[str]]:
     try:
-        client = genai.Client()
+        # google-genai's Client() only auto-detects GOOGLE_API_KEY, not
+        # GEMINI_API_KEY (the name this project's README/plan document) —
+        # pass it explicitly so the documented env var actually works.
+        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     except Exception:
         client = None
     return planner.plan_or_replan(client, CATALOG, learner, progress)
