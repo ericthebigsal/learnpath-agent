@@ -104,6 +104,7 @@ def _plan_row_to_dict(row: sqlite3.Row) -> dict:
     plan = json.loads(result.pop("plan_json"))
     result["steps"] = plan["steps"]
     result["summary"] = plan["summary"]
+    result["candidate_ids"] = plan.get("candidate_ids", [])
     return result
 
 

@@ -19,6 +19,7 @@ def client(tmp_path, monkeypatch):
                 summary="Start with RAG fundamentals.",
             ),
             False,
+            ["rag-fundamentals", "rag-chunking-strategies"],
         )
 
     monkeypatch.setattr(app_module, "compute_plan", fake_compute_plan)
@@ -38,10 +39,11 @@ def test_compute_plan_falls_back_when_genai_client_construction_raises(monkeypat
     monkeypatch.setattr(app_module.genai, "Client", raise_missing_api_key)
 
     learner = {"goal_text": "I want to learn about RAG", "starting_level": "beginner"}
-    plan, used_fallback = app_module.compute_plan(learner, [])
+    plan, used_fallback, candidate_ids = app_module.compute_plan(learner, [])
 
     assert used_fallback is True
     assert len(plan.steps) > 0
+    assert len(candidate_ids) > 0
 
 
 def test_start_page_renders_goal_form(client):
@@ -89,6 +91,19 @@ def test_current_path_screen_shows_recommended_items_and_rationale(client):
     assert "Start with RAG fundamentals." in response.text
 
 
+def test_current_path_screen_shows_candidates_considered(client):
+    client.post(
+        "/start",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/path/1")
+
+    assert response.status_code == 200
+    assert "Candidates considered (2)" in response.text
+    assert "Chunking Strategies: Splitting Documents Without Losing Meaning" in response.text
+
+
 def test_current_path_screen_returns_404_for_nonexistent_learner(client):
     response = client.get("/path/99999")
 
@@ -121,6 +136,7 @@ def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
                 summary="Move on to chunking strategies.",
             ),
             False,
+            ["rag-chunking-strategies"],
         )
 
     monkeypatch.setattr(app_module, "compute_plan", fake_compute_plan_after_quiz)

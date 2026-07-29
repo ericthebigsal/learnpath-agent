@@ -23,7 +23,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 db.init_db(DB_PATH)
 
 
-def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, bool]:
+def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, bool, list[str]]:
     try:
         client = genai.Client()
     except Exception:
@@ -43,8 +43,10 @@ def start_page(request: Request):
 @app.post("/start")
 def start_learner(goal_text: str = Form(...), starting_level: str = Form(...)):
     learner = db.create_learner(goal_text, starting_level, DB_PATH)
-    plan, _used_fallback = compute_plan(learner, [])
-    db.log_plan(learner["id"], plan.model_dump(), "initial", DB_PATH)
+    plan, _used_fallback, candidate_ids = compute_plan(learner, [])
+    plan_dict = plan.model_dump()
+    plan_dict["candidate_ids"] = candidate_ids
+    db.log_plan(learner["id"], plan_dict, "initial", DB_PATH)
     return RedirectResponse(url=f"/path/{learner['id']}", status_code=303)
 
 
@@ -61,6 +63,9 @@ def current_path(request: Request, learner_id: int):
         for step in latest_plan["steps"]
     ]
     ready_tracks = planner.certification_ready_tracks(CATALOG, progress)
+    candidates = [
+        get_item(CATALOG, item_id) for item_id in latest_plan.get("candidate_ids", [])
+    ]
 
     return templates.TemplateResponse(
         request,
@@ -72,6 +77,7 @@ def current_path(request: Request, learner_id: int):
             "steps": steps,
             "summary": latest_plan["summary"],
             "ready_tracks": ready_tracks,
+            "candidates": candidates,
         },
     )
 
@@ -106,8 +112,10 @@ async def submit_quiz(request: Request, learner_id: int, item_id: str):
 
     previous_plan = db.get_latest_plan(learner_id, DB_PATH)
     progress = db.get_progress(learner_id, DB_PATH)
-    new_plan, _used_fallback = compute_plan(learner, progress)
-    db.log_plan(learner_id, new_plan.model_dump(), "quiz_result", DB_PATH)
+    new_plan, _used_fallback, candidate_ids = compute_plan(learner, progress)
+    new_plan_dict = new_plan.model_dump()
+    new_plan_dict["candidate_ids"] = candidate_ids
+    db.log_plan(learner_id, new_plan_dict, "quiz_result", DB_PATH)
 
     old_item_ids = [step["item_id"] for step in previous_plan["steps"]] if previous_plan else []
     diff = planner.plan_diff(old_item_ids, [step.item_id for step in new_plan.steps])

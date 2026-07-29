@@ -83,3 +83,20 @@ button {
 .diff-added { color: #1a7f37; }
 .diff-removed { color: #b91c1c; }
 .diff-kept { color: var(--muted); }
+
+.candidates-panel {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.candidates-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.candidate-list {
+  margin-top: 0.5rem;
+  padding-left: 1.25rem;
+}

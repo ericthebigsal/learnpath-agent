@@ -26,5 +26,20 @@
   {% endfor %}
 </ol>
 
+{% if candidates %}
+<details class="candidates-panel">
+  <summary>Candidates considered ({{ candidates | length }})</summary>
+  <ul class="candidate-list">
+    {% for candidate in candidates %}
+    <li>
+      {{ candidate.title }}
+      <span class="badge">{{ candidate.track.value }}</span>
+      <span class="badge">{{ candidate.level.value }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}
+
 <p><a href="/history/{{ learner_id }}">View plan history &amp; browse catalog</a></p>
 {% endblock %}
