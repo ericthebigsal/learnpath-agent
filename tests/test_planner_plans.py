@@ -1,9 +1,18 @@
+import pytest
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from catalog import load_catalog
-from models import Level, PlanResponse, PlanStep
-from planner import filter_candidates, rule_based_plan, build_prompt, gemini_plan, plan_or_replan, certification_ready_tracks
+from catalog import LEVEL_ORDER, load_catalog
+from models import CatalogItem, Level, PlanResponse, PlanStep, Track
+from planner import (
+    PASSING_THRESHOLD,
+    build_prompt,
+    certification_ready_tracks,
+    filter_candidates,
+    gemini_plan,
+    plan_or_replan,
+    rule_based_plan,
+)
 
 
 def test_rule_based_plan_orders_by_level_then_duration_and_respects_limit():
@@ -19,8 +28,51 @@ def test_rule_based_plan_orders_by_level_then_duration_and_respects_limit():
     assert chosen_ids <= candidate_ids
 
     chosen_items = [item for item in candidates if item.id in chosen_ids]
-    levels_seen = [item.level.value for item in chosen_items]
-    assert levels_seen == sorted(levels_seen)
+    level_indices = [LEVEL_ORDER.index(item.level) for item in chosen_items]
+    assert level_indices == sorted(level_indices)
+
+
+def test_rule_based_plan_puts_beginner_items_before_advanced_items():
+    # Regression test: sorting by item.level.value (a plain string) puts "advanced"
+    # before "beginner" alphabetically, inverting the intended fallback ordering.
+    # Build a candidate list spanning all three levels and confirm no advanced item
+    # is ever ordered ahead of a beginner item.
+    candidates = [
+        CatalogItem(
+            id="adv-1",
+            title="Advanced item",
+            type="course",
+            level=Level.ADVANCED,
+            track=Track.RAG,
+            duration_minutes=10,
+        ),
+        CatalogItem(
+            id="int-1",
+            title="Intermediate item",
+            type="course",
+            level=Level.INTERMEDIATE,
+            track=Track.RAG,
+            duration_minutes=10,
+        ),
+        CatalogItem(
+            id="beg-1",
+            title="Beginner item",
+            type="course",
+            level=Level.BEGINNER,
+            track=Track.RAG,
+            duration_minutes=10,
+        ),
+    ]
+
+    plan = rule_based_plan(candidates, limit=3)
+
+    ordered_ids = [step.item_id for step in plan.steps]
+    assert ordered_ids == ["beg-1", "int-1", "adv-1"]
+
+    # No advanced-level item should appear before a beginner-level item.
+    positions = {item_id: idx for idx, item_id in enumerate(ordered_ids)}
+    assert positions["beg-1"] < positions["adv-1"]
+    assert positions["int-1"] < positions["adv-1"]
 
 
 def test_build_prompt_includes_goal_progress_and_candidates():
@@ -71,10 +123,11 @@ def test_plan_or_replan_uses_gemini_plan_when_client_succeeds():
     catalog = load_catalog()
     learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
 
-    plan, used_fallback = plan_or_replan(client, catalog, learner, [])
+    plan, used_fallback, candidate_ids = plan_or_replan(client, catalog, learner, [])
 
     assert plan == expected_plan
     assert used_fallback is False
+    assert "rag-fundamentals" in candidate_ids
 
 
 def test_plan_or_replan_falls_back_when_gemini_call_raises():
@@ -84,10 +137,109 @@ def test_plan_or_replan_falls_back_when_gemini_call_raises():
     catalog = load_catalog()
     learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
 
-    plan, used_fallback = plan_or_replan(client, catalog, learner, [])
+    plan, used_fallback, candidate_ids = plan_or_replan(client, catalog, learner, [])
 
     assert used_fallback is True
     assert len(plan.steps) > 0
+    assert len(candidate_ids) > 0
+
+
+def test_plan_or_replan_returns_candidate_ids_used():
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+    expected_candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())
+
+    plan, used_fallback, candidate_ids = plan_or_replan(None, catalog, learner, [])
+
+    assert used_fallback is True
+    assert set(candidate_ids) == {item.id for item in expected_candidates}
+
+
+def test_plan_or_replan_is_explicit_fallback_when_client_is_none():
+    # Elevated finding: when app.compute_plan fails to construct a genai.Client (e.g. no
+    # API key), it passes client=None. This must be an explicit, self-documenting early
+    # return rather than relying on the incidental AttributeError from None.models to be
+    # caught by the broad except Exception in the try block.
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback, candidate_ids = plan_or_replan(None, catalog, learner, [])
+
+    assert used_fallback is True
+    assert len(plan.steps) > 0
+    assert len(candidate_ids) > 0
+
+
+def test_gemini_plan_raises_when_response_parsed_is_none():
+    client = Mock()
+    client.models.generate_content.return_value = SimpleNamespace(parsed=None)
+
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())
+
+    with pytest.raises(Exception):
+        gemini_plan(client, "Learn RAG", Level.BEGINNER, [], candidates)
+
+
+def test_plan_or_replan_falls_back_when_gemini_returns_none_parsed():
+    client = Mock()
+    client.models.generate_content.return_value = SimpleNamespace(parsed=None)
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback, candidate_ids = plan_or_replan(client, catalog, learner, [])
+
+    assert used_fallback is True
+    assert len(plan.steps) > 0
+
+
+def test_plan_or_replan_drops_hallucinated_ids_and_keeps_valid_ones():
+    client = Mock()
+    llm_plan = PlanResponse(
+        steps=[
+            PlanStep(item_id="rag-fundamentals", rationale="A real candidate."),
+            PlanStep(item_id="totally-made-up-id", rationale="Hallucinated by the model."),
+        ],
+        summary="Mixed valid and invalid ids.",
+    )
+    client.models.generate_content.return_value = SimpleNamespace(parsed=llm_plan)
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback, candidate_ids = plan_or_replan(client, catalog, learner, [])
+
+    assert used_fallback is False
+    assert [step.item_id for step in plan.steps] == ["rag-fundamentals"]
+    assert "totally-made-up-id" not in [step.item_id for step in plan.steps]
+
+
+def test_plan_or_replan_falls_back_when_all_returned_ids_are_invalid():
+    client = Mock()
+    llm_plan = PlanResponse(
+        steps=[PlanStep(item_id="totally-made-up-id", rationale="Hallucinated by the model.")],
+        summary="All invalid ids.",
+    )
+    client.models.generate_content.return_value = SimpleNamespace(parsed=llm_plan)
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback, candidate_ids = plan_or_replan(client, catalog, learner, [])
+
+    assert used_fallback is True
+    assert len(plan.steps) > 0
+    assert all(step.item_id in candidate_ids for step in plan.steps)
+
+
+def test_build_prompt_includes_passing_threshold():
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())[:2]
+
+    prompt = build_prompt("Learn RAG", Level.BEGINNER, [], candidates)
+
+    assert str(PASSING_THRESHOLD) in prompt
 
 
 def test_certification_ready_tracks_empty_with_no_progress():

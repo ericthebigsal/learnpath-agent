@@ -38,7 +38,9 @@ def current_level(starting_level: Level, progress: list[dict], catalog: Catalog)
 
 
 def rule_based_plan(candidates: list[CatalogItem], limit: int = 5) -> PlanResponse:
-    ordered = sorted(candidates, key=lambda item: (item.level.value, item.duration_minutes))[:limit]
+    ordered = sorted(
+        candidates, key=lambda item: (LEVEL_ORDER.index(item.level), item.duration_minutes)
+    )[:limit]
     steps = [
         PlanStep(
             item_id=item.id,
@@ -56,6 +58,9 @@ def rule_based_plan(candidates: list[CatalogItem], limit: int = 5) -> PlanRespon
 
 
 PLANNER_MODEL = "gemini-2.5-flash"
+
+PASSING_THRESHOLD = 70.0
+ADVANCE_THRESHOLD = 90.0
 
 
 def build_prompt(
@@ -77,6 +82,13 @@ def build_prompt(
         f"Learner goal: {goal_text}\n"
         f"Learner level: {level.value}\n\n"
         f"Completed items and quiz scores so far:\n{progress_lines}\n\n"
+        "Scoring policy for deciding what to recommend next:\n"
+        f"- Below {PASSING_THRESHOLD}%: the learner is struggling. Recommend a remedial "
+        "alternate item from the same track and level before moving forward.\n"
+        f"- {PASSING_THRESHOLD}% to {ADVANCE_THRESHOLD - 0.01}%: solid pass. Continue with "
+        "the next item as planned.\n"
+        f"- {ADVANCE_THRESHOLD}% or above: strong mastery. It's fine to skip ahead to the "
+        "next level.\n\n"
         "Candidate items available to recommend next (choose and order a subset of these; "
         "never invent an id that isn't listed):\n"
         f"{candidate_lines}\n\n"
@@ -102,24 +114,32 @@ def gemini_plan(
             response_schema=PlanResponse,
         ),
     )
-    return response.parsed
-
-
-PASSING_THRESHOLD = 70.0
+    parsed = response.parsed
+    if parsed is None:
+        raise ValueError("Gemini returned no parseable plan")
+    return parsed
 
 
 def plan_or_replan(
     client, catalog: Catalog, learner: dict, progress: list[dict]
-) -> tuple[PlanResponse, bool]:
+) -> tuple[PlanResponse, bool, list[str]]:
     completed_ids = {entry["item_id"] for entry in progress}
     level = current_level(Level(learner["starting_level"]), progress, catalog)
     candidates = filter_candidates(catalog, learner["goal_text"], level, completed_ids)
+    candidate_ids = [item.id for item in candidates]
+
+    if client is None:
+        return rule_based_plan(candidates), True, candidate_ids
 
     try:
         plan = gemini_plan(client, learner["goal_text"], level, progress, candidates)
-        return plan, False
+        candidate_id_set = set(candidate_ids)
+        plan.steps = [step for step in plan.steps if step.item_id in candidate_id_set]
+        if not plan.steps:
+            raise ValueError("LLM returned no usable candidate ids")
+        return plan, False, candidate_ids
     except Exception:
-        return rule_based_plan(candidates), True
+        return rule_based_plan(candidates), True, candidate_ids
 
 
 def certification_ready_tracks(catalog: Catalog, progress: list[dict]) -> list[str]:
