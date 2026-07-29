@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -47,6 +47,8 @@ def start_learner(goal_text: str = Form(...), starting_level: str = Form(...)):
 @app.get("/path/{learner_id}", response_class=HTMLResponse)
 def current_path(request: Request, learner_id: int):
     learner = db.get_learner(learner_id, DB_PATH)
+    if learner is None:
+        raise HTTPException(status_code=404, detail="Learner not found")
     progress = db.get_progress(learner_id, DB_PATH)
     latest_plan = db.get_latest_plan(learner_id, DB_PATH)
 

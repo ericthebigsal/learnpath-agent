@@ -70,3 +70,9 @@ def test_current_path_screen_shows_recommended_items_and_rationale(client):
     assert "RAG Fundamentals" in response.text
     assert "Matches your goal." in response.text
     assert "Start with RAG fundamentals." in response.text
+
+
+def test_current_path_screen_returns_404_for_nonexistent_learner(client):
+    response = client.get("/path/99999")
+
+    assert response.status_code == 404
