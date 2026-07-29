@@ -27,6 +27,23 @@ def client(tmp_path, monkeypatch):
         yield test_client
 
 
+def test_compute_plan_falls_back_when_genai_client_construction_raises(monkeypatch):
+    # Exercises the real app_module.compute_plan (unlike every other test in this file,
+    # which monkeypatches compute_plan itself). This is the seam where a missing
+    # GEMINI_API_KEY used to crash with an unhandled ValueError from genai.Client(),
+    # instead of falling back to the rule-based planner like every other Gemini failure.
+    def raise_missing_api_key():
+        raise ValueError("Missing key inputs argument!")
+
+    monkeypatch.setattr(app_module.genai, "Client", raise_missing_api_key)
+
+    learner = {"goal_text": "I want to learn about RAG", "starting_level": "beginner"}
+    plan, used_fallback = app_module.compute_plan(learner, [])
+
+    assert used_fallback is True
+    assert len(plan.steps) > 0
+
+
 def test_start_page_renders_goal_form(client):
     response = client.get("/")
 

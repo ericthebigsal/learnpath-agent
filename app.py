@@ -24,7 +24,10 @@ db.init_db(DB_PATH)
 
 
 def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, bool]:
-    client = genai.Client()
+    try:
+        client = genai.Client()
+    except Exception:
+        client = None
     return planner.plan_or_replan(client, CATALOG, learner, progress)
 
 
