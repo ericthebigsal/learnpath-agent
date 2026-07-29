@@ -1,5 +1,5 @@
 from catalog import LEVEL_ORDER, levels_within
-from models import Catalog, CatalogItem, Level, Track
+from models import Catalog, CatalogItem, Level, PlanResponse, PlanStep, Track
 
 TRACK_NAMES = [track.value for track in Track]
 
@@ -33,3 +33,21 @@ def current_level(starting_level: Level, progress: list[dict], catalog: Catalog)
             idx = min(idx + 1, len(LEVEL_ORDER) - 1)
 
     return LEVEL_ORDER[idx]
+
+
+def rule_based_plan(candidates: list[CatalogItem], limit: int = 5) -> PlanResponse:
+    ordered = sorted(candidates, key=lambda item: (item.level.value, item.duration_minutes))[:limit]
+    steps = [
+        PlanStep(
+            item_id=item.id,
+            rationale=(
+                f"Fallback rule: {item.level.value} level in {item.track.value}, "
+                f"{item.duration_minutes} minutes."
+            ),
+        )
+        for item in ordered
+    ]
+    return PlanResponse(
+        steps=steps,
+        summary="Fallback rule-based plan (LLM unavailable): candidates ordered by level then duration.",
+    )
