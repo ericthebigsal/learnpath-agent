@@ -120,3 +120,16 @@ async def submit_quiz(request: Request, learner_id: int, item_id: str):
             "summary": new_plan.summary,
         },
     )
+
+
+@app.get("/history/{learner_id}", response_class=HTMLResponse)
+def history_page(request: Request, learner_id: int):
+    learner = db.get_learner(learner_id, DB_PATH)
+    if learner is None:
+        raise HTTPException(status_code=404, detail="Learner not found")
+    plan_log = db.get_plan_log(learner_id, DB_PATH)
+    return templates.TemplateResponse(
+        request,
+        "history.html",
+        {"request": request, "learner_id": learner_id, "plan_log": plan_log, "catalog": CATALOG.items},
+    )

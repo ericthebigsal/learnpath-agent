@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}History — learnpath-agent{% endblock %}
+{% block content %}
+<h1>Plan history</h1>
+<ol>
+  {% for entry in plan_log %}
+  <li>
+    <strong>{{ entry.trigger }}</strong> at {{ entry.created_at }} — {{ entry.summary }}
+  </li>
+  {% endfor %}
+</ol>
+
+<h2>Full catalog</h2>
+<table>
+  <thead>
+    <tr><th>Title</th><th>Type</th><th>Track</th><th>Level</th><th>Duration</th></tr>
+  </thead>
+  <tbody>
+    {% for item in catalog %}
+    <tr>
+      <td>{{ item.title }}</td>
+      <td>{{ item.type.value }}</td>
+      <td>{{ item.track.value }}</td>
+      <td>{{ item.level.value }}</td>
+      <td>{{ item.duration_minutes }}m</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p><a href="/path/{{ learner_id }}">Back to your path</a></p>
+{% endblock %}

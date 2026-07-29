@@ -139,3 +139,22 @@ def test_submit_quiz_returns_404_for_nonexistent_learner(client):
     )
 
     assert response.status_code == 404
+
+
+def test_history_screen_shows_plan_log_and_catalog_table(client):
+    client.post(
+        "/start",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/history/1")
+
+    assert response.status_code == 200
+    assert "Start with RAG fundamentals." in response.text  # from plan_log
+    assert "RAG Fundamentals" in response.text  # from the catalog table
+
+
+def test_history_screen_returns_404_for_nonexistent_learner(client):
+    response = client.get("/history/99999")
+
+    assert response.status_code == 404
