@@ -103,3 +103,45 @@ def gemini_plan(
         ),
     )
     return response.parsed
+
+
+PASSING_THRESHOLD = 70.0
+
+
+def plan_or_replan(
+    client, catalog: Catalog, learner: dict, progress: list[dict]
+) -> tuple[PlanResponse, bool]:
+    completed_ids = {entry["item_id"] for entry in progress}
+    level = current_level(Level(learner["starting_level"]), progress, catalog)
+    candidates = filter_candidates(catalog, learner["goal_text"], level, completed_ids)
+
+    try:
+        plan = gemini_plan(client, learner["goal_text"], level, progress, candidates)
+        return plan, False
+    except Exception:
+        return rule_based_plan(candidates), True
+
+
+def certification_ready_tracks(catalog: Catalog, progress: list[dict]) -> list[str]:
+    # Only plain `course` items are counted: `learning_path` bundles have no quiz of
+    # their own (item.html renders no submit form when item.quiz is empty), so they
+    # can never pick up a real progress row through the UI and must be excluded here.
+    scores_by_id = {entry["item_id"]: entry["quiz_score"] for entry in progress}
+    ready: list[str] = []
+
+    for track_name in TRACK_NAMES:
+        track_items = [
+            item
+            for item in catalog.items
+            if item.track.value == track_name
+            and item.type.value == "course"
+            and not item.certification_eligible
+        ]
+        if not track_items:
+            continue
+        if all(item.id in scores_by_id for item in track_items):
+            average = sum(scores_by_id[item.id] for item in track_items) / len(track_items)
+            if average >= PASSING_THRESHOLD:
+                ready.append(track_name)
+
+    return ready

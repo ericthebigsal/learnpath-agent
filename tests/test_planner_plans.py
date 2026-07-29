@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from catalog import load_catalog
 from models import Level, PlanResponse, PlanStep
-from planner import filter_candidates, rule_based_plan, build_prompt, gemini_plan
+from planner import filter_candidates, rule_based_plan, build_prompt, gemini_plan, plan_or_replan, certification_ready_tracks
 
 
 def test_rule_based_plan_orders_by_level_then_duration_and_respects_limit():
@@ -58,3 +58,60 @@ def test_gemini_plan_returns_parsed_plan_response():
     assert kwargs["config"].response_schema is PlanResponse
     assert kwargs["config"].response_mime_type == "application/json"
     assert "Learn RAG" in kwargs["contents"]
+
+
+def test_plan_or_replan_uses_gemini_plan_when_client_succeeds():
+    client = Mock()
+    expected_plan = PlanResponse(
+        steps=[PlanStep(item_id="rag-fundamentals", rationale="Matches your goal.")],
+        summary="Start with RAG.",
+    )
+    client.models.generate_content.return_value = SimpleNamespace(parsed=expected_plan)
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback = plan_or_replan(client, catalog, learner, [])
+
+    assert plan == expected_plan
+    assert used_fallback is False
+
+
+def test_plan_or_replan_falls_back_when_gemini_call_raises():
+    client = Mock()
+    client.models.generate_content.side_effect = RuntimeError("rate limited")
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback = plan_or_replan(client, catalog, learner, [])
+
+    assert used_fallback is True
+    assert len(plan.steps) > 0
+
+
+def test_certification_ready_tracks_empty_with_no_progress():
+    catalog = load_catalog()
+    assert certification_ready_tracks(catalog, []) == []
+
+
+def test_certification_ready_tracks_flags_track_after_all_items_pass():
+    catalog = load_catalog()
+    rag_courses = [
+        item for item in catalog.items
+        if item.track.value == "RAG" and item.type.value == "course" and not item.certification_eligible
+    ]
+    progress = [{"item_id": item.id, "quiz_score": 80.0} for item in rag_courses]
+
+    assert "RAG" in certification_ready_tracks(catalog, progress)
+
+
+def test_certification_ready_tracks_excludes_track_with_low_average():
+    catalog = load_catalog()
+    rag_courses = [
+        item for item in catalog.items
+        if item.track.value == "RAG" and item.type.value == "course" and not item.certification_eligible
+    ]
+    progress = [{"item_id": item.id, "quiz_score": 50.0} for item in rag_courses]
+
+    assert "RAG" not in certification_ready_tracks(catalog, progress)
