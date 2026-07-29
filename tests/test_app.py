@@ -76,3 +76,46 @@ def test_current_path_screen_returns_404_for_nonexistent_learner(client):
     response = client.get("/path/99999")
 
     assert response.status_code == 404
+
+
+def test_item_view_shows_content_and_quiz_form(client):
+    client.post(
+        "/start",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals")
+
+    assert response.status_code == 200
+    assert "Retrieval-Augmented Generation" in response.text
+    assert 'action="/item/1/rag-fundamentals/submit"' in response.text
+
+
+def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
+    client.post(
+        "/start",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    def fake_compute_plan_after_quiz(learner, progress):
+        return (
+            PlanResponse(
+                steps=[PlanStep(item_id="rag-chunking-strategies", rationale="Next in RAG track.")],
+                summary="Move on to chunking strategies.",
+            ),
+            False,
+        )
+
+    monkeypatch.setattr(app_module, "compute_plan", fake_compute_plan_after_quiz)
+
+    response = client.post(
+        "/item/1/rag-fundamentals/submit",
+        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+    )
+
+    assert response.status_code == 200
+    assert "Move on to chunking strategies." in response.text
+    assert "Added" in response.text or "added" in response.text
+
+    progress = db.get_progress(1, app_module.DB_PATH)
+    assert progress[0]["item_id"] == "rag-fundamentals"

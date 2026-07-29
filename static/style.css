@@ -48,3 +48,38 @@ button {
   font-weight: 600;
   cursor: pointer;
 }
+
+.cert-banner {
+  background: #e6f4ea;
+  border: 1px solid #34a853;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.rationale-panel {
+  background: #f4f4f4;
+  border-left: 4px solid #2c5aa0;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.step-card {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  background: #eee;
+  border-radius: 3px;
+  padding: 0.1rem 0.5rem;
+  margin-right: 0.3rem;
+}
+
+.diff-added { color: #1a7f37; }
+.diff-removed { color: #b91c1c; }
+.diff-kept { color: var(--muted); }

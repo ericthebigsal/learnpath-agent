@@ -8,6 +8,7 @@ from google import genai
 
 import db
 import planner
+import quiz as quiz_module
 from catalog import get_item, load_catalog
 from models import Level, PlanResponse
 
@@ -68,5 +69,46 @@ def current_path(request: Request, learner_id: int):
             "steps": steps,
             "summary": latest_plan["summary"],
             "ready_tracks": ready_tracks,
+        },
+    )
+
+
+@app.get("/item/{learner_id}/{item_id}", response_class=HTMLResponse)
+def item_view(request: Request, learner_id: int, item_id: str):
+    item = get_item(CATALOG, item_id)
+    return templates.TemplateResponse(
+        request,
+        "item.html",
+        {"request": request, "learner_id": learner_id, "item": item},
+    )
+
+
+@app.post("/item/{learner_id}/{item_id}/submit", response_class=HTMLResponse)
+async def submit_quiz(request: Request, learner_id: int, item_id: str):
+    form = await request.form()
+    item = get_item(CATALOG, item_id)
+    answers = [int(form.get(f"answer_{i}", -1)) for i in range(len(item.quiz))]
+    score = quiz_module.grade_quiz(item.quiz, answers)
+
+    learner = db.get_learner(learner_id, DB_PATH)
+    db.record_progress(learner_id, item_id, score, DB_PATH)
+
+    previous_plan = db.get_latest_plan(learner_id, DB_PATH)
+    progress = db.get_progress(learner_id, DB_PATH)
+    new_plan, _used_fallback = compute_plan(learner, progress)
+    db.log_plan(learner_id, new_plan.model_dump(), "quiz_result", DB_PATH)
+
+    old_item_ids = [step["item_id"] for step in previous_plan["steps"]] if previous_plan else []
+    diff = planner.plan_diff(old_item_ids, [step.item_id for step in new_plan.steps])
+
+    return templates.TemplateResponse(
+        request,
+        "path_updated.html",
+        {
+            "request": request,
+            "learner_id": learner_id,
+            "score": score,
+            "diff": diff,
+            "summary": new_plan.summary,
         },
     )

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }} — learnpath-agent{% endblock %}
+{% block content %}
+<h1>{{ item.title }}</h1>
+<p class="content">{{ item.content }}</p>
+
+{% if item.quiz %}
+<form method="post" action="/item/{{ learner_id }}/{{ item.id }}/submit">
+  {% for question in item.quiz %}
+  {% set question_index = loop.index0 %}
+  <fieldset>
+    <legend>{{ question.question }}</legend>
+    {% for option in question.options %}
+    <label>
+      <input type="radio" name="answer_{{ question_index }}" value="{{ loop.index0 }}" required>
+      {{ option }}
+    </label>
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+  <button type="submit">Submit quiz</button>
+</form>
+{% endif %}
+{% endblock %}

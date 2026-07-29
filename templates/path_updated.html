@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Path Updated — learnpath-agent{% endblock %}
+{% block content %}
+<h1>Path updated</h1>
+<p>You scored <strong>{{ score }}%</strong> on that quiz.</p>
+
+<div class="rationale-panel">{{ summary }}</div>
+
+<div class="diff">
+  {% if diff.added %}<p class="diff-added"><strong>Added:</strong> {{ diff.added | join(", ") }}</p>{% endif %}
+  {% if diff.removed %}<p class="diff-removed"><strong>Removed:</strong> {{ diff.removed | join(", ") }}</p>{% endif %}
+  {% if diff.kept %}<p class="diff-kept"><strong>Kept:</strong> {{ diff.kept | join(", ") }}</p>{% endif %}
+  {% if diff.reordered %}<p class="diff-reordered">The remaining items were also reordered.</p>{% endif %}
+</div>
+
+<p><a href="/path/{{ learner_id }}">Back to your path</a></p>
+{% endblock %}
