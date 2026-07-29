@@ -119,3 +119,23 @@ def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
 
     progress = db.get_progress(1, app_module.DB_PATH)
     assert progress[0]["item_id"] == "rag-fundamentals"
+
+
+def test_item_view_returns_404_for_nonexistent_item(client):
+    client.post(
+        "/start",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/does-not-exist")
+
+    assert response.status_code == 404
+
+
+def test_submit_quiz_returns_404_for_nonexistent_learner(client):
+    response = client.post(
+        "/item/99999/rag-fundamentals/submit",
+        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+    )
+
+    assert response.status_code == 404

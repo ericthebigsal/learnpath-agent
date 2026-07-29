@@ -75,7 +75,10 @@ def current_path(request: Request, learner_id: int):
 
 @app.get("/item/{learner_id}/{item_id}", response_class=HTMLResponse)
 def item_view(request: Request, learner_id: int, item_id: str):
-    item = get_item(CATALOG, item_id)
+    try:
+        item = get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
     return templates.TemplateResponse(
         request,
         "item.html",
@@ -86,11 +89,16 @@ def item_view(request: Request, learner_id: int, item_id: str):
 @app.post("/item/{learner_id}/{item_id}/submit", response_class=HTMLResponse)
 async def submit_quiz(request: Request, learner_id: int, item_id: str):
     form = await request.form()
-    item = get_item(CATALOG, item_id)
+    try:
+        item = get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
     answers = [int(form.get(f"answer_{i}", -1)) for i in range(len(item.quiz))]
     score = quiz_module.grade_quiz(item.quiz, answers)
 
     learner = db.get_learner(learner_id, DB_PATH)
+    if learner is None:
+        raise HTTPException(status_code=404, detail="Learner not found")
     db.record_progress(learner_id, item_id, score, DB_PATH)
 
     previous_plan = db.get_latest_plan(learner_id, DB_PATH)
