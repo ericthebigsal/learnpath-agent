@@ -56,3 +56,17 @@ def test_submitting_start_form_logs_the_initial_plan(client, tmp_path):
     assert latest is not None
     assert latest["trigger"] == "initial"
     assert latest["steps"][0]["item_id"] == "rag-fundamentals"
+
+
+def test_current_path_screen_shows_recommended_items_and_rationale(client):
+    client.post(
+        "/start",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/path/1")
+
+    assert response.status_code == 200
+    assert "RAG Fundamentals" in response.text
+    assert "Matches your goal." in response.text
+    assert "Start with RAG fundamentals." in response.text

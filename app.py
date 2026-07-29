@@ -8,7 +8,7 @@ from google import genai
 
 import db
 import planner
-from catalog import load_catalog
+from catalog import get_item, load_catalog
 from models import Level, PlanResponse
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -42,3 +42,29 @@ def start_learner(goal_text: str = Form(...), starting_level: str = Form(...)):
     plan, _used_fallback = compute_plan(learner, [])
     db.log_plan(learner["id"], plan.model_dump(), "initial", DB_PATH)
     return RedirectResponse(url=f"/path/{learner['id']}", status_code=303)
+
+
+@app.get("/path/{learner_id}", response_class=HTMLResponse)
+def current_path(request: Request, learner_id: int):
+    learner = db.get_learner(learner_id, DB_PATH)
+    progress = db.get_progress(learner_id, DB_PATH)
+    latest_plan = db.get_latest_plan(learner_id, DB_PATH)
+
+    steps = [
+        {"item": get_item(CATALOG, step["item_id"]), "rationale": step["rationale"]}
+        for step in latest_plan["steps"]
+    ]
+    ready_tracks = planner.certification_ready_tracks(CATALOG, progress)
+
+    return templates.TemplateResponse(
+        request,
+        "path.html",
+        {
+            "request": request,
+            "learner_id": learner_id,
+            "learner": learner,
+            "steps": steps,
+            "summary": latest_plan["summary"],
+            "ready_tracks": ready_tracks,
+        },
+    )

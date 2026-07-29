@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Your Path — learnpath-agent{% endblock %}
+{% block content %}
+<h1>Your learning path</h1>
+<p class="goal"><strong>Goal:</strong> {{ learner.goal_text }}</p>
+
+{% if ready_tracks %}
+<div class="cert-banner">
+  Certification-ready: {{ ready_tracks | join(", ") }}
+</div>
+{% endif %}
+
+<div class="rationale-panel">
+  <strong>Why this path:</strong> {{ summary }}
+</div>
+
+<ol class="step-list">
+  {% for step in steps %}
+  <li class="step-card">
+    <a href="/item/{{ learner_id }}/{{ step.item.id }}">{{ step.item.title }}</a>
+    <span class="badge">{{ step.item.track.value }}</span>
+    <span class="badge">{{ step.item.level.value }}</span>
+    <span class="badge">{{ step.item.duration_minutes }}m</span>
+    <p class="rationale">{{ step.rationale }}</p>
+  </li>
+  {% endfor %}
+</ol>
+
+<p><a href="/history/{{ learner_id }}">View plan history &amp; browse catalog</a></p>
+{% endblock %}
