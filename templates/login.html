@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Log in — learnpath-agent{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+{% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+<form class="goal-form" method="post" action="/login">
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email" required>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" required>
+
+  <button type="submit">Log in</button>
+</form>
+<p><a href="/register">Need an account? Register.</a></p>
+{% endblock %}
