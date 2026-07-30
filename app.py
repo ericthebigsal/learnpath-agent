@@ -96,7 +96,10 @@ def register_submit(
     db.create_session(token, user["id"], expires_at, DB_PATH)
 
     response = RedirectResponse(url="/", status_code=303)
-    response.set_cookie(SESSION_COOKIE_NAME, token, httponly=True, samesite="lax")
+    response.set_cookie(
+        SESSION_COOKIE_NAME, token, httponly=True, samesite="lax",
+        max_age=int(auth.SESSION_DURATION.total_seconds()),
+    )
     return response
 
 
@@ -120,7 +123,10 @@ def login_submit(request: Request, email: str = Form(...), password: str = Form(
     db.create_session(token, user["id"], expires_at, DB_PATH)
 
     response = RedirectResponse(url="/", status_code=303)
-    response.set_cookie(SESSION_COOKIE_NAME, token, httponly=True, samesite="lax")
+    response.set_cookie(
+        SESSION_COOKIE_NAME, token, httponly=True, samesite="lax",
+        max_age=int(auth.SESSION_DURATION.total_seconds()),
+    )
     return response
 
 

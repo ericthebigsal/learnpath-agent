@@ -97,6 +97,20 @@ def test_login_with_unknown_email_shows_the_same_generic_error(client):
     assert "incorrect" in response.text.lower()
 
 
+def test_login_sets_a_persistent_session_cookie(client):
+    client.post(
+        "/register",
+        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+    )
+    client.cookies.clear()
+
+    response = client.post(
+        "/login", data={"email": "eric@example.com", "password": "hunter2"}, follow_redirects=False
+    )
+
+    assert "max-age=" in response.headers["set-cookie"].lower()
+
+
 def test_logout_deletes_session_and_redirects_to_login(client):
     client.post(
         "/register",
