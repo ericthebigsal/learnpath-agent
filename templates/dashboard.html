@@ -9,7 +9,9 @@
   {% for track in tracks %}
   <li class="track-list-item">
     <a class="track-list-name" href="/path/{{ track.id }}">{{ track.name }}</a>
+    {% if track.goal_text != track.name %}
     <p class="track-list-goal">{{ track.goal_text }}</p>
+    {% endif %}
   </li>
   {% endfor %}
 </ul>
