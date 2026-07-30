@@ -227,6 +227,23 @@ def current_path(
     )
 
 
+def _add_item_to_plan(track_id: int, item_id: str, trigger: str, rationale: str) -> None:
+    latest_plan = db.get_latest_plan(track_id, DB_PATH)
+    existing_ids = {step["item_id"] for step in latest_plan["steps"]} if latest_plan else set()
+
+    if item_id not in existing_ids:
+        steps = list(latest_plan["steps"]) if latest_plan else []
+        steps.append({"item_id": item_id, "rationale": rationale})
+        plan_dict = {
+            "steps": steps,
+            "summary": latest_plan["summary"] if latest_plan else "",
+            "dropped": [],
+        }
+        if latest_plan and "candidate_ids" in latest_plan:
+            plan_dict["candidate_ids"] = latest_plan["candidate_ids"]
+        db.log_plan(track_id, plan_dict, trigger, DB_PATH)
+
+
 @app.post("/path/{track_id}/add/{item_id}")
 def add_back_item(track_id: int, item_id: str, current_user: dict = Depends(get_current_user)):
     get_owned_track(track_id, current_user, DB_PATH)
@@ -235,22 +252,24 @@ def add_back_item(track_id: int, item_id: str, current_user: dict = Depends(get_
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    latest_plan = db.get_latest_plan(track_id, DB_PATH)
-    existing_ids = {step["item_id"] for step in latest_plan["steps"]} if latest_plan else set()
-
-    if item_id not in existing_ids:
-        steps = list(latest_plan["steps"]) if latest_plan else []
-        steps.append({"item_id": item_id, "rationale": "Added back by you."})
-        plan_dict = {
-            "steps": steps,
-            "summary": latest_plan["summary"] if latest_plan else "",
-            "dropped": [],
-        }
-        if latest_plan and "candidate_ids" in latest_plan:
-            plan_dict["candidate_ids"] = latest_plan["candidate_ids"]
-        db.log_plan(track_id, plan_dict, "manual_add", DB_PATH)
-
+    _add_item_to_plan(track_id, item_id, "manual_add", "Added back by you.")
     return RedirectResponse(url=f"/path/{track_id}", status_code=303)
+
+
+@app.post("/explore/add/{item_id}")
+def explore_add_item(
+    item_id: str,
+    track_id: int = Form(...),
+    current_user: dict = Depends(get_current_user),
+):
+    get_owned_track(track_id, current_user, DB_PATH)
+    try:
+        get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    _add_item_to_plan(track_id, item_id, "explore_add", "Added from the catalog.")
+    return RedirectResponse(url=f"/item/{track_id}/{item_id}", status_code=303)
 
 
 @app.get("/item/{track_id}/{item_id}", response_class=HTMLResponse)
