@@ -471,15 +471,43 @@ button:hover { background: var(--taken); }
   color: var(--ink-muted);
 }
 
-.diff-row-added .diff-tag {
+.diff-tile {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.6rem 0.9rem;
+}
+
+.diff-tile summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.diff-tile[open] summary { margin-bottom: 0.6rem; }
+
+.diff-tile-added { border-left: 3px solid var(--taken); }
+.diff-tile-added .diff-tag {
   background: var(--taken-tint); color: var(--taken); border-color: var(--taken-border);
 }
 
-.diff-row-removed { opacity: 0.75; }
-.diff-row-removed .diff-tag {
+.diff-tile-removed { border-left: 3px solid var(--considered); opacity: 0.9; }
+.diff-tile-removed .diff-tag {
   background: var(--considered-tint); color: var(--considered); border-color: var(--considered-border);
 }
-.diff-row-removed span:last-child { text-decoration: line-through; text-decoration-color: var(--considered-border); }
+
+.diff-tile-kept { border-left: 3px solid var(--border); }
+
+.diff-rationale { color: var(--ink-muted); margin: 0 0 0.6rem; font-size: 0.92rem; }
+
+.add-back-button {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--considered);
+}
+
+.add-back-button:hover { background: var(--taken); }
 
 /* ---------- history (courses completed + catalog) ---------- */
 

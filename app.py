@@ -63,7 +63,9 @@ def get_owned_track(track_id: int, current_user: dict, db_path: str) -> dict:
     return track
 
 
-def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, bool, list[str]]:
+def compute_plan(
+    learner: dict, progress: list[dict], previous_item_ids: list[str] | None = None
+) -> tuple[PlanResponse, bool, list[str]]:
     try:
         # google-genai's Client() only auto-detects GOOGLE_API_KEY, not
         # GEMINI_API_KEY (the name this project's README/plan document) —
@@ -71,7 +73,7 @@ def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, boo
         client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     except Exception:
         client = None
-    return planner.plan_or_replan(client, CATALOG, learner, progress)
+    return planner.plan_or_replan(client, CATALOG, learner, progress, previous_item_ids)
 
 
 @app.get("/register", response_class=HTMLResponse)
@@ -225,6 +227,32 @@ def current_path(
     )
 
 
+@app.post("/path/{track_id}/add/{item_id}")
+def add_back_item(track_id: int, item_id: str, current_user: dict = Depends(get_current_user)):
+    get_owned_track(track_id, current_user, DB_PATH)
+    try:
+        get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    latest_plan = db.get_latest_plan(track_id, DB_PATH)
+    existing_ids = {step["item_id"] for step in latest_plan["steps"]} if latest_plan else set()
+
+    if item_id not in existing_ids:
+        steps = list(latest_plan["steps"]) if latest_plan else []
+        steps.append({"item_id": item_id, "rationale": "Added back by you."})
+        plan_dict = {
+            "steps": steps,
+            "summary": latest_plan["summary"] if latest_plan else "",
+            "dropped": [],
+        }
+        if latest_plan and "candidate_ids" in latest_plan:
+            plan_dict["candidate_ids"] = latest_plan["candidate_ids"]
+        db.log_plan(track_id, plan_dict, "manual_add", DB_PATH)
+
+    return RedirectResponse(url=f"/path/{track_id}", status_code=303)
+
+
 @app.get("/item/{track_id}/{item_id}", response_class=HTMLResponse)
 def item_view(
     request: Request,
@@ -282,14 +310,19 @@ async def submit_quiz(
     db.record_progress(track_id, item_id, score, DB_PATH)
 
     previous_plan = db.get_latest_plan(track_id, DB_PATH)
+    old_item_ids = [step["item_id"] for step in previous_plan["steps"]] if previous_plan else []
+
     progress = db.get_progress(track_id, DB_PATH)
-    new_plan, _used_fallback, candidate_ids = compute_plan(track, progress)
+    new_plan, _used_fallback, candidate_ids = compute_plan(
+        track, progress, previous_item_ids=old_item_ids
+    )
     new_plan_dict = new_plan.model_dump()
     new_plan_dict["candidate_ids"] = candidate_ids
     db.log_plan(track_id, new_plan_dict, "quiz_result", DB_PATH)
 
-    old_item_ids = [step["item_id"] for step in previous_plan["steps"]] if previous_plan else []
     diff = planner.plan_diff(old_item_ids, [step.item_id for step in new_plan.steps])
+    added_rationale = {step.item_id: step.rationale for step in new_plan.steps}
+    removed_rationale = {dropped.item_id: dropped.rationale for dropped in new_plan.dropped}
 
     return templates.TemplateResponse(
         request,
@@ -301,6 +334,9 @@ async def submit_quiz(
             "score": score,
             "diff": diff,
             "summary": new_plan.summary,
+            "get_item": lambda item_id: get_item(CATALOG, item_id),
+            "added_rationale": added_rationale,
+            "removed_rationale": removed_rationale,
         },
     )
 

@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 import app as app_module
 import db
-from models import PlanResponse, PlanStep
+from models import DroppedItem, PlanResponse, PlanStep
 
 
 @pytest.fixture
@@ -12,7 +12,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(app_module, "DB_PATH", db_path)
     db.init_db(db_path)
 
-    def fake_compute_plan(track, progress):
+    def fake_compute_plan(track, progress, previous_item_ids=None):
         return (
             PlanResponse(
                 steps=[PlanStep(item_id="rag-fundamentals", rationale="Matches your goal.")],
@@ -221,11 +221,14 @@ def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    def fake_compute_plan_after_quiz(track, progress):
+    def fake_compute_plan_after_quiz(track, progress, previous_item_ids=None):
         return (
             PlanResponse(
                 steps=[PlanStep(item_id="rag-chunking-strategies", rationale="Next in RAG track.")],
                 summary="Move on to chunking strategies.",
+                dropped=[
+                    DroppedItem(item_id="rag-fundamentals", rationale="You've already mastered this.")
+                ],
             ),
             False,
             ["rag-chunking-strategies"],
@@ -240,7 +243,14 @@ def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
 
     assert response.status_code == 200
     assert "Move on to chunking strategies." in response.text
-    assert "Added" in response.text or "added" in response.text
+    # resolved titles, not raw ids
+    assert "Chunking Strategies: Splitting Documents Without Losing Meaning" in response.text
+    assert "RAG Fundamentals: Retrieval Meets Generation" in response.text
+    # real rationale for both an added and a removed item
+    assert "Next in RAG track." in response.text
+    assert "already mastered this" in response.text
+    # add-back action present for the removed item
+    assert 'action="/path/1/add/rag-fundamentals"' in response.text
 
     progress = db.get_progress(1, app_module.DB_PATH)
     assert progress[0]["item_id"] == "rag-fundamentals"
@@ -297,4 +307,66 @@ def test_history_screen_shows_completed_courses_with_quiz_results(client):
 
 def test_history_screen_returns_404_for_nonexistent_track(client):
     response = client.get("/history/99999")
+    assert response.status_code == 404
+
+
+def test_add_back_route_reinserts_a_dropped_item_and_redirects(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.post(
+        "/path/1/add/rag-chunking-strategies", follow_redirects=False
+    )
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/path/1"
+
+    latest = db.get_latest_plan(1, app_module.DB_PATH)
+    assert any(step["item_id"] == "rag-chunking-strategies" for step in latest["steps"])
+    assert latest["trigger"] == "manual_add"
+
+
+def test_add_back_route_does_not_duplicate_an_already_present_item(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    # rag-fundamentals is already in the fixture's fake initial plan
+    client.post("/path/1/add/rag-fundamentals")
+
+    latest = db.get_latest_plan(1, app_module.DB_PATH)
+    matching = [step for step in latest["steps"] if step["item_id"] == "rag-fundamentals"]
+    assert len(matching) == 1
+
+
+def test_add_back_route_returns_404_for_nonexistent_item(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.post("/path/1/add/does-not-exist")
+    assert response.status_code == 404
+
+
+def test_add_back_route_returns_404_for_another_users_track(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    with TestClient(app_module.app) as other_client:
+        other_client.post(
+            "/register",
+            data={
+                "email": "someone-else@example.com",
+                "password": "hunter22",
+                "confirm_password": "hunter22",
+            },
+        )
+        response = other_client.post("/path/1/add/rag-fundamentals")
+
     assert response.status_code == 404

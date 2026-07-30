@@ -11,24 +11,33 @@
 </div>
 
 <div class="diff-rail">
-  {% if diff.added %}
-  <div class="diff-row diff-row-added">
-    <span class="diff-tag">Added</span>
-    <span>{{ diff.added | join(", ") }}</span>
-  </div>
-  {% endif %}
-  {% if diff.removed %}
-  <div class="diff-row diff-row-removed">
-    <span class="diff-tag">Removed</span>
-    <span>{{ diff.removed | join(", ") }}</span>
-  </div>
-  {% endif %}
-  {% if diff.kept %}
-  <div class="diff-row diff-row-kept">
-    <span class="diff-tag">Kept</span>
-    <span>{{ diff.kept | join(", ") }}</span>
-  </div>
-  {% endif %}
+  {% for item_id in diff.added %}
+  {% set item = get_item(item_id) %}
+  <details class="diff-tile diff-tile-added">
+    <summary><span class="diff-tag">Added</span> {{ item.title }}</summary>
+    <p class="diff-rationale">{{ added_rationale.get(item_id) or "No rationale available." }}</p>
+  </details>
+  {% endfor %}
+
+  {% for item_id in diff.removed %}
+  {% set item = get_item(item_id) %}
+  <details class="diff-tile diff-tile-removed">
+    <summary><span class="diff-tag">Removed</span> {{ item.title }}</summary>
+    <p class="diff-rationale">{{ removed_rationale.get(item_id) or "No rationale available." }}</p>
+    <form method="post" action="/path/{{ track_id }}/add/{{ item_id }}">
+      <button type="submit" class="add-back-button">Add it back</button>
+    </form>
+  </details>
+  {% endfor %}
+
+  {% for item_id in diff.kept %}
+  {% set item = get_item(item_id) %}
+  <details class="diff-tile diff-tile-kept">
+    <summary><span class="diff-tag">Kept</span> {{ item.title }}</summary>
+    <p class="diff-rationale">{{ added_rationale.get(item_id) or "No rationale available." }}</p>
+  </details>
+  {% endfor %}
+
   {% if diff.reordered %}
   <div class="diff-row diff-row-reordered">
     <span class="diff-tag">Reordered</span>
