@@ -24,7 +24,7 @@ def test_register_page_renders_form(client):
 def test_registering_creates_user_and_logs_in(client):
     response = client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
         follow_redirects=False,
     )
 
@@ -33,13 +33,13 @@ def test_registering_creates_user_and_logs_in(client):
 
     user = db.get_user_by_email("eric@example.com", app_module.DB_PATH)
     assert user is not None
-    assert user["password_hash"] != "hunter2"
+    assert user["password_hash"] != "hunter22"
 
 
 def test_registering_with_mismatched_passwords_shows_error(client):
     response = client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "different"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "different"},
     )
 
     assert response.status_code == 200
@@ -47,10 +47,21 @@ def test_registering_with_mismatched_passwords_shows_error(client):
     assert db.get_user_by_email("eric@example.com", app_module.DB_PATH) is None
 
 
+def test_registering_with_too_short_password_shows_error(client):
+    response = client.post(
+        "/register",
+        data={"email": "eric@example.com", "password": "short", "confirm_password": "short"},
+    )
+
+    assert response.status_code == 200
+    assert "8 characters" in response.text
+    assert db.get_user_by_email("eric@example.com", app_module.DB_PATH) is None
+
+
 def test_registering_duplicate_email_shows_error(client):
     client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
     )
 
     response = client.post(
@@ -65,12 +76,27 @@ def test_registering_duplicate_email_shows_error(client):
 def test_login_with_correct_password_succeeds(client):
     client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
     )
     client.cookies.clear()
 
     response = client.post(
-        "/login", data={"email": "eric@example.com", "password": "hunter2"}, follow_redirects=False
+        "/login", data={"email": "eric@example.com", "password": "hunter22"}, follow_redirects=False
+    )
+
+    assert response.status_code == 303
+    assert "session_token" in response.cookies
+
+
+def test_login_with_differently_cased_email_succeeds(client):
+    client.post(
+        "/register",
+        data={"email": "Eric@Example.com", "password": "hunter22", "confirm_password": "hunter22"},
+    )
+    client.cookies.clear()
+
+    response = client.post(
+        "/login", data={"email": "eric@example.com", "password": "hunter22"}, follow_redirects=False
     )
 
     assert response.status_code == 303
@@ -80,7 +106,7 @@ def test_login_with_correct_password_succeeds(client):
 def test_login_with_wrong_password_shows_generic_error(client):
     client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
     )
     client.cookies.clear()
 
@@ -100,12 +126,12 @@ def test_login_with_unknown_email_shows_the_same_generic_error(client):
 def test_login_sets_a_persistent_session_cookie(client):
     client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
     )
     client.cookies.clear()
 
     response = client.post(
-        "/login", data={"email": "eric@example.com", "password": "hunter2"}, follow_redirects=False
+        "/login", data={"email": "eric@example.com", "password": "hunter22"}, follow_redirects=False
     )
 
     assert "max-age=" in response.headers["set-cookie"].lower()
@@ -114,7 +140,7 @@ def test_login_sets_a_persistent_session_cookie(client):
 def test_logout_deletes_session_and_redirects_to_login(client):
     client.post(
         "/register",
-        data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
     )
     token = client.cookies.get("session_token")
 

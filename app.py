@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
@@ -34,7 +34,9 @@ class NotAuthenticated(Exception):
 
 @app.exception_handler(NotAuthenticated)
 def handle_not_authenticated(request: Request, exc: NotAuthenticated):
-    return RedirectResponse(url="/login", status_code=303)
+    response = RedirectResponse(url="/login", status_code=303)
+    response.delete_cookie(SESSION_COOKIE_NAME)
+    return response
 
 
 def get_current_user(request: Request) -> dict:
@@ -87,6 +89,13 @@ def register_submit(
     if password != confirm_password:
         return templates.TemplateResponse(
             request, "register.html", {"request": request, "error": "Passwords don't match."}
+        )
+
+    if len(password) < 8:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"request": request, "error": "Password must be at least 8 characters."},
         )
 
     try:
@@ -167,12 +176,12 @@ def dashboard(request: Request, current_user: dict = Depends(get_current_user)):
 @app.post("/tracks")
 def create_track(
     goal_text: str = Form(...),
-    starting_level: str = Form(...),
+    starting_level: Level = Form(...),
     current_user: dict = Depends(get_current_user),
 ):
     name = auth.derive_track_name(goal_text)
-    track = db.create_track(current_user["id"], name, goal_text, starting_level, DB_PATH)
-    db.update_default_starting_level(current_user["id"], starting_level, DB_PATH)
+    track = db.create_track(current_user["id"], name, goal_text, starting_level.value, DB_PATH)
+    db.update_default_starting_level(current_user["id"], starting_level.value, DB_PATH)
 
     plan, _used_fallback, candidate_ids = compute_plan(track, [])
     plan_dict = plan.model_dump()
@@ -188,6 +197,8 @@ def current_path(
     track = get_owned_track(track_id, current_user, DB_PATH)
     progress = db.get_progress(track_id, DB_PATH)
     latest_plan = db.get_latest_plan(track_id, DB_PATH)
+    if latest_plan is None:
+        raise HTTPException(status_code=404, detail="Track not found")
 
     steps = [
         {"item": get_item(CATALOG, step["item_id"]), "rationale": step["rationale"]}

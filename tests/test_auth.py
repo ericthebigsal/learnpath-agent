@@ -54,3 +54,13 @@ def test_derive_track_name_truncates_long_goal_text_at_a_word_boundary():
     assert name.endswith("…")
     assert not name[:-1].endswith(" ")  # trimmed back to the last full word, no trailing space before the ellipsis
     assert goal.startswith(name[:-1])
+
+
+def test_derive_track_name_falls_back_to_hard_truncation_when_no_word_boundary_exists():
+    # A leading space right at the truncation point makes rsplit(" ", 1)[0] empty;
+    # without a fallback this would collapse to just "…".
+    goal = " " + "x" * 80
+    name = derive_track_name(goal)
+
+    assert name != "…"
+    assert name == goal[:60] + "…"

@@ -22,4 +22,6 @@ def derive_track_name(goal_text: str, max_length: int = 60) -> str:
     if len(goal_text) <= max_length:
         return goal_text
     truncated = goal_text[:max_length].rsplit(" ", 1)[0]
+    if not truncated:
+        truncated = goal_text[:max_length]
     return truncated + "…"

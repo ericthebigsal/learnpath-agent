@@ -10,8 +10,8 @@ Static "personalized learning paths" in most real LMS products are personalized 
 
 - `catalog.py` / `data/catalog.json` — ~54 seed items across 7 AI-concept tracks and 3 levels.
 - `planner.py` — filters the catalog down to a relevant candidate set, then either asks Gemini (structured JSON output validated against a Pydantic schema) to rank/sequence them with rationale, or falls back to a deterministic rule-based planner if the API call fails or rate-limits.
-- `db.py` — SQLite-backed learner state: goal, progress, and every past plan with its rationale.
-- `app.py` — five FastAPI screens: start → current path → item + quiz → path-updated diff → plan history / catalog browse.
+- `db.py` — SQLite-backed account and track state: your tracks' goals, progress, and every past plan with its rationale.
+- `app.py` — seven FastAPI screens: register → login → dashboard → current path → item + quiz → path-updated diff → plan history / catalog browse.
 - `auth.py` / `db.py`'s `users`/`sessions` tables — real email+password accounts. A "learner" from earlier versions of this project is now a user-owned **track**; one account can run several tracks in parallel, each with its own progress and plan history.
 
 Every function that calls the Gemini API takes the client as an explicit parameter, and `genai.Client()` is constructed in exactly one place (`app.compute_plan`). That's what makes the entire automated test suite run offline, with a mocked client and no API key required.
@@ -36,4 +36,4 @@ Then open http://127.0.0.1:8000/, register an account, and describe a learning g
 
 ## Tech stack
 
-Python, FastAPI, Jinja2, Pydantic v2, `google-genai` (Gemini free tier, `gemini-2.5-flash`), SQLite, pytest.
+Python, FastAPI, Jinja2, Pydantic v2, `google-genai` (Gemini free tier, `gemini-2.5-flash`), SQLite, `bcrypt`, pytest.

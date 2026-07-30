@@ -27,7 +27,7 @@ def client(tmp_path, monkeypatch):
     with TestClient(app_module.app) as test_client:
         test_client.post(
             "/register",
-            data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+            data={"email": "eric@example.com", "password": "hunter22", "confirm_password": "hunter22"},
         )
         yield test_client
 
@@ -75,6 +75,19 @@ def test_submitting_track_form_creates_track_and_redirects_to_path(client):
 
     assert response.status_code == 303
     assert response.headers["location"].startswith("/path/")
+
+
+def test_submitting_track_form_with_invalid_starting_level_returns_422_and_creates_no_track(client):
+    response = client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "not-a-level"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 422
+
+    user = db.get_user_by_email("eric@example.com", app_module.DB_PATH)
+    assert db.get_tracks_for_user(user["id"], app_module.DB_PATH) == []
 
 
 def test_submitting_track_form_logs_the_initial_plan_and_updates_default_level(client):
@@ -136,6 +149,17 @@ def test_current_path_screen_returns_404_for_nonexistent_track(client):
     assert response.status_code == 404
 
 
+def test_current_path_screen_returns_404_for_track_with_no_logged_plan(client):
+    user = db.get_user_by_email("eric@example.com", app_module.DB_PATH)
+    track = db.create_track(
+        user["id"], "Learn RAG", "Learn RAG basics", "beginner", app_module.DB_PATH
+    )
+
+    response = client.get(f"/path/{track['id']}")
+
+    assert response.status_code == 404
+
+
 def test_current_path_screen_returns_404_for_another_users_track(client, tmp_path):
     client.post(
         "/tracks",
@@ -145,7 +169,7 @@ def test_current_path_screen_returns_404_for_another_users_track(client, tmp_pat
     with TestClient(app_module.app) as other_client:
         other_client.post(
             "/register",
-            data={"email": "someone-else@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+            data={"email": "someone-else@example.com", "password": "hunter22", "confirm_password": "hunter22"},
         )
         response = other_client.get("/path/1")
 

@@ -70,6 +70,7 @@ def init_db(db_path: str = DEFAULT_DB_PATH) -> None:
 # ---------- users ----------
 
 def create_user(email: str, password_hash: str, db_path: str = DEFAULT_DB_PATH) -> dict:
+    email = email.strip().lower()
     conn = _connect(db_path)
     try:
         existing = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
@@ -99,6 +100,7 @@ def get_user(user_id: int, db_path: str = DEFAULT_DB_PATH) -> dict | None:
 
 
 def get_user_by_email(email: str, db_path: str = DEFAULT_DB_PATH) -> dict | None:
+    email = email.strip().lower()
     conn = _connect(db_path)
     try:
         row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
@@ -143,7 +145,8 @@ def get_session_with_user(token: str, db_path: str = DEFAULT_DB_PATH) -> dict | 
     try:
         row = conn.execute(
             """
-            SELECT users.*, sessions.expires_at AS session_expires_at
+            SELECT users.id, users.email, users.default_starting_level, users.created_at,
+                   sessions.expires_at AS session_expires_at
             FROM sessions
             JOIN users ON users.id = sessions.user_id
             WHERE sessions.token = ?

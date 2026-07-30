@@ -48,6 +48,29 @@ def test_create_user_rejects_duplicate_email(tmp_path):
         db.create_user("eric@example.com", "hash-two", db_path)
 
 
+def test_create_user_normalizes_email_case_for_duplicate_detection(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    db.create_user("A@Example.com", "hash-one", db_path)
+
+    with pytest.raises(db.DuplicateEmailError):
+        db.create_user("a@example.com", "hash-two", db_path)
+
+
+def test_get_user_by_email_is_case_and_whitespace_insensitive(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    db.create_user("Eric@Example.com", "hashed-password", db_path)
+
+    found = db.get_user_by_email("eric@example.com", db_path)
+    assert found is not None
+    assert found["email"] == "eric@example.com"
+
+    found_with_whitespace = db.get_user_by_email("  eric@example.com  ", db_path)
+    assert found_with_whitespace is not None
+    assert found_with_whitespace["email"] == "eric@example.com"
+
+
 def test_update_default_starting_level(tmp_path):
     db_path = str(tmp_path / "test.db")
     db.init_db(db_path)
@@ -156,6 +179,15 @@ def test_log_plan_and_get_latest_plan_keyed_by_track(tmp_path):
 
     latest = db.get_latest_plan(track["id"], db_path)
     assert latest["steps"] == plan["steps"]
+
+
+def test_get_latest_plan_returns_none_for_a_track_with_no_logged_plan(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    user = db.create_user("eric@example.com", "hashed-password", db_path)
+    track = db.create_track(user["id"], "Learn RAG", "Learn RAG basics", "beginner", db_path)
+
+    assert db.get_latest_plan(track["id"], db_path) is None
 
 
 def test_get_plan_log_returns_all_plans_in_order(tmp_path):
