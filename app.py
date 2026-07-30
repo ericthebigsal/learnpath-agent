@@ -142,22 +142,36 @@ def logout_submit(request: Request):
 
 
 @app.get("/", response_class=HTMLResponse)
-def start_page(request: Request):
+def dashboard(request: Request, current_user: dict = Depends(get_current_user)):
+    tracks = db.get_tracks_for_user(current_user["id"], DB_PATH)
     return templates.TemplateResponse(
         request,
-        "start.html",
-        {"request": request, "levels": [level.value for level in Level]},
+        "dashboard.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "tracks": tracks,
+            "levels": [level.value for level in Level],
+            "default_level": current_user["default_starting_level"],
+        },
     )
 
 
-@app.post("/start")
-def start_learner(goal_text: str = Form(...), starting_level: str = Form(...)):
-    learner = db.create_learner(goal_text, starting_level, DB_PATH)
-    plan, _used_fallback, candidate_ids = compute_plan(learner, [])
+@app.post("/tracks")
+def create_track(
+    goal_text: str = Form(...),
+    starting_level: str = Form(...),
+    current_user: dict = Depends(get_current_user),
+):
+    name = auth.derive_track_name(goal_text)
+    track = db.create_track(current_user["id"], name, goal_text, starting_level, DB_PATH)
+    db.update_default_starting_level(current_user["id"], starting_level, DB_PATH)
+
+    plan, _used_fallback, candidate_ids = compute_plan(track, [])
     plan_dict = plan.model_dump()
     plan_dict["candidate_ids"] = candidate_ids
-    db.log_plan(learner["id"], plan_dict, "initial", DB_PATH)
-    return RedirectResponse(url=f"/path/{learner['id']}", status_code=303)
+    db.log_plan(track["id"], plan_dict, "initial", DB_PATH)
+    return RedirectResponse(url=f"/path/{track['id']}", status_code=303)
 
 
 @app.get("/path/{learner_id}", response_class=HTMLResponse)

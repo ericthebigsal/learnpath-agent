@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — learnpath-agent{% endblock %}
+{% block content %}
+<p class="eyebrow">Your tracks</p>
+<h1>Welcome back</h1>
+
+{% if tracks %}
+<ul class="track-list">
+  {% for track in tracks %}
+  <li class="track-list-item">
+    <a class="track-list-name" href="/path/{{ track.id }}">{{ track.name }}</a>
+    <p class="track-list-goal">{{ track.goal_text }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h2>Start a new track</h2>
+<form class="goal-form" method="post" action="/tracks">
+  <label for="goal_text">Your goal</label>
+  <textarea id="goal_text" name="goal_text" rows="3" required
+    placeholder="e.g. I want to understand how RAG differs from just stuffing context"></textarea>
+
+  <label for="starting_level">Starting level</label>
+  <select id="starting_level" name="starting_level">
+    {% for level in levels %}
+    <option value="{{ level }}" {% if level == default_level %}selected{% endif %}>{{ level | capitalize }}</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Build my learning path</button>
+</form>
+{% endblock %}

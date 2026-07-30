@@ -12,7 +12,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(app_module, "DB_PATH", db_path)
     db.init_db(db_path)
 
-    def fake_compute_plan(learner, progress):
+    def fake_compute_plan(track, progress):
         return (
             PlanResponse(
                 steps=[PlanStep(item_id="rag-fundamentals", rationale="Matches your goal.")],
@@ -25,28 +25,40 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(app_module, "compute_plan", fake_compute_plan)
 
     with TestClient(app_module.app) as test_client:
+        test_client.post(
+            "/register",
+            data={"email": "eric@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        )
         yield test_client
 
 
 def test_compute_plan_falls_back_when_genai_client_construction_raises(monkeypatch):
-    # Exercises the real app_module.compute_plan (unlike every other test in this file,
-    # which monkeypatches compute_plan itself). This is the seam where a missing
-    # GEMINI_API_KEY used to crash with an unhandled ValueError from genai.Client(),
-    # instead of falling back to the rule-based planner like every other Gemini failure.
     def raise_missing_api_key():
         raise ValueError("Missing key inputs argument!")
 
     monkeypatch.setattr(app_module.genai, "Client", raise_missing_api_key)
 
-    learner = {"goal_text": "I want to learn about RAG", "starting_level": "beginner"}
-    plan, used_fallback, candidate_ids = app_module.compute_plan(learner, [])
+    track = {"goal_text": "I want to learn about RAG", "starting_level": "beginner"}
+    plan, used_fallback, candidate_ids = app_module.compute_plan(track, [])
 
     assert used_fallback is True
     assert len(plan.steps) > 0
     assert len(candidate_ids) > 0
 
 
-def test_start_page_renders_goal_form(client):
+def test_dashboard_redirects_to_login_when_not_authenticated(tmp_path, monkeypatch):
+    db_path = str(tmp_path / "test.db")
+    monkeypatch.setattr(app_module, "DB_PATH", db_path)
+    db.init_db(db_path)
+
+    with TestClient(app_module.app) as anon_client:
+        response = anon_client.get("/", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
+def test_dashboard_shows_goal_form_when_logged_in(client):
     response = client.get("/")
 
     assert response.status_code == 200
@@ -54,9 +66,9 @@ def test_start_page_renders_goal_form(client):
     assert "starting_level" in response.text
 
 
-def test_submitting_start_form_creates_learner_and_redirects_to_path(client):
+def test_submitting_track_form_creates_track_and_redirects_to_path(client):
     response = client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
         follow_redirects=False,
     )
@@ -65,16 +77,31 @@ def test_submitting_start_form_creates_learner_and_redirects_to_path(client):
     assert response.headers["location"].startswith("/path/")
 
 
-def test_submitting_start_form_logs_the_initial_plan(client, tmp_path):
+def test_submitting_track_form_logs_the_initial_plan_and_updates_default_level(client):
     client.post(
-        "/start",
-        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "intermediate"},
     )
 
     latest = db.get_latest_plan(1, app_module.DB_PATH)
     assert latest is not None
     assert latest["trigger"] == "initial"
     assert latest["steps"][0]["item_id"] == "rag-fundamentals"
+
+    user = db.get_user_by_email("eric@example.com", app_module.DB_PATH)
+    assert user["default_starting_level"] == "intermediate"
+
+
+def test_dashboard_lists_existing_tracks(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "I want to learn about RAG" in response.text
 
 
 def test_current_path_screen_shows_recommended_items_and_rationale(client):
