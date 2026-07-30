@@ -53,9 +53,15 @@ class PlanStep(BaseModel):
     rationale: str
 
 
+class DroppedItem(BaseModel):
+    item_id: str
+    rationale: str
+
+
 class PlanResponse(BaseModel):
     steps: list[PlanStep]
     summary: str
+    dropped: list[DroppedItem] = Field(default_factory=list)
 
 
 class PlanDiff(BaseModel):

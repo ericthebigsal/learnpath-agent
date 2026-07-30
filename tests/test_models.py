@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from models import (
     Catalog,
     CatalogItem,
+    DroppedItem,
     ItemType,
     Level,
     PlanDiff,
@@ -12,6 +13,26 @@ from models import (
     QuizQuestion,
     Track,
 )
+
+
+def test_dropped_item_holds_id_and_rationale():
+    dropped = DroppedItem(item_id="rag-fundamentals", rationale="No longer relevant to your goal.")
+    assert dropped.item_id == "rag-fundamentals"
+    assert dropped.rationale == "No longer relevant to your goal."
+
+
+def test_plan_response_defaults_dropped_to_empty_list():
+    plan = PlanResponse(steps=[], summary="test")
+    assert plan.dropped == []
+
+
+def test_plan_response_holds_dropped_items():
+    plan = PlanResponse(
+        steps=[],
+        summary="test",
+        dropped=[DroppedItem(item_id="x", rationale="y")],
+    )
+    assert plan.dropped[0].item_id == "x"
 
 
 def test_catalog_item_accepts_valid_enum_values():
