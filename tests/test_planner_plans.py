@@ -3,7 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 from catalog import LEVEL_ORDER, load_catalog
-from models import CatalogItem, Level, PlanResponse, PlanStep, Track
+from models import CatalogItem, DroppedItem, Level, PlanResponse, PlanStep, Track
 from planner import (
     PASSING_THRESHOLD,
     build_prompt,
@@ -267,3 +267,114 @@ def test_certification_ready_tracks_excludes_track_with_low_average():
     progress = [{"item_id": item.id, "quiz_score": 50.0} for item in rag_courses]
 
     assert "RAG" not in certification_ready_tracks(catalog, progress)
+
+
+def test_build_prompt_mentions_previously_planned_items_when_given():
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())[:2]
+
+    prompt = build_prompt(
+        "Learn RAG", Level.BEGINNER, [], candidates, previous_item_ids=["rag-fundamentals"]
+    )
+
+    assert "rag-fundamentals" in prompt
+    assert "dropped" in prompt.lower()
+
+
+def test_build_prompt_omits_previous_items_section_when_none_given():
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())[:2]
+
+    prompt_without = build_prompt("Learn RAG", Level.BEGINNER, [], candidates)
+    prompt_with_empty = build_prompt(
+        "Learn RAG", Level.BEGINNER, [], candidates, previous_item_ids=[]
+    )
+
+    assert prompt_without == prompt_with_empty
+
+
+def test_gemini_plan_passes_through_real_dropped_entries():
+    client = Mock()
+    expected_plan = PlanResponse(
+        steps=[PlanStep(item_id="rag-chunking-strategies", rationale="Next step.")],
+        summary="Moving on.",
+        dropped=[DroppedItem(item_id="rag-fundamentals", rationale="Already mastered.")],
+    )
+    client.models.generate_content.return_value = SimpleNamespace(parsed=expected_plan)
+
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())
+
+    result = gemini_plan(
+        client, "Learn RAG", Level.BEGINNER, [], candidates, previous_item_ids=["rag-fundamentals"]
+    )
+
+    assert result.dropped[0].item_id == "rag-fundamentals"
+    assert result.dropped[0].rationale == "Already mastered."
+
+
+def test_rule_based_plan_computes_dropped_items_mechanically():
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())
+
+    plan = rule_based_plan(
+        candidates, previous_item_ids=["rag-fundamentals", "does-not-exist-anymore"]
+    )
+
+    new_step_ids = {step.item_id for step in plan.steps}
+    dropped_ids = {d.item_id for d in plan.dropped}
+
+    for prev_id in ["rag-fundamentals", "does-not-exist-anymore"]:
+        if prev_id not in new_step_ids:
+            assert prev_id in dropped_ids
+    for dropped in plan.dropped:
+        assert "Fallback rule-based plan" in dropped.rationale
+
+
+def test_rule_based_plan_with_no_previous_items_drops_nothing():
+    catalog = load_catalog()
+    candidates = filter_candidates(catalog, "Learn RAG", Level.BEGINNER, set())
+
+    plan = rule_based_plan(candidates)
+
+    assert plan.dropped == []
+
+
+def test_gemini_plan_filters_hallucinated_dropped_ids():
+    client = Mock()
+    hallucinated_plan = PlanResponse(
+        steps=[PlanStep(item_id="rag-chunking-strategies", rationale="Next step.")],
+        summary="Moving on.",
+        dropped=[
+            DroppedItem(item_id="rag-fundamentals", rationale="Real, was previously planned."),
+            DroppedItem(item_id="totally-invented-id", rationale="Hallucinated, never planned."),
+        ],
+    )
+    client.models.generate_content.return_value = SimpleNamespace(parsed=hallucinated_plan)
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback, _candidate_ids = plan_or_replan(
+        client, catalog, learner, [], previous_item_ids=["rag-fundamentals"]
+    )
+
+    assert used_fallback is False
+    dropped_ids = {d.item_id for d in plan.dropped}
+    assert "rag-fundamentals" in dropped_ids
+    assert "totally-invented-id" not in dropped_ids
+
+
+def test_plan_or_replan_passes_previous_item_ids_to_fallback_on_failure():
+    client = Mock()
+    client.models.generate_content.side_effect = RuntimeError("rate limited")
+
+    catalog = load_catalog()
+    learner = {"goal_text": "Learn RAG", "starting_level": "beginner"}
+
+    plan, used_fallback, _candidate_ids = plan_or_replan(
+        client, catalog, learner, [], previous_item_ids=["rag-fundamentals"]
+    )
+
+    assert used_fallback is True
+    assert isinstance(plan.dropped, list)

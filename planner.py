@@ -1,7 +1,7 @@
 from google.genai import types
 
 from catalog import LEVEL_ORDER, levels_within
-from models import Catalog, CatalogItem, Level, PlanDiff, PlanResponse, PlanStep, Track
+from models import Catalog, CatalogItem, DroppedItem, Level, PlanDiff, PlanResponse, PlanStep, Track
 
 TRACK_NAMES = [track.value for track in Track]
 
@@ -37,7 +37,11 @@ def current_level(starting_level: Level, progress: list[dict], catalog: Catalog)
     return LEVEL_ORDER[idx]
 
 
-def rule_based_plan(candidates: list[CatalogItem], limit: int = 5) -> PlanResponse:
+def rule_based_plan(
+    candidates: list[CatalogItem],
+    previous_item_ids: list[str] | None = None,
+    limit: int = 5,
+) -> PlanResponse:
     ordered = sorted(
         candidates, key=lambda item: (LEVEL_ORDER.index(item.level), item.duration_minutes)
     )[:limit]
@@ -51,9 +55,24 @@ def rule_based_plan(candidates: list[CatalogItem], limit: int = 5) -> PlanRespon
         )
         for item in ordered
     ]
+
+    new_step_ids = {step.item_id for step in steps}
+    dropped = [
+        DroppedItem(
+            item_id=prev_id,
+            rationale=(
+                "Fallback rule-based plan: no longer prioritized under simple "
+                "level/duration ordering."
+            ),
+        )
+        for prev_id in (previous_item_ids or [])
+        if prev_id not in new_step_ids
+    ]
+
     return PlanResponse(
         steps=steps,
         summary="Fallback rule-based plan (LLM unavailable): candidates ordered by level then duration.",
+        dropped=dropped,
     )
 
 
@@ -64,7 +83,11 @@ ADVANCE_THRESHOLD = 90.0
 
 
 def build_prompt(
-    goal_text: str, level: Level, progress: list[dict], candidates: list[CatalogItem]
+    goal_text: str,
+    level: Level,
+    progress: list[dict],
+    candidates: list[CatalogItem],
+    previous_item_ids: list[str] | None = None,
 ) -> str:
     candidate_lines = "\n".join(
         f"- {item.id}: {item.title} ({item.track.value}, {item.level.value}, {item.duration_minutes}m)"
@@ -76,6 +99,17 @@ def build_prompt(
         )
     else:
         progress_lines = "None yet."
+
+    previous_section = ""
+    if previous_item_ids:
+        previous_lines = "\n".join(f"- {item_id}" for item_id in previous_item_ids)
+        previous_section = (
+            "\n\nPreviously planned items (from before this replan):\n"
+            f"{previous_lines}\n\n"
+            "For any of these you are NOT including in your new plan, add an entry to the "
+            "`dropped` list explaining in one line why you dropped it. Only include ids from "
+            "this previously-planned list in `dropped` — never invent a dropped id."
+        )
 
     return (
         "You are an adaptive learning-path planner for an AI-concepts course catalog.\n\n"
@@ -91,7 +125,8 @@ def build_prompt(
         "next level.\n\n"
         "Candidate items available to recommend next (choose and order a subset of these; "
         "never invent an id that isn't listed):\n"
-        f"{candidate_lines}\n\n"
+        f"{candidate_lines}"
+        f"{previous_section}\n\n"
         "Return an ordered list of item ids to study next, a one-line rationale for each, "
         "and a one-to-two-sentence overall summary of the plan."
     )
@@ -103,9 +138,10 @@ def gemini_plan(
     level: Level,
     progress: list[dict],
     candidates: list[CatalogItem],
+    previous_item_ids: list[str] | None = None,
     model: str = PLANNER_MODEL,
 ) -> PlanResponse:
-    prompt = build_prompt(goal_text, level, progress, candidates)
+    prompt = build_prompt(goal_text, level, progress, candidates, previous_item_ids)
     response = client.models.generate_content(
         model=model,
         contents=prompt,
@@ -121,7 +157,11 @@ def gemini_plan(
 
 
 def plan_or_replan(
-    client, catalog: Catalog, learner: dict, progress: list[dict]
+    client,
+    catalog: Catalog,
+    learner: dict,
+    progress: list[dict],
+    previous_item_ids: list[str] | None = None,
 ) -> tuple[PlanResponse, bool, list[str]]:
     completed_ids = {entry["item_id"] for entry in progress}
     level = current_level(Level(learner["starting_level"]), progress, catalog)
@@ -129,17 +169,22 @@ def plan_or_replan(
     candidate_ids = [item.id for item in candidates]
 
     if client is None:
-        return rule_based_plan(candidates), True, candidate_ids
+        return rule_based_plan(candidates, previous_item_ids), True, candidate_ids
 
     try:
-        plan = gemini_plan(client, learner["goal_text"], level, progress, candidates)
+        plan = gemini_plan(
+            client, learner["goal_text"], level, progress, candidates, previous_item_ids
+        )
         candidate_id_set = set(candidate_ids)
         plan.steps = [step for step in plan.steps if step.item_id in candidate_id_set]
         if not plan.steps:
             raise ValueError("LLM returned no usable candidate ids")
+        plan.dropped = [
+            dropped for dropped in plan.dropped if dropped.item_id in (previous_item_ids or [])
+        ]
         return plan, False, candidate_ids
     except Exception:
-        return rule_based_plan(candidates), True, candidate_ids
+        return rule_based_plan(candidates, previous_item_ids), True, candidate_ids
 
 
 def certification_ready_tracks(catalog: Catalog, progress: list[dict]) -> list[str]:
