@@ -399,6 +399,10 @@ button:hover { background: var(--taken); }
 .lesson { margin-bottom: 2rem; }
 .content { font-size: 1.05rem; max-width: 68ch; margin: 0; }
 
+.lesson-section { margin-top: 1.75rem; }
+.lesson-section:first-of-type { margin-top: 1rem; }
+.lesson-section h2 { font-size: 1.15rem; margin: 0 0 0.6rem; }
+
 .quiz { border-top: 1px solid var(--border); padding-top: 1.5rem; }
 
 .quiz-eyebrow {

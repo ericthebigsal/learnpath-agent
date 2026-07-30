@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from models import (
     Catalog,
     CatalogItem,
+    CourseSection,
     DroppedItem,
     ItemType,
     Level,
@@ -13,6 +14,29 @@ from models import (
     QuizQuestion,
     Track,
 )
+
+
+def test_course_section_holds_heading_and_body():
+    section = CourseSection(heading="How it works", body="A detailed explanation.")
+    assert section.heading == "How it works"
+    assert section.body == "A detailed explanation."
+
+
+def test_catalog_item_defaults_sections_to_empty_list():
+    item = CatalogItem(
+        id="x", title="X", type=ItemType.COURSE, level=Level.BEGINNER,
+        track=Track.RAG, duration_minutes=10,
+    )
+    assert item.sections == []
+
+
+def test_catalog_item_holds_sections():
+    item = CatalogItem(
+        id="x", title="X", type=ItemType.COURSE, level=Level.BEGINNER,
+        track=Track.RAG, duration_minutes=10,
+        sections=[CourseSection(heading="Intro", body="Some body text.")],
+    )
+    assert item.sections[0].heading == "Intro"
 
 
 def test_dropped_item_holds_id_and_rationale():

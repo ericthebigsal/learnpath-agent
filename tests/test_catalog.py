@@ -47,7 +47,15 @@ def test_course_items_have_substantive_content_and_valid_quizzes():
     catalog = load_catalog()
     for item in catalog.items:
         if item.type.value == "course":
-            assert len(item.content) >= 200, f"{item.id} content is too short"
+            if item.sections:
+                assert len(item.sections) >= 3, f"{item.id} has fewer than 3 sections"
+                for section in item.sections:
+                    assert section.heading, f"{item.id} has a section with no heading"
+                    assert len(section.body) >= 150, (
+                        f"{item.id} section {section.heading!r} is too short"
+                    )
+            else:
+                assert len(item.content) >= 200, f"{item.id} content is too short"
             assert 3 <= len(item.quiz) <= 5, f"{item.id} quiz must have 3-5 questions"
             for question in item.quiz:
                 assert 0 <= question.correct_index < len(question.options)

@@ -4,7 +4,16 @@
 <article class="lesson">
   <p class="eyebrow">{{ item.track.value }} &middot; {{ item.level.value }}</p>
   <h1>{{ item.title }}</h1>
+  {% if item.sections %}
+    {% for section in item.sections %}
+    <section class="lesson-section">
+      <h2>{{ section.heading }}</h2>
+      <p class="content">{{ section.body }}</p>
+    </section>
+    {% endfor %}
+  {% else %}
   <p class="content">{{ item.content }}</p>
+  {% endif %}
 </article>
 
 {% if item.quiz %}

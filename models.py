@@ -31,6 +31,11 @@ class QuizQuestion(BaseModel):
     correct_index: int
 
 
+class CourseSection(BaseModel):
+    heading: str
+    body: str
+
+
 class CatalogItem(BaseModel):
     id: str
     title: str
@@ -39,6 +44,7 @@ class CatalogItem(BaseModel):
     track: Track
     duration_minutes: int
     content: str = ""
+    sections: list[CourseSection] = Field(default_factory=list)
     quiz: list[QuizQuestion] = Field(default_factory=list)
     certification_eligible: bool = False
     related_item_ids: list[str] = Field(default_factory=list)
