@@ -244,6 +244,25 @@ def item_view(
     )
 
 
+@app.get("/item/{track_id}/{item_id}/quiz", response_class=HTMLResponse)
+def item_quiz_view(
+    request: Request,
+    track_id: int,
+    item_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    get_owned_track(track_id, current_user, DB_PATH)
+    try:
+        item = get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return templates.TemplateResponse(
+        request,
+        "item_quiz.html",
+        {"request": request, "current_user": current_user, "track_id": track_id, "item": item},
+    )
+
+
 @app.post("/item/{track_id}/{item_id}/submit", response_class=HTMLResponse)
 async def submit_quiz(
     request: Request,

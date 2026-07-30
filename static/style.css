@@ -545,6 +545,21 @@ button:hover { background: var(--taken); }
 
 .path-footer { margin-top: 2.5rem; }
 
+.quiz-cta { margin-top: 2rem; }
+
+.quiz-cta-link {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.quiz-cta-link:hover { background: var(--taken); color: var(--paper); }
+
 .form-error {
   background: var(--signal-tint);
   color: var(--signal);

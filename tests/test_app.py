@@ -176,7 +176,7 @@ def test_current_path_screen_returns_404_for_another_users_track(client, tmp_pat
     assert response.status_code == 404
 
 
-def test_item_view_shows_content_and_quiz_form(client):
+def test_item_view_shows_content_but_not_the_quiz_form(client):
     client.post(
         "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
@@ -186,7 +186,33 @@ def test_item_view_shows_content_and_quiz_form(client):
 
     assert response.status_code == 200
     assert "Retrieval-Augmented Generation" in response.text
+    assert 'action="/item/1/rag-fundamentals/submit"' not in response.text
+    assert 'href="/item/1/rag-fundamentals/quiz"' in response.text
+
+
+def test_item_quiz_page_shows_the_quiz_form_but_not_the_lesson_content(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/quiz")
+
+    assert response.status_code == 200
     assert 'action="/item/1/rag-fundamentals/submit"' in response.text
+    assert "Retrieval-Augmented Generation" not in response.text
+    assert 'href="/item/1/rag-fundamentals"' in response.text  # link back to re-read the material
+
+
+def test_item_quiz_page_returns_404_for_nonexistent_item(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/does-not-exist/quiz")
+
+    assert response.status_code == 404
 
 
 def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):

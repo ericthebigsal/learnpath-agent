@@ -8,22 +8,8 @@
 </article>
 
 {% if item.quiz %}
-<form class="quiz" method="post" action="/item/{{ track_id }}/{{ item.id }}/submit">
-  <p class="quiz-eyebrow">Check your understanding</p>
-  {% for question in item.quiz %}
-  {% set question_index = loop.index0 %}
-  <fieldset class="quiz-question">
-    <legend>{{ question.question }}</legend>
-    {% for option in question.options %}
-    <label class="quiz-option">
-      <input type="radio" name="answer_{{ question_index }}" value="{{ loop.index0 }}" required>
-      <span class="quiz-key">{{ "ABCDEFGH"[loop.index0] }}</span>
-      <span>{{ option }}</span>
-    </label>
-    {% endfor %}
-  </fieldset>
-  {% endfor %}
-  <button type="submit">Submit quiz</button>
-</form>
+<p class="quiz-cta">
+  <a class="quiz-cta-link" href="/item/{{ track_id }}/{{ item.id }}/quiz">Take the quiz →</a>
+</p>
 {% endif %}
 {% endblock %}
