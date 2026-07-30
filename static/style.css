@@ -481,37 +481,14 @@ button:hover { background: var(--taken); }
 }
 .diff-row-removed span:last-child { text-decoration: line-through; text-decoration-color: var(--considered-border); }
 
-/* ---------- history (transcript + catalog) ---------- */
+/* ---------- history (courses completed + catalog) ---------- */
 
-.transcript {
-  list-style: none;
+.empty-state {
+  color: var(--ink-muted);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
   margin: 1.5rem 0;
-  padding: 0;
-  border-top: 1px solid var(--border);
-}
-
-.transcript-row {
-  display: grid;
-  grid-template-columns: 6.5rem 11rem 1fr;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border);
-  align-items: baseline;
-}
-
-.transcript-trigger {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--taken);
-  font-weight: 600;
-}
-
-.transcript-time { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-muted); }
-.transcript-summary { color: var(--ink); }
-
-@media (max-width: 640px) {
-  .transcript-row { grid-template-columns: 1fr; gap: 0.2rem; }
 }
 
 .catalog-table-wrap {

@@ -310,7 +310,15 @@ def history_page(
     request: Request, track_id: int, current_user: dict = Depends(get_current_user)
 ):
     get_owned_track(track_id, current_user, DB_PATH)
-    plan_log = db.get_plan_log(track_id, DB_PATH)
+    progress = db.get_progress(track_id, DB_PATH)
+    completed = [
+        {
+            "item": get_item(CATALOG, entry["item_id"]),
+            "quiz_score": entry["quiz_score"],
+            "completed_at": datetime.fromisoformat(entry["completed_at"]).strftime("%b %d, %Y"),
+        }
+        for entry in progress
+    ]
     return templates.TemplateResponse(
         request,
         "history.html",
@@ -318,7 +326,7 @@ def history_page(
             "request": request,
             "current_user": current_user,
             "track_id": track_id,
-            "plan_log": plan_log,
+            "completed": completed,
             "catalog": CATALOG.items,
         },
     )

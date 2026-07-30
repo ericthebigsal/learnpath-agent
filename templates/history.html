@@ -2,16 +2,28 @@
 {% block title %}History — learnpath-agent{% endblock %}
 {% block content %}
 <p class="eyebrow">Registrar</p>
-<h1>Plan history</h1>
-<ol class="transcript">
-  {% for entry in plan_log %}
-  <li class="transcript-row">
-    <span class="transcript-trigger">{{ entry.trigger }}</span>
-    <span class="transcript-time">{{ entry.created_at }}</span>
-    <span class="transcript-summary">{{ entry.summary }}</span>
-  </li>
-  {% endfor %}
-</ol>
+<h1>Courses completed</h1>
+
+{% if completed %}
+<div class="catalog-table-wrap">
+<table class="catalog-table">
+  <thead>
+    <tr><th>Course</th><th>Result</th><th>Completed</th></tr>
+  </thead>
+  <tbody>
+    {% for entry in completed %}
+    <tr>
+      <td>{{ entry.item.title }}</td>
+      <td>{{ entry.quiz_score }}%</td>
+      <td>{{ entry.completed_at }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty-state">No courses completed yet — head back to your path to get started.</p>
+{% endif %}
 
 <h2>Full catalog</h2>
 <div class="catalog-table-wrap">
