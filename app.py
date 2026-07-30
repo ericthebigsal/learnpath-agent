@@ -54,6 +54,13 @@ def get_current_user(request: Request) -> dict:
     return result
 
 
+def get_owned_track(track_id: int, current_user: dict, db_path: str) -> dict:
+    track = db.get_track(track_id, db_path)
+    if track is None or track["user_id"] != current_user["id"]:
+        raise HTTPException(status_code=404, detail="Track not found")
+    return track
+
+
 def compute_plan(learner: dict, progress: list[dict]) -> tuple[PlanResponse, bool, list[str]]:
     try:
         # google-genai's Client() only auto-detects GOOGLE_API_KEY, not
@@ -174,13 +181,13 @@ def create_track(
     return RedirectResponse(url=f"/path/{track['id']}", status_code=303)
 
 
-@app.get("/path/{learner_id}", response_class=HTMLResponse)
-def current_path(request: Request, learner_id: int):
-    learner = db.get_learner(learner_id, DB_PATH)
-    if learner is None:
-        raise HTTPException(status_code=404, detail="Learner not found")
-    progress = db.get_progress(learner_id, DB_PATH)
-    latest_plan = db.get_latest_plan(learner_id, DB_PATH)
+@app.get("/path/{track_id}", response_class=HTMLResponse)
+def current_path(
+    request: Request, track_id: int, current_user: dict = Depends(get_current_user)
+):
+    track = get_owned_track(track_id, current_user, DB_PATH)
+    progress = db.get_progress(track_id, DB_PATH)
+    latest_plan = db.get_latest_plan(track_id, DB_PATH)
 
     steps = [
         {"item": get_item(CATALOG, step["item_id"]), "rationale": step["rationale"]}
@@ -196,8 +203,9 @@ def current_path(request: Request, learner_id: int):
         "path.html",
         {
             "request": request,
-            "learner_id": learner_id,
-            "learner": learner,
+            "current_user": current_user,
+            "track_id": track_id,
+            "track": track,
             "steps": steps,
             "summary": latest_plan["summary"],
             "ready_tracks": ready_tracks,
@@ -206,8 +214,14 @@ def current_path(request: Request, learner_id: int):
     )
 
 
-@app.get("/item/{learner_id}/{item_id}", response_class=HTMLResponse)
-def item_view(request: Request, learner_id: int, item_id: str):
+@app.get("/item/{track_id}/{item_id}", response_class=HTMLResponse)
+def item_view(
+    request: Request,
+    track_id: int,
+    item_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    get_owned_track(track_id, current_user, DB_PATH)
     try:
         item = get_item(CATALOG, item_id)
     except KeyError:
@@ -215,12 +229,18 @@ def item_view(request: Request, learner_id: int, item_id: str):
     return templates.TemplateResponse(
         request,
         "item.html",
-        {"request": request, "learner_id": learner_id, "item": item},
+        {"request": request, "current_user": current_user, "track_id": track_id, "item": item},
     )
 
 
-@app.post("/item/{learner_id}/{item_id}/submit", response_class=HTMLResponse)
-async def submit_quiz(request: Request, learner_id: int, item_id: str):
+@app.post("/item/{track_id}/{item_id}/submit", response_class=HTMLResponse)
+async def submit_quiz(
+    request: Request,
+    track_id: int,
+    item_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    track = get_owned_track(track_id, current_user, DB_PATH)
     form = await request.form()
     try:
         item = get_item(CATALOG, item_id)
@@ -229,17 +249,14 @@ async def submit_quiz(request: Request, learner_id: int, item_id: str):
     answers = [int(form.get(f"answer_{i}", -1)) for i in range(len(item.quiz))]
     score = quiz_module.grade_quiz(item.quiz, answers)
 
-    learner = db.get_learner(learner_id, DB_PATH)
-    if learner is None:
-        raise HTTPException(status_code=404, detail="Learner not found")
-    db.record_progress(learner_id, item_id, score, DB_PATH)
+    db.record_progress(track_id, item_id, score, DB_PATH)
 
-    previous_plan = db.get_latest_plan(learner_id, DB_PATH)
-    progress = db.get_progress(learner_id, DB_PATH)
-    new_plan, _used_fallback, candidate_ids = compute_plan(learner, progress)
+    previous_plan = db.get_latest_plan(track_id, DB_PATH)
+    progress = db.get_progress(track_id, DB_PATH)
+    new_plan, _used_fallback, candidate_ids = compute_plan(track, progress)
     new_plan_dict = new_plan.model_dump()
     new_plan_dict["candidate_ids"] = candidate_ids
-    db.log_plan(learner_id, new_plan_dict, "quiz_result", DB_PATH)
+    db.log_plan(track_id, new_plan_dict, "quiz_result", DB_PATH)
 
     old_item_ids = [step["item_id"] for step in previous_plan["steps"]] if previous_plan else []
     diff = planner.plan_diff(old_item_ids, [step.item_id for step in new_plan.steps])
@@ -249,7 +266,8 @@ async def submit_quiz(request: Request, learner_id: int, item_id: str):
         "path_updated.html",
         {
             "request": request,
-            "learner_id": learner_id,
+            "current_user": current_user,
+            "track_id": track_id,
             "score": score,
             "diff": diff,
             "summary": new_plan.summary,
@@ -257,14 +275,20 @@ async def submit_quiz(request: Request, learner_id: int, item_id: str):
     )
 
 
-@app.get("/history/{learner_id}", response_class=HTMLResponse)
-def history_page(request: Request, learner_id: int):
-    learner = db.get_learner(learner_id, DB_PATH)
-    if learner is None:
-        raise HTTPException(status_code=404, detail="Learner not found")
-    plan_log = db.get_plan_log(learner_id, DB_PATH)
+@app.get("/history/{track_id}", response_class=HTMLResponse)
+def history_page(
+    request: Request, track_id: int, current_user: dict = Depends(get_current_user)
+):
+    get_owned_track(track_id, current_user, DB_PATH)
+    plan_log = db.get_plan_log(track_id, DB_PATH)
     return templates.TemplateResponse(
         request,
         "history.html",
-        {"request": request, "learner_id": learner_id, "plan_log": plan_log, "catalog": CATALOG.items},
+        {
+            "request": request,
+            "current_user": current_user,
+            "track_id": track_id,
+            "plan_log": plan_log,
+            "catalog": CATALOG.items,
+        },
     )

@@ -106,7 +106,7 @@ def test_dashboard_lists_existing_tracks(client):
 
 def test_current_path_screen_shows_recommended_items_and_rationale(client):
     client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
@@ -120,7 +120,7 @@ def test_current_path_screen_shows_recommended_items_and_rationale(client):
 
 def test_current_path_screen_shows_candidates_considered(client):
     client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
@@ -131,15 +131,30 @@ def test_current_path_screen_shows_candidates_considered(client):
     assert "Chunking Strategies: Splitting Documents Without Losing Meaning" in response.text
 
 
-def test_current_path_screen_returns_404_for_nonexistent_learner(client):
+def test_current_path_screen_returns_404_for_nonexistent_track(client):
     response = client.get("/path/99999")
+    assert response.status_code == 404
+
+
+def test_current_path_screen_returns_404_for_another_users_track(client, tmp_path):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    with TestClient(app_module.app) as other_client:
+        other_client.post(
+            "/register",
+            data={"email": "someone-else@example.com", "password": "hunter2", "confirm_password": "hunter2"},
+        )
+        response = other_client.get("/path/1")
 
     assert response.status_code == 404
 
 
 def test_item_view_shows_content_and_quiz_form(client):
     client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
@@ -152,11 +167,11 @@ def test_item_view_shows_content_and_quiz_form(client):
 
 def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
     client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    def fake_compute_plan_after_quiz(learner, progress):
+    def fake_compute_plan_after_quiz(track, progress):
         return (
             PlanResponse(
                 steps=[PlanStep(item_id="rag-chunking-strategies", rationale="Next in RAG track.")],
@@ -183,38 +198,35 @@ def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
 
 def test_item_view_returns_404_for_nonexistent_item(client):
     client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
     response = client.get("/item/1/does-not-exist")
-
     assert response.status_code == 404
 
 
-def test_submit_quiz_returns_404_for_nonexistent_learner(client):
+def test_submit_quiz_returns_404_for_nonexistent_track(client):
     response = client.post(
         "/item/99999/rag-fundamentals/submit",
         data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
     )
-
     assert response.status_code == 404
 
 
 def test_history_screen_shows_plan_log_and_catalog_table(client):
     client.post(
-        "/start",
+        "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
     response = client.get("/history/1")
 
     assert response.status_code == 200
-    assert "Start with RAG fundamentals." in response.text  # from plan_log
-    assert "RAG Fundamentals" in response.text  # from the catalog table
+    assert "Start with RAG fundamentals." in response.text
+    assert "RAG Fundamentals" in response.text
 
 
-def test_history_screen_returns_404_for_nonexistent_learner(client):
+def test_history_screen_returns_404_for_nonexistent_track(client):
     response = client.get("/history/99999")
-
     assert response.status_code == 404

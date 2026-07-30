@@ -4,7 +4,7 @@
 <div class="path-header">
   <p class="eyebrow">Your route</p>
   <h1>Your learning path</h1>
-  <p class="goal"><span class="goal-label">Goal</span>{{ learner.goal_text }}</p>
+  <p class="goal"><span class="goal-label">Goal</span>{{ track.goal_text }}</p>
 </div>
 
 {% if ready_tracks %}
@@ -24,7 +24,7 @@
   <li class="trail-stop">
     <span class="trail-marker">{{ loop.index }}</span>
     <div class="trail-body">
-      <a class="trail-title" href="/item/{{ learner_id }}/{{ step.item.id }}">{{ step.item.title }}</a>
+      <a class="trail-title" href="/item/{{ track_id }}/{{ step.item.id }}">{{ step.item.title }}</a>
       <div class="trail-tags">
         <span class="badge">{{ step.item.track.value }}</span>
         <span class="badge">{{ step.item.level.value }}</span>
@@ -56,5 +56,5 @@
 </details>
 {% endif %}
 
-<p class="path-footer"><a href="/history/{{ learner_id }}">View plan history &amp; browse catalog</a></p>
+<p class="path-footer"><a href="/history/{{ track_id }}">View plan history &amp; browse catalog</a></p>
 {% endblock %}

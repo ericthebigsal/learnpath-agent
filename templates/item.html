@@ -8,7 +8,7 @@
 </article>
 
 {% if item.quiz %}
-<form class="quiz" method="post" action="/item/{{ learner_id }}/{{ item.id }}/submit">
+<form class="quiz" method="post" action="/item/{{ track_id }}/{{ item.id }}/submit">
   <p class="quiz-eyebrow">Check your understanding</p>
   {% for question in item.quiz %}
   {% set question_index = loop.index0 %}
