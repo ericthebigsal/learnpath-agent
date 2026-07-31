@@ -284,7 +284,7 @@ def test_history_screen_shows_no_completed_courses_yet(client):
 
     assert response.status_code == 200
     assert "No courses completed yet" in response.text
-    assert "RAG Fundamentals" in response.text  # still shows in the full catalog table
+    assert 'href="/explore"' in response.text
 
 
 def test_history_screen_shows_completed_courses_with_quiz_results(client):

@@ -465,6 +465,5 @@ def history_page(
             "current_user": current_user,
             "track_id": track_id,
             "completed": completed,
-            "catalog": CATALOG.items,
         },
     )
