@@ -13,10 +13,13 @@
   <header class="site-header">
     <a class="site-mark" href="/">learnpath-agent</a>
     {% if current_user %}
-    <form method="post" action="/logout" class="logout-form">
-      <span class="site-user">{{ current_user.email }}</span>
-      <button type="submit" class="logout-button">Log out</button>
-    </form>
+    <nav class="site-nav">
+      <a class="nav-link" href="/explore">Explore</a>
+      <form method="post" action="/logout" class="logout-form">
+        <span class="site-user">{{ current_user.email }}</span>
+        <button type="submit" class="logout-button">Log out</button>
+      </form>
+    </nav>
     {% else %}
     <span class="site-tag">plans your path, then rewrites it as you learn</span>
     {% endif %}

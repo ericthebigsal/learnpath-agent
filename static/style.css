@@ -622,3 +622,76 @@ button:hover { background: var(--taken); }
 .track-list-name::after { content: " →"; }
 .track-list-name:hover { text-decoration: underline; }
 .track-list-goal { color: var(--ink-muted); margin: 0.25rem 0 0; font-size: 0.92rem; }
+
+/* ---------- explore ---------- */
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.nav-link:hover { color: var(--ink); text-decoration: underline; }
+
+.starter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.starter-card {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+.starter-card:hover { border-color: var(--taken-border); }
+
+.starter-description {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  margin: 0.4rem 0 0;
+}
+
+.explore-filters {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.explore-filters select { margin-bottom: 0; min-width: 180px; }
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.explore-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+}
+
+.explore-add-form { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.explore-add-form select { width: auto; margin-bottom: 0; flex: 1; }
+.explore-add-form button { padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+
+.explore-empty-hint { color: var(--ink-muted); font-size: 0.9rem; margin: 0.75rem 0 0; }

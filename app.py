@@ -13,7 +13,8 @@ import db
 import planner
 import quiz as quiz_module
 from catalog import get_item, load_catalog
-from models import Level, PlanResponse
+from models import Level, PlanResponse, Track
+from starter_paths import STARTER_PATHS
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = str(BASE_DIR / "learnpath.db")
@@ -270,6 +271,36 @@ def explore_add_item(
 
     _add_item_to_plan(track_id, item_id, "explore_add", "Added from the catalog.")
     return RedirectResponse(url=f"/item/{track_id}/{item_id}", status_code=303)
+
+
+@app.get("/explore", response_class=HTMLResponse)
+def explore(
+    request: Request,
+    track: str | None = None,
+    level: str | None = None,
+    current_user: dict = Depends(get_current_user),
+):
+    items = CATALOG.items
+    if track:
+        items = [item for item in items if item.track.value == track]
+    if level:
+        items = [item for item in items if item.level.value == level]
+
+    return templates.TemplateResponse(
+        request,
+        "explore.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "items": items,
+            "tracks": [t.value for t in Track],
+            "levels": [lvl.value for lvl in Level],
+            "selected_track": track or "",
+            "selected_level": level or "",
+            "user_tracks": db.get_tracks_for_user(current_user["id"], DB_PATH),
+            "starter_paths": STARTER_PATHS,
+        },
+    )
 
 
 @app.get("/item/{track_id}/{item_id}", response_class=HTMLResponse)

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Explore — learnpath-agent{% endblock %}
+{% block content %}
+<p class="eyebrow">Explore</p>
+<h1>Find your next track</h1>
+
+<h2>Starter paths</h2>
+<div class="starter-grid">
+  {% for starter in starter_paths %}
+  <a class="starter-card" href="/explore/starter/{{ starter.id }}">
+    <span class="trail-title">{{ starter.title }}</span>
+    <p class="starter-description">{{ starter.description }}</p>
+  </a>
+  {% endfor %}
+</div>
+
+<h2>Browse the catalog</h2>
+<form class="explore-filters" method="get" action="/explore">
+  <div>
+    <label for="track">Track</label>
+    <select id="track" name="track">
+      <option value="">All tracks</option>
+      {% for t in tracks %}
+      <option value="{{ t }}" {% if t == selected_track %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="level">Level</label>
+    <select id="level" name="level">
+      <option value="">All levels</option>
+      {% for lvl in levels %}
+      <option value="{{ lvl }}" {% if lvl == selected_level %}selected{% endif %}>{{ lvl | capitalize }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit">Filter</button>
+</form>
+
+<div class="explore-grid">
+  {% for item in items %}
+  <div class="explore-card">
+    <span class="trail-title">{{ item.title }}</span>
+    <div class="trail-tags">
+      <span class="badge">{{ item.track.value }}</span>
+      <span class="badge">{{ item.level.value }}</span>
+      <span class="badge">{{ item.duration_minutes }}m</span>
+    </div>
+    {% if user_tracks %}
+    <form class="explore-add-form" method="post" action="/explore/add/{{ item.id }}">
+      <select name="track_id">
+        {% for t in user_tracks %}
+        <option value="{{ t.id }}">{{ t.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Add to track</button>
+    </form>
+    {% else %}
+    <p class="explore-empty-hint">Start a track first to add this course to it.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
