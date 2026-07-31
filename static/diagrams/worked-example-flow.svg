@@ -1,0 +1,54 @@
+<svg class="diagram-worked-example" viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="worked-example-title">
+  <title id="worked-example-title">A support question retrieves three candidate chunks; the two relevant ones are used to generate a grounded answer, while the irrelevant shipping-policy chunk is correctly discarded</title>
+  <style>
+    .we-box { fill: var(--surface); stroke-width: 2; }
+    .we-box-question { stroke: var(--ink-muted); }
+    .we-box-relevant { stroke: var(--taken); }
+    .we-box-irrelevant { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .we-box-answer { stroke: var(--taken); }
+    .we-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .we-title-muted { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--considered); }
+    .we-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .we-sub-muted { font-family: var(--font-body); font-size: 10.5px; fill: var(--considered); }
+    .we-arrow { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+    .we-arrow-used { stroke: var(--taken); stroke-width: 2; fill: none; }
+    .we-arrowhead { fill: var(--ink-muted); }
+    .we-arrowhead-used { fill: var(--taken); }
+    .we-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="we-box we-box-question" x="16" y="100" width="150" height="60" rx="8"/>
+  <text class="we-title" x="91" y="124" text-anchor="middle">Question</text>
+  <text class="we-sub" x="91" y="141" text-anchor="middle">"Return a laptop bought</text>
+  <text class="we-sub" x="91" y="153" text-anchor="middle">45 days ago?"</text>
+
+  <path class="we-arrow" d="M166,130 L206,130"/>
+  <path class="we-arrowhead" d="M206,130 L197,125 L197,135 Z"/>
+  <text class="we-label" x="186" y="118" text-anchor="middle">retrieve</text>
+
+  <rect class="we-box we-box-relevant" x="210" y="18" width="190" height="56" rx="8"/>
+  <text class="we-title" x="305" y="39" text-anchor="middle">Chunk 1 · relevant</text>
+  <text class="we-sub" x="305" y="56" text-anchor="middle">"Standard returns: 30 days"</text>
+
+  <rect class="we-box we-box-relevant" x="210" y="102" width="190" height="56" rx="8"/>
+  <text class="we-title" x="305" y="123" text-anchor="middle">Chunk 2 · relevant</text>
+  <text class="we-sub" x="305" y="140" text-anchor="middle">"Extended warranty: 90 days"</text>
+
+  <rect class="we-box we-box-irrelevant" x="210" y="186" width="190" height="56" rx="8"/>
+  <text class="we-title-muted" x="305" y="207" text-anchor="middle">Chunk 3 · off-topic</text>
+  <text class="we-sub-muted" x="305" y="224" text-anchor="middle">"Shipping carrier policy"</text>
+
+  <path class="we-arrow-used" d="M400,46 C 440,46 440,90 480,120"/>
+  <path class="we-arrowhead-used" d="M480,120 L474,110 L466,116 Z"/>
+
+  <path class="we-arrow-used" d="M400,130 L480,130"/>
+  <path class="we-arrowhead-used" d="M480,130 L471,125 L471,135 Z"/>
+
+  <text class="we-sub-muted" x="305" y="258" text-anchor="middle">discarded — not relevant enough</text>
+
+  <rect class="we-box we-box-answer" x="486" y="88" width="220" height="86" rx="8"/>
+  <text class="we-title" x="596" y="112" text-anchor="middle">Generation</text>
+  <text class="we-sub" x="596" y="130" text-anchor="middle">"No under the standard policy —</text>
+  <text class="we-sub" x="596" y="144" text-anchor="middle">30 days. But 90 if purchased</text>
+  <text class="we-sub" x="596" y="158" text-anchor="middle">under extended warranty."</text>
+</svg>

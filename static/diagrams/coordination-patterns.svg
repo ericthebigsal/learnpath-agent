@@ -1,0 +1,55 @@
+<svg class="diagram-coordination-patterns" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="coordination-patterns-title">
+  <title id="coordination-patterns-title">Three introductory multi-agent coordination patterns: pipeline (fixed sequence), manager-worker (central delegation), and debate (peer critique)</title>
+  <style>
+    .cp-panel-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .cp-node { fill: var(--surface); stroke: var(--taken); stroke-width: 2; }
+    .cp-node-manager { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+    .cp-node-label { font-family: var(--font-body); font-size: 9.5px; fill: var(--ink); }
+    .cp-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .cp-arrowhead { fill: var(--ink-muted); }
+    .cp-debate-line { stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  </style>
+
+  <text class="cp-panel-label" x="115" y="20" text-anchor="middle">PIPELINE</text>
+  <circle class="cp-node" cx="45" cy="120" r="18"/>
+  <text class="cp-node-label" x="45" y="123" text-anchor="middle">Research</text>
+  <circle class="cp-node" cx="120" cy="120" r="18"/>
+  <text class="cp-node-label" x="120" y="123" text-anchor="middle">Outline</text>
+  <circle class="cp-node" cx="195" cy="120" r="18"/>
+  <text class="cp-node-label" x="195" y="123" text-anchor="middle">Write</text>
+  <path class="cp-arrow" d="M63,120 L98,120"/>
+  <path class="cp-arrowhead" d="M98,120 L90,116 L90,124 Z"/>
+  <path class="cp-arrow" d="M138,120 L173,120"/>
+  <path class="cp-arrowhead" d="M173,120 L165,116 L165,124 Z"/>
+
+  <line x1="240" y1="10" x2="240" y2="215" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="cp-panel-label" x="360" y="20" text-anchor="middle">MANAGER-WORKER</text>
+  <circle class="cp-node-manager" cx="360" cy="120" r="20"/>
+  <text class="cp-node-label" x="360" y="123" text-anchor="middle">Manager</text>
+  <circle class="cp-node" cx="360" cy="55" r="16"/>
+  <text class="cp-node-label" x="360" y="58" text-anchor="middle">Worker</text>
+  <circle class="cp-node" cx="308" cy="175" r="16"/>
+  <text class="cp-node-label" x="308" y="178" text-anchor="middle">Worker</text>
+  <circle class="cp-node" cx="412" cy="175" r="16"/>
+  <text class="cp-node-label" x="412" y="178" text-anchor="middle">Worker</text>
+  <path class="cp-arrow" d="M360,100 L360,73"/>
+  <path class="cp-arrowhead" d="M360,73 L355,82 L365,82 Z"/>
+  <path class="cp-arrow" d="M343,135 L322,160"/>
+  <path class="cp-arrowhead" d="M322,160 L327,151 L317,148 Z"/>
+  <path class="cp-arrow" d="M377,135 L398,160"/>
+  <path class="cp-arrowhead" d="M398,160 L393,151 L403,148 Z"/>
+
+  <line x1="480" y1="10" x2="480" y2="215" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="cp-panel-label" x="600" y="20" text-anchor="middle">DEBATE</text>
+  <circle class="cp-node" cx="600" cy="60" r="18"/>
+  <text class="cp-node-label" x="600" y="63" text-anchor="middle">Agent A</text>
+  <circle class="cp-node" cx="555" cy="165" r="18"/>
+  <text class="cp-node-label" x="555" y="168" text-anchor="middle">Agent B</text>
+  <circle class="cp-node" cx="645" cy="165" r="18"/>
+  <text class="cp-node-label" x="645" y="168" text-anchor="middle">Agent C</text>
+  <path class="cp-debate-line" d="M588,76 L565,150"/>
+  <path class="cp-debate-line" d="M612,76 L635,150"/>
+  <path class="cp-debate-line" d="M573,165 L627,165"/>
+</svg>

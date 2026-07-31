@@ -1,0 +1,44 @@
+<svg class="diagram-pipeline" viewBox="0 0 720 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="rag-pipeline-title">
+  <title id="rag-pipeline-title">The three stages of a RAG pipeline: indexing happens offline ahead of time, retrieval and generation happen live for every question</title>
+  <style>
+    .dg-boundary-offline { fill: none; stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .dg-boundary-live { fill: none; stroke: var(--taken); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .dg-boundary-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.03em; }
+    .dg-boundary-label-offline { fill: var(--considered); }
+    .dg-boundary-label-live { fill: var(--taken); }
+    .dg-box { fill: var(--surface); stroke-width: 2; }
+    .dg-box-offline { stroke: var(--considered); }
+    .dg-box-live { stroke: var(--taken); }
+    .dg-box-title { font-family: var(--font-display); font-weight: 600; font-size: 15px; fill: var(--ink); }
+    .dg-box-sub { font-family: var(--font-body); font-size: 11px; fill: var(--ink-muted); }
+    .dg-arrow { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+    .dg-arrowhead { fill: var(--ink-muted); }
+  </style>
+
+  <rect class="dg-boundary-offline" x="8" y="8" width="200" height="192" rx="10"/>
+  <text class="dg-boundary-label dg-boundary-label-offline" x="108" y="28" text-anchor="middle">OFFLINE · AHEAD OF TIME</text>
+
+  <rect class="dg-boundary-live" x="228" y="8" width="484" height="192" rx="10"/>
+  <text class="dg-boundary-label dg-boundary-label-live" x="470" y="28" text-anchor="middle">LIVE · PER QUESTION</text>
+
+  <rect class="dg-box dg-box-offline" x="28" y="66" width="160" height="72" rx="8"/>
+  <text class="dg-box-title" x="108" y="94" text-anchor="middle">Indexing</text>
+  <text class="dg-box-sub" x="108" y="114" text-anchor="middle">docs → chunks →</text>
+  <text class="dg-box-sub" x="108" y="128" text-anchor="middle">embeddings → index</text>
+
+  <path class="dg-arrow" d="M188,102 L242,102"/>
+  <path class="dg-arrowhead" d="M242,102 L233,97 L233,107 Z"/>
+
+  <rect class="dg-box dg-box-live" x="248" y="66" width="160" height="72" rx="8"/>
+  <text class="dg-box-title" x="328" y="94" text-anchor="middle">Retrieval</text>
+  <text class="dg-box-sub" x="328" y="114" text-anchor="middle">question → embed →</text>
+  <text class="dg-box-sub" x="328" y="128" text-anchor="middle">search → top-k chunks</text>
+
+  <path class="dg-arrow" d="M408,102 L462,102"/>
+  <path class="dg-arrowhead" d="M462,102 L453,97 L453,107 Z"/>
+
+  <rect class="dg-box dg-box-live" x="468" y="66" width="220" height="72" rx="8"/>
+  <text class="dg-box-title" x="578" y="94" text-anchor="middle">Generation</text>
+  <text class="dg-box-sub" x="578" y="114" text-anchor="middle">chunks + question →</text>
+  <text class="dg-box-sub" x="578" y="128" text-anchor="middle">LLM → grounded answer</text>
+</svg>

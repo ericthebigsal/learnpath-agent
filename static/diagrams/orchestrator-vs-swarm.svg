@@ -1,0 +1,54 @@
+<svg class="diagram-orchestrator-vs-swarm" viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="orchestrator-vs-swarm-title">
+  <title id="orchestrator-vs-swarm-title">Orchestrator coordination is a star topology with one central planning agent delegating to specialists, while swarm coordination is a mesh of peers negotiating with no central controller</title>
+  <style>
+    .os-panel-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .os-node { fill: var(--surface); stroke: var(--taken); stroke-width: 2; }
+    .os-node-center { fill: var(--surface); stroke: var(--ink); stroke-width: 2.5; }
+    .os-node-label { font-family: var(--font-body); font-size: 10px; fill: var(--ink); }
+    .os-node-label-center { font-family: var(--font-display); font-weight: 600; font-size: 11px; fill: var(--ink); }
+    .os-delegate { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .os-arrowhead { fill: var(--ink-muted); }
+    .os-mesh { stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  </style>
+
+  <text class="os-panel-label" x="170" y="20" text-anchor="middle">ORCHESTRATOR</text>
+  <path class="os-delegate" d="M170,111 L170,79"/>
+  <path class="os-arrowhead" d="M170,79 L165,89 L175,89 Z"/>
+  <path class="os-delegate" d="M191,150 L246,150"/>
+  <path class="os-arrowhead" d="M246,150 L237,145 L237,155 Z"/>
+  <path class="os-delegate" d="M170,159 L170,199"/>
+  <path class="os-arrowhead" d="M170,199 L165,190 L175,190 Z"/>
+  <path class="os-delegate" d="M149,150 L94,150"/>
+  <path class="os-arrowhead" d="M94,150 L103,145 L103,155 Z"/>
+  <circle class="os-node-center" cx="170" cy="135" r="24"/>
+  <text class="os-node-label-center" x="170" y="139" text-anchor="middle">Orchestrator</text>
+  <circle class="os-node" cx="170" cy="60" r="16"/>
+  <text class="os-node-label" x="170" y="63" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="270" cy="150" r="16"/>
+  <text class="os-node-label" x="270" y="153" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="170" cy="215" r="16"/>
+  <text class="os-node-label" x="170" y="218" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="70" cy="150" r="16"/>
+  <text class="os-node-label" x="70" y="153" text-anchor="middle">Agent</text>
+
+  <line x1="350" y1="10" x2="350" y2="230" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="os-panel-label" x="550" y="20" text-anchor="middle">SWARM</text>
+  <path class="os-mesh" d="M550,60 L615,105"/>
+  <path class="os-mesh" d="M615,105 L595,195"/>
+  <path class="os-mesh" d="M595,195 L505,195"/>
+  <path class="os-mesh" d="M505,195 L485,105"/>
+  <path class="os-mesh" d="M485,105 L550,60"/>
+  <path class="os-mesh" d="M550,60 L505,195"/>
+  <path class="os-mesh" d="M615,105 L505,195"/>
+  <circle class="os-node" cx="550" cy="60" r="16"/>
+  <text class="os-node-label" x="550" y="63" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="615" cy="105" r="16"/>
+  <text class="os-node-label" x="615" y="108" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="595" cy="195" r="16"/>
+  <text class="os-node-label" x="595" y="198" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="505" cy="195" r="16"/>
+  <text class="os-node-label" x="505" y="198" text-anchor="middle">Agent</text>
+  <circle class="os-node" cx="485" cy="105" r="16"/>
+  <text class="os-node-label" x="485" y="108" text-anchor="middle">Agent</text>
+</svg>

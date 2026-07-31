@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ section.heading }} — {{ item.title }} — learnpath-agent{% endblock %}
+{% block body_class %}page-lesson{% endblock %}
+{% block content %}
+<p class="eyebrow">{{ item.track.value }} &middot; {{ item.level.value }}</p>
+<h1>{{ item.title }}</h1>
+
+<div class="lesson-layout">
+  <nav class="lesson-toc">
+    <p class="lesson-toc-label">Sections</p>
+    <ol class="lesson-toc-list">
+      {% for s in item.sections %}
+      <li class="lesson-toc-item {% if loop.index == section_number %}lesson-toc-item-active{% endif %}">
+        <a href="/item/{{ track_id }}/{{ item.id }}/section/{{ loop.index }}">{{ s.heading }}</a>
+      </li>
+      {% endfor %}
+      {% if item.quiz %}
+      <li class="lesson-toc-item lesson-toc-item-quiz">
+        <a href="/item/{{ track_id }}/{{ item.id }}/quiz">Quiz</a>
+      </li>
+      {% endif %}
+    </ol>
+  </nav>
+
+  <article class="lesson">
+    <p class="lesson-progress">Section {{ section_number }} of {{ total_sections }}</p>
+    <h2>{{ section.heading }}</h2>
+    {% if diagram_svg %}
+    <figure class="lesson-diagram">{{ diagram_svg | safe }}</figure>
+    {% endif %}
+    <p class="content">{{ section.body }}</p>
+
+    <div class="lesson-nav">
+      {% if prev_number %}
+      <a class="lesson-nav-link lesson-nav-prev" href="/item/{{ track_id }}/{{ item.id }}/section/{{ prev_number }}">&larr; Previous</a>
+      {% else %}
+      <span></span>
+      {% endif %}
+
+      {% if next_number %}
+      <a class="lesson-nav-link lesson-nav-next" href="/item/{{ track_id }}/{{ item.id }}/section/{{ next_number }}">Next &rarr;</a>
+      {% elif item.quiz %}
+      <a class="lesson-nav-link lesson-nav-next" href="/item/{{ track_id }}/{{ item.id }}/quiz">Take the quiz &rarr;</a>
+      {% endif %}
+    </div>
+  </article>
+</div>
+{% endblock %}

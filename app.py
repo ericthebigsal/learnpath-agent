@@ -23,6 +23,7 @@ CATALOG = load_catalog()
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates.env.globals["css_version"] = int((BASE_DIR / "static" / "style.css").stat().st_mtime)
 
 db.init_db(DB_PATH)
 
@@ -208,8 +209,11 @@ def current_path(
         for step in latest_plan["steps"]
     ]
     ready_tracks = planner.certification_ready_tracks(CATALOG, progress)
+    chosen_ids = {step["item_id"] for step in latest_plan["steps"]}
     candidates = [
-        get_item(CATALOG, item_id) for item_id in latest_plan.get("candidate_ids", [])
+        get_item(CATALOG, item_id)
+        for item_id in latest_plan.get("candidate_ids", [])
+        if item_id not in chosen_ids
     ]
 
     return templates.TemplateResponse(
@@ -273,11 +277,40 @@ def explore_add_item(
     return RedirectResponse(url=f"/item/{track_id}/{item_id}", status_code=303)
 
 
+AD_HOC_TRACK_NAME = "Ad Hoc"
+
+
+def _get_or_create_ad_hoc_track(current_user: dict) -> dict:
+    for track in db.get_tracks_for_user(current_user["id"], DB_PATH):
+        if track["name"] == AD_HOC_TRACK_NAME:
+            return track
+    return db.create_track(
+        current_user["id"],
+        AD_HOC_TRACK_NAME,
+        "Courses opened directly from the catalog.",
+        current_user["default_starting_level"],
+        DB_PATH,
+    )
+
+
+@app.post("/explore/open/{item_id}")
+def explore_open_item(item_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    track = _get_or_create_ad_hoc_track(current_user)
+    _add_item_to_plan(track["id"], item_id, "explore_open", "Opened directly from the catalog.")
+    return RedirectResponse(url=f"/item/{track['id']}/{item_id}", status_code=303)
+
+
 @app.get("/explore", response_class=HTMLResponse)
 def explore(
     request: Request,
     track: str | None = None,
     level: str | None = None,
+    active_track_id: int | None = None,
     current_user: dict = Depends(get_current_user),
 ):
     items = CATALOG.items
@@ -285,6 +318,15 @@ def explore(
         items = [item for item in items if item.track.value == track]
     if level:
         items = [item for item in items if item.level.value == level]
+
+    user_tracks = db.get_tracks_for_user(current_user["id"], DB_PATH)
+    user_track_ids = {t["id"] for t in user_tracks}
+    if active_track_id in user_track_ids:
+        selected_track_id = active_track_id
+    elif user_tracks:
+        selected_track_id = user_tracks[0]["id"]
+    else:
+        selected_track_id = None
 
     return templates.TemplateResponse(
         request,
@@ -297,7 +339,8 @@ def explore(
             "levels": [lvl.value for lvl in Level],
             "selected_track": track or "",
             "selected_level": level or "",
-            "user_tracks": db.get_tracks_for_user(current_user["id"], DB_PATH),
+            "user_tracks": user_tracks,
+            "selected_track_id": selected_track_id,
             "starter_paths": STARTER_PATHS,
         },
     )
@@ -367,10 +410,58 @@ def item_view(
         item = get_item(CATALOG, item_id)
     except KeyError:
         raise HTTPException(status_code=404, detail="Item not found")
+
+    if item.sections:
+        return RedirectResponse(url=f"/item/{track_id}/{item_id}/section/1", status_code=303)
+
     return templates.TemplateResponse(
         request,
         "item.html",
         {"request": request, "current_user": current_user, "track_id": track_id, "item": item},
+    )
+
+
+@app.get("/item/{track_id}/{item_id}/section/{section_number}", response_class=HTMLResponse)
+def item_section_view(
+    request: Request,
+    track_id: int,
+    item_id: str,
+    section_number: int,
+    current_user: dict = Depends(get_current_user),
+):
+    get_owned_track(track_id, current_user, DB_PATH)
+    try:
+        item = get_item(CATALOG, item_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if not item.sections:
+        return RedirectResponse(url=f"/item/{track_id}/{item_id}", status_code=303)
+
+    total_sections = len(item.sections)
+    if section_number < 1 or section_number > total_sections:
+        raise HTTPException(status_code=404, detail="Section not found")
+
+    section = item.sections[section_number - 1]
+    diagram_svg = None
+    if section.diagram:
+        diagram_svg = (BASE_DIR / "static" / "diagrams" / f"{section.diagram}.svg").read_text()
+
+    return templates.TemplateResponse(
+        request,
+        "item_section.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "track_id": track_id,
+            "item": item,
+            "section": section,
+            "diagram_svg": diagram_svg,
+            "section_number": section_number,
+            "total_sections": total_sections,
+            "prev_number": section_number - 1 if section_number > 1 else None,
+            "next_number": section_number + 1 if section_number < total_sections else None,
+        },
     )
 
 

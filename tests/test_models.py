@@ -22,6 +22,16 @@ def test_course_section_holds_heading_and_body():
     assert section.body == "A detailed explanation."
 
 
+def test_course_section_defaults_diagram_to_empty_string():
+    section = CourseSection(heading="How it works", body="A detailed explanation.")
+    assert section.diagram == ""
+
+
+def test_course_section_holds_a_diagram_reference():
+    section = CourseSection(heading="How it works", body="Text.", diagram="rag-pipeline")
+    assert section.diagram == "rag-pipeline"
+
+
 def test_catalog_item_defaults_sections_to_empty_list():
     item = CatalogItem(
         id="x", title="X", type=ItemType.COURSE, level=Level.BEGINNER,

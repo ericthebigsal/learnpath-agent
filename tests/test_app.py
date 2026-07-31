@@ -19,7 +19,7 @@ def client(tmp_path, monkeypatch):
                 summary="Start with RAG fundamentals.",
             ),
             False,
-            ["rag-fundamentals", "rag-chunking-strategies"],
+            ["rag-fundamentals", "rag-vector-databases"],
         )
 
     monkeypatch.setattr(app_module, "compute_plan", fake_compute_plan)
@@ -140,8 +140,36 @@ def test_current_path_screen_shows_candidates_considered(client):
     response = client.get("/path/1")
 
     assert response.status_code == 200
-    assert "Candidates considered (2)" in response.text
-    assert "Chunking Strategies: Splitting Documents Without Losing Meaning" in response.text
+    # the fixture's candidate_ids is ["rag-fundamentals", "rag-vector-databases"], but
+    # rag-fundamentals is also the chosen step — it must not appear as a "candidate"
+    # since it wasn't rejected, it's already in the path.
+    assert "Candidates considered (1)" in response.text
+    assert "Vector Databases: How Similarity Search Actually Works" in response.text
+
+
+def test_current_path_screen_excludes_chosen_steps_from_candidates(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/path/1")
+
+    # RAG Fundamentals is the chosen step (appears once, in the trail), not a second
+    # time inside the candidates-considered panel.
+    assert response.text.count("RAG Fundamentals: Retrieval Meets Generation") == 1
+
+
+def test_current_path_screen_lets_you_add_a_candidate_to_the_path(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/path/1")
+
+    assert 'action="/path/1/add/rag-vector-databases"' in response.text
+    assert "Add to path" in response.text
 
 
 def test_current_path_screen_returns_404_for_nonexistent_track(client):
@@ -177,17 +205,19 @@ def test_current_path_screen_returns_404_for_another_users_track(client, tmp_pat
 
 
 def test_item_view_shows_content_but_not_the_quiz_form(client):
+    # rag-vector-databases has legacy flat content (no sections) — this test
+    # covers the non-paginated rendering path in item.html.
     client.post(
         "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    response = client.get("/item/1/rag-fundamentals")
+    response = client.get("/item/1/rag-vector-databases")
 
     assert response.status_code == 200
-    assert "Retrieval-Augmented Generation" in response.text
-    assert 'action="/item/1/rag-fundamentals/submit"' not in response.text
-    assert 'href="/item/1/rag-fundamentals/quiz"' in response.text
+    assert "Vector databases store embeddings" in response.text
+    assert 'action="/item/1/rag-vector-databases/submit"' not in response.text
+    assert 'href="/item/1/rag-vector-databases/quiz"' in response.text
 
 
 def test_item_quiz_page_shows_the_quiz_form_but_not_the_lesson_content(client):
@@ -196,12 +226,12 @@ def test_item_quiz_page_shows_the_quiz_form_but_not_the_lesson_content(client):
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    response = client.get("/item/1/rag-fundamentals/quiz")
+    response = client.get("/item/1/rag-vector-databases/quiz")
 
     assert response.status_code == 200
-    assert 'action="/item/1/rag-fundamentals/submit"' in response.text
-    assert "Retrieval-Augmented Generation" not in response.text
-    assert 'href="/item/1/rag-fundamentals"' in response.text  # link back to re-read the material
+    assert 'action="/item/1/rag-vector-databases/submit"' in response.text
+    assert "Vector databases store embeddings" not in response.text
+    assert 'href="/item/1/rag-vector-databases"' in response.text  # link back to re-read the material
 
 
 def test_item_quiz_page_returns_404_for_nonexistent_item(client):
@@ -213,6 +243,137 @@ def test_item_quiz_page_returns_404_for_nonexistent_item(client):
     response = client.get("/item/1/does-not-exist/quiz")
 
     assert response.status_code == 404
+
+
+def test_item_view_redirects_to_first_section_when_item_has_sections(client):
+    # rag-fundamentals has real, structured sections (unlike most catalog items).
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/item/1/rag-fundamentals/section/1"
+
+
+def test_item_section_view_shows_only_that_sections_content(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/2")
+
+    assert response.status_code == 200
+    assert "<h2>How the pipeline actually works</h2>" in response.text
+    assert "Section 2 of 5" in response.text
+    assert "<h2>What problem this solves</h2>" not in response.text  # section 1's body isn't rendered, only its TOC entry
+
+
+def test_item_section_view_shows_the_diagram_on_the_section_that_has_one(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/2")
+
+    assert response.status_code == 200
+    assert '<figure class="lesson-diagram">' in response.text
+    assert "<svg" in response.text
+    assert "rag-pipeline-title" in response.text
+
+
+def test_item_section_view_shows_no_diagram_on_a_section_without_one(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/1")
+
+    assert response.status_code == 200
+    assert '<figure class="lesson-diagram">' not in response.text
+
+
+def test_item_section_view_shows_table_of_contents_with_all_headings(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/1")
+
+    assert response.status_code == 200
+    for heading in [
+        "What problem this solves",
+        "How the pipeline actually works",
+        "Where it breaks",
+        "A worked example",
+        "What&#39;s next",
+    ]:
+        assert heading in response.text
+    assert 'href="/item/1/rag-fundamentals/quiz"' in response.text
+
+
+def test_item_section_view_links_to_previous_and_next_sections(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/2")
+
+    assert 'href="/item/1/rag-fundamentals/section/1"' in response.text
+    assert 'href="/item/1/rag-fundamentals/section/3"' in response.text
+
+
+def test_item_section_view_first_section_has_no_previous_link(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/1")
+
+    assert 'href="/item/1/rag-fundamentals/section/0"' not in response.text
+
+
+def test_item_section_view_last_section_links_to_quiz_instead_of_next(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/5")
+
+    assert 'href="/item/1/rag-fundamentals/section/6"' not in response.text
+    assert "Take the quiz" in response.text
+
+
+def test_item_section_view_returns_404_for_out_of_range_section_number(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-fundamentals/section/6")
+
+    assert response.status_code == 404
+
+
+def test_item_section_view_redirects_to_flat_view_for_item_without_sections(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+
+    response = client.get("/item/1/rag-vector-databases/section/1", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/item/1/rag-vector-databases"
 
 
 def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
@@ -317,14 +478,14 @@ def test_add_back_route_reinserts_a_dropped_item_and_redirects(client):
     )
 
     response = client.post(
-        "/path/1/add/rag-chunking-strategies", follow_redirects=False
+        "/path/1/add/rag-vector-databases", follow_redirects=False
     )
 
     assert response.status_code == 303
     assert response.headers["location"] == "/path/1"
 
     latest = db.get_latest_plan(1, app_module.DB_PATH)
-    assert any(step["item_id"] == "rag-chunking-strategies" for step in latest["steps"])
+    assert any(step["item_id"] == "rag-vector-databases" for step in latest["steps"])
     assert latest["trigger"] == "manual_add"
 
 

@@ -1,0 +1,23 @@
+<svg class="diagram-chunk-overlap" viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="chunk-overlap-title">
+  <title id="chunk-overlap-title">Two adjacent chunks share an overlapping region, so a fact sitting near the boundary still appears whole in at least one chunk</title>
+  <style>
+    .co-overlap { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .co-overlap-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--considered); }
+    .co-chunk { fill: var(--surface); stroke: var(--taken); stroke-width: 2; }
+    .co-chunk-label { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .co-fact { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.5; }
+    .co-fact-label { font-family: var(--font-body); font-size: 11px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="co-overlap" x="280" y="34" width="160" height="166" rx="8"/>
+  <text class="co-overlap-label" x="360" y="48" text-anchor="middle">OVERLAP -- ~50-100 TOKENS</text>
+
+  <rect class="co-chunk" x="40" y="60" width="400" height="50" rx="8"/>
+  <text class="co-chunk-label" x="58" y="90">Chunk 1</text>
+
+  <rect class="co-chunk" x="280" y="150" width="400" height="50" rx="8"/>
+  <text class="co-chunk-label" x="298" y="180">Chunk 2</text>
+
+  <rect class="co-fact" x="300" y="118" width="140" height="26" rx="13"/>
+  <text class="co-fact-label" x="370" y="135" text-anchor="middle">"the fact"</text>
+</svg>

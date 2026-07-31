@@ -1,0 +1,30 @@
+<svg class="diagram-context-window-budget" viewBox="0 0 720 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="context-window-budget-title">
+  <title id="context-window-budget-title">Five kinds of content compete for space inside one fixed context-window budget: system instructions, retrieved documents, conversation history, tool definitions and outputs, and the current request</title>
+  <style>
+    .cb-heading { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .cb-seg-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .cb-seg-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .cb-tick { stroke: var(--ink-muted); stroke-width: 1; }
+    .cb-label { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-muted); }
+  </style>
+
+  <text class="cb-heading" x="360" y="18" text-anchor="middle">FIXED CONTEXT WINDOW BUDGET</text>
+
+  <rect class="cb-seg-a" x="40" y="30" width="70" height="60"/>
+  <rect class="cb-seg-b" x="110" y="30" width="170" height="60"/>
+  <rect class="cb-seg-a" x="280" y="30" width="170" height="60"/>
+  <rect class="cb-seg-b" x="450" y="30" width="140" height="60"/>
+  <rect class="cb-seg-a" x="590" y="30" width="90" height="60"/>
+
+  <line class="cb-tick" x1="75" y1="90" x2="75" y2="102"/>
+  <line class="cb-tick" x1="195" y1="90" x2="195" y2="102"/>
+  <line class="cb-tick" x1="365" y1="90" x2="365" y2="102"/>
+  <line class="cb-tick" x1="520" y1="90" x2="520" y2="102"/>
+  <line class="cb-tick" x1="635" y1="90" x2="635" y2="102"/>
+
+  <text class="cb-label" x="75" y="118" text-anchor="middle">System</text>
+  <text class="cb-label" x="195" y="118" text-anchor="middle">Retrieved docs</text>
+  <text class="cb-label" x="365" y="118" text-anchor="middle">History</text>
+  <text class="cb-label" x="520" y="118" text-anchor="middle">Tools</text>
+  <text class="cb-label" x="635" y="118" text-anchor="middle">Request</text>
+</svg>

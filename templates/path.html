@@ -49,6 +49,9 @@
           <span class="badge badge-ghost">{{ candidate.track.value }}</span>
           <span class="badge badge-ghost">{{ candidate.level.value }}</span>
         </div>
+        <form method="post" action="/path/{{ track_id }}/add/{{ candidate.id }}">
+          <button type="submit" class="add-back-button">Add to path</button>
+        </form>
       </div>
     </li>
     {% endfor %}

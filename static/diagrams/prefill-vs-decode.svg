@@ -1,0 +1,60 @@
+<svg class="diagram-prefill-vs-decode" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="prefill-vs-decode-title">
+  <title id="prefill-vs-decode-title">Processing input tokens (prefill) happens in parallel in one pass, while generating output tokens (decode) happens sequentially, one token at a time, each depending on all previous ones</title>
+  <style>
+    .pd-panel-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .pd-token { fill: var(--surface); stroke: var(--taken); stroke-width: 1.5; }
+    .pd-token-label { font-family: var(--font-mono); font-size: 10px; fill: var(--ink); }
+    .pd-model { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+    .pd-model-label { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--ink); }
+    .pd-arrow { stroke: var(--ink-muted); stroke-width: 1.5; fill: none; }
+    .pd-arrowhead { fill: var(--ink-muted); }
+    .pd-caption { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+  </style>
+
+  <text class="pd-panel-label" x="150" y="18" text-anchor="middle">PREFILL (INPUT) -- PARALLEL</text>
+
+  <rect class="pd-token" x="40" y="28" width="50" height="22" rx="4"/>
+  <text class="pd-token-label" x="65" y="43" text-anchor="middle">t1</text>
+  <rect class="pd-token" x="40" y="58" width="50" height="22" rx="4"/>
+  <text class="pd-token-label" x="65" y="73" text-anchor="middle">t2</text>
+  <rect class="pd-token" x="40" y="88" width="50" height="22" rx="4"/>
+  <text class="pd-token-label" x="65" y="103" text-anchor="middle">t3</text>
+  <rect class="pd-token" x="40" y="118" width="50" height="22" rx="4"/>
+  <text class="pd-token-label" x="65" y="133" text-anchor="middle">t4</text>
+
+  <rect class="pd-model" x="250" y="50" width="90" height="100" rx="8"/>
+  <text class="pd-model-label" x="295" y="105" text-anchor="middle">Model</text>
+
+  <path class="pd-arrow" d="M90,39 L246,64"/>
+  <path class="pd-arrowhead" d="M246,64 L237,61 L239,71 Z"/>
+  <path class="pd-arrow" d="M90,69 L246,86"/>
+  <path class="pd-arrowhead" d="M246,86 L237,83 L238,93 Z"/>
+  <path class="pd-arrow" d="M90,99 L246,114"/>
+  <path class="pd-arrowhead" d="M246,114 L237,111 L238,121 Z"/>
+  <path class="pd-arrow" d="M90,129 L246,136"/>
+  <path class="pd-arrowhead" d="M246,136 L237,132 L238,142 Z"/>
+
+  <text class="pd-caption" x="150" y="175" text-anchor="middle">All tokens processed in one pass</text>
+
+  <line x1="368" y1="10" x2="368" y2="185" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="pd-panel-label" x="555" y="18" text-anchor="middle">DECODE (OUTPUT) -- SEQUENTIAL</text>
+
+  <rect class="pd-token" x="400" y="90" width="60" height="40" rx="6"/>
+  <text class="pd-token-label" x="430" y="114" text-anchor="middle">o1</text>
+  <rect class="pd-token" x="478" y="90" width="60" height="40" rx="6"/>
+  <text class="pd-token-label" x="508" y="114" text-anchor="middle">o2</text>
+  <rect class="pd-token" x="556" y="90" width="60" height="40" rx="6"/>
+  <text class="pd-token-label" x="586" y="114" text-anchor="middle">o3</text>
+  <rect class="pd-token" x="634" y="90" width="60" height="40" rx="6"/>
+  <text class="pd-token-label" x="664" y="114" text-anchor="middle">o4</text>
+
+  <path class="pd-arrow" d="M460,110 L474,110"/>
+  <path class="pd-arrowhead" d="M474,110 L466,106 L466,114 Z"/>
+  <path class="pd-arrow" d="M538,110 L552,110"/>
+  <path class="pd-arrowhead" d="M552,110 L544,106 L544,114 Z"/>
+  <path class="pd-arrow" d="M616,110 L630,110"/>
+  <path class="pd-arrowhead" d="M630,110 L622,106 L622,114 Z"/>
+
+  <text class="pd-caption" x="555" y="175" text-anchor="middle">Each token depends on all previous ones</text>
+</svg>

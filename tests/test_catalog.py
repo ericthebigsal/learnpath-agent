@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 
 from catalog import get_item, levels_within, load_catalog
 from models import Level, Track
+
+DIAGRAMS_DIR = Path(__file__).resolve().parent.parent / "static" / "diagrams"
 
 
 def test_catalog_loads_with_unique_ids_and_minimum_size():
@@ -59,6 +63,18 @@ def test_course_items_have_substantive_content_and_valid_quizzes():
             assert 3 <= len(item.quiz) <= 5, f"{item.id} quiz must have 3-5 questions"
             for question in item.quiz:
                 assert 0 <= question.correct_index < len(question.options)
+
+
+def test_section_diagram_references_point_to_real_svg_files():
+    catalog = load_catalog()
+    for item in catalog.items:
+        for section in item.sections:
+            if section.diagram:
+                svg_path = DIAGRAMS_DIR / f"{section.diagram}.svg"
+                assert svg_path.is_file(), (
+                    f"{item.id} section {section.heading!r} references missing diagram "
+                    f"{section.diagram!r} (expected {svg_path})"
+                )
 
 
 def test_get_item_returns_expected_item_and_raises_for_unknown_id():

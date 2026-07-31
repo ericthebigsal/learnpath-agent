@@ -34,26 +34,38 @@
       {% endfor %}
     </select>
   </div>
-  <button type="submit">Filter</button>
+  {% if user_tracks|length > 1 %}
+  <div>
+    <label for="active_track_id">Adding to</label>
+    <select id="active_track_id" name="active_track_id">
+      {% for t in user_tracks %}
+      <option value="{{ t.id }}" {% if t.id == selected_track_id %}selected{% endif %}>{{ t.name | truncate(36) }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  {% elif user_tracks %}
+  <div>
+    <span class="explore-active-track-label">Adding to: {{ user_tracks[0].name | truncate(36) }}</span>
+  </div>
+  {% endif %}
+  <button type="submit">Apply</button>
 </form>
 
 <div class="explore-grid">
   {% for item in items %}
   <div class="explore-card">
-    <span class="trail-title">{{ item.title }}</span>
+    <form method="post" action="/explore/open/{{ item.id }}">
+      <button type="submit" class="explore-open-title">{{ item.title }}</button>
+    </form>
     <div class="trail-tags">
       <span class="badge">{{ item.track.value }}</span>
       <span class="badge">{{ item.level.value }}</span>
       <span class="badge">{{ item.duration_minutes }}m</span>
       <span class="badge">{{ item.type.value }}</span>
     </div>
-    {% if user_tracks %}
+    {% if selected_track_id %}
     <form class="explore-add-form" method="post" action="/explore/add/{{ item.id }}">
-      <select name="track_id">
-        {% for t in user_tracks %}
-        <option value="{{ t.id }}">{{ t.name }}</option>
-        {% endfor %}
-      </select>
+      <input type="hidden" name="track_id" value="{{ selected_track_id }}">
       <button type="submit">Add to track</button>
     </form>
     {% else %}

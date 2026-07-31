@@ -202,3 +202,62 @@ def test_explore_starter_confirm_creates_track_with_fixed_plan(client):
 def test_explore_starter_confirm_returns_404_for_unknown_id(client):
     response = client.post("/explore/starter/does-not-exist")
     assert response.status_code == 404
+
+
+def test_explore_open_creates_an_ad_hoc_track_and_redirects_into_the_lesson(client):
+    response = client.post("/explore/open/rag-chunking-strategies", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/item/1/rag-chunking-strategies"
+
+    track = db.get_track(1, app_module.DB_PATH)
+    assert track["name"] == "Ad Hoc"
+
+    latest = db.get_latest_plan(1, app_module.DB_PATH)
+    assert latest["trigger"] == "explore_open"
+    assert latest["steps"][0]["item_id"] == "rag-chunking-strategies"
+
+
+def test_explore_open_reuses_the_same_ad_hoc_track_across_calls(client):
+    client.post("/explore/open/rag-chunking-strategies")
+    response = client.post("/explore/open/rag-vector-databases", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/item/1/rag-vector-databases"
+
+    tracks = db.get_tracks_for_user(1, app_module.DB_PATH)
+    ad_hoc_tracks = [t for t in tracks if t["name"] == "Ad Hoc"]
+    assert len(ad_hoc_tracks) == 1
+
+    latest = db.get_latest_plan(ad_hoc_tracks[0]["id"], app_module.DB_PATH)
+    item_ids = {step["item_id"] for step in latest["steps"]}
+    assert item_ids == {"rag-chunking-strategies", "rag-vector-databases"}
+
+
+def test_explore_open_does_not_duplicate_an_already_present_item(client):
+    client.post("/explore/open/rag-chunking-strategies")
+    client.post("/explore/open/rag-chunking-strategies")
+
+    track = db.get_track(1, app_module.DB_PATH)
+    latest = db.get_latest_plan(track["id"], app_module.DB_PATH)
+    matching = [step for step in latest["steps"] if step["item_id"] == "rag-chunking-strategies"]
+    assert len(matching) == 1
+
+
+def test_explore_open_returns_404_for_nonexistent_item(client):
+    response = client.post("/explore/open/does-not-exist")
+    assert response.status_code == 404
+
+
+def test_explore_open_redirects_to_login_when_not_authenticated(tmp_path, monkeypatch):
+    db_path = str(tmp_path / "test.db")
+    monkeypatch.setattr(app_module, "DB_PATH", db_path)
+    db.init_db(db_path)
+
+    with TestClient(app_module.app) as anon_client:
+        response = anon_client.post(
+            "/explore/open/rag-fundamentals", follow_redirects=False
+        )
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"

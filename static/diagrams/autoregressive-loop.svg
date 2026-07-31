@@ -1,0 +1,40 @@
+<svg class="diagram-autoregressive-loop" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="autoregressive-loop-title">
+  <title id="autoregressive-loop-title">The model predicts a probability distribution over the vocabulary, a sampling strategy picks one token, and that token is appended back to the context before the loop repeats</title>
+  <style>
+    .al-box { fill: var(--surface); stroke-width: 2; }
+    .al-box-neutral { stroke: var(--ink-muted); }
+    .al-box-live { stroke: var(--taken); }
+    .al-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .al-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .al-arrow { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+    .al-arrowhead { fill: var(--ink-muted); }
+    .al-feedback { stroke: var(--taken); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+    .al-feedback-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.02em; fill: var(--taken); }
+  </style>
+
+  <rect class="al-box al-box-neutral" x="20" y="88" width="150" height="64" rx="8"/>
+  <text class="al-title" x="95" y="114" text-anchor="middle">Context so far</text>
+  <text class="al-sub" x="95" y="132" text-anchor="middle">tokens generated</text>
+  <text class="al-sub" x="95" y="144" text-anchor="middle">up to this step</text>
+
+  <path class="al-arrow" d="M170,120 L206,120"/>
+  <path class="al-arrowhead" d="M206,120 L197,115 L197,125 Z"/>
+
+  <rect class="al-box al-box-neutral" x="210" y="78" width="220" height="84" rx="8"/>
+  <text class="al-title" x="320" y="102" text-anchor="middle">Model</text>
+  <text class="al-sub" x="320" y="120" text-anchor="middle">produces a probability</text>
+  <text class="al-sub" x="320" y="133" text-anchor="middle">distribution over the whole</text>
+  <text class="al-sub" x="320" y="146" text-anchor="middle">vocabulary (softmax)</text>
+
+  <path class="al-arrow" d="M430,120 L466,120"/>
+  <path class="al-arrowhead" d="M466,120 L457,115 L457,125 Z"/>
+
+  <rect class="al-box al-box-live" x="470" y="88" width="200" height="64" rx="8"/>
+  <text class="al-title" x="570" y="112" text-anchor="middle">Sample next token</text>
+  <text class="al-sub" x="570" y="130" text-anchor="middle">via temperature,</text>
+  <text class="al-sub" x="570" y="142" text-anchor="middle">top-k, or top-p</text>
+
+  <path class="al-feedback" d="M570,152 C570,205 95,205 95,152"/>
+  <path class="al-arrowhead" d="M95,152 L88,140 L102,140 Z" fill="var(--taken)"/>
+  <text class="al-feedback-label" x="332" y="218" text-anchor="middle">APPEND TOKEN, REPEAT</text>
+</svg>

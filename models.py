@@ -34,6 +34,7 @@ class QuizQuestion(BaseModel):
 class CourseSection(BaseModel):
     heading: str
     body: str
+    diagram: str = ""
 
 
 class CatalogItem(BaseModel):

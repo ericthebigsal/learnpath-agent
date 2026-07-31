@@ -1,0 +1,48 @@
+<svg class="diagram-tool-call-loop" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tool-call-loop-title">
+  <title id="tool-call-loop-title">The model outputs a structured tool request, but your application code is what actually executes the function -- the model never runs code itself -- and the result is fed back to the model to continue</title>
+  <style>
+    .tl-box { fill: var(--surface); stroke-width: 2; }
+    .tl-box-neutral { stroke: var(--ink-muted); }
+    .tl-box-exec { stroke: var(--taken); }
+    .tl-title { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+    .tl-sub { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+    .tl-arrow { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+    .tl-arrowhead { fill: var(--ink-muted); }
+    .tl-feedback { stroke: var(--taken); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+    .tl-feedback-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--taken); }
+  </style>
+
+  <rect class="tl-box tl-box-neutral" x="12" y="88" width="140" height="64" rx="8"/>
+  <text class="tl-title" x="82" y="114" text-anchor="middle">Model</text>
+  <text class="tl-sub" x="82" y="132" text-anchor="middle">decides a tool</text>
+  <text class="tl-sub" x="82" y="144" text-anchor="middle">would help</text>
+
+  <path class="tl-arrow" d="M152,120 L184,120"/>
+  <path class="tl-arrowhead" d="M184,120 L175,115 L175,125 Z"/>
+
+  <rect class="tl-box tl-box-neutral" x="188" y="78" width="170" height="84" rx="8"/>
+  <text class="tl-title" x="273" y="100" text-anchor="middle">Structured call</text>
+  <text class="tl-sub" x="273" y="118" text-anchor="middle">tool name +</text>
+  <text class="tl-sub" x="273" y="131" text-anchor="middle">arguments, matching</text>
+  <text class="tl-sub" x="273" y="144" text-anchor="middle">its schema</text>
+
+  <path class="tl-arrow" d="M358,120 L386,120"/>
+  <path class="tl-arrowhead" d="M386,120 L377,115 L377,125 Z"/>
+
+  <rect class="tl-box tl-box-exec" x="390" y="88" width="155" height="64" rx="8"/>
+  <text class="tl-title" x="467" y="114" text-anchor="middle">Your app code</text>
+  <text class="tl-sub" x="467" y="132" text-anchor="middle">actually executes</text>
+  <text class="tl-sub" x="467" y="144" text-anchor="middle">the function</text>
+
+  <path class="tl-arrow" d="M545,120 L577,120"/>
+  <path class="tl-arrowhead" d="M577,120 L568,115 L568,125 Z"/>
+
+  <rect class="tl-box tl-box-neutral" x="581" y="88" width="128" height="64" rx="8"/>
+  <text class="tl-title" x="645" y="114" text-anchor="middle">Result</text>
+  <text class="tl-sub" x="645" y="132" text-anchor="middle">fed back into</text>
+  <text class="tl-sub" x="645" y="144" text-anchor="middle">the model</text>
+
+  <path class="tl-feedback" d="M645,152 C645,205 82,205 82,152"/>
+  <path class="tl-arrowhead" d="M82,152 L75,140 L89,140 Z" fill="var(--taken)"/>
+  <text class="tl-feedback-label" x="363" y="218" text-anchor="middle">MODEL CONTINUES REASONING WITH THE RESULT</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg class="diagram-lost-in-middle" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="lost-in-middle-title">
+  <title id="lost-in-middle-title">Model accuracy at using a retrieved fact is highest when it sits at the start or end of the prompt, and lowest when it's buried in the middle — the "lost in the middle" effect</title>
+  <style>
+    .lm-axis { stroke: var(--ink-muted); stroke-width: 1.5; }
+    .lm-tick-label { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-muted); }
+    .lm-axis-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .lm-danger-zone { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .lm-danger-label { font-family: var(--font-body); font-size: 11px; fill: var(--considered); }
+    .lm-curve { fill: none; stroke: var(--taken); stroke-width: 3; stroke-linecap: round; }
+    .lm-point-good { fill: var(--taken); }
+    .lm-point-bad { fill: var(--considered); }
+    .lm-point-label-good { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--taken); }
+    .lm-point-label-bad { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--considered); }
+  </style>
+
+  <rect class="lm-danger-zone" x="258" y="36" width="156" height="166" rx="8"/>
+  <text class="lm-danger-label" x="336" y="55" text-anchor="middle">information buried</text>
+  <text class="lm-danger-label" x="336" y="69" text-anchor="middle">here often gets missed</text>
+
+  <line class="lm-axis" x1="70" y1="30" x2="70" y2="210"/>
+  <line class="lm-axis" x1="70" y1="210" x2="600" y2="210"/>
+
+  <path class="lm-curve" d="M100,70 C180,70 240,188 335,188 C430,188 490,70 560,70"/>
+
+  <circle class="lm-point-good" cx="100" cy="70" r="5"/>
+  <text class="lm-point-label-good" x="100" y="52" text-anchor="middle">High</text>
+
+  <circle class="lm-point-bad" cx="335" cy="188" r="5"/>
+  <text class="lm-point-label-bad" x="335" y="168" text-anchor="middle">Low</text>
+
+  <circle class="lm-point-good" cx="560" cy="70" r="5"/>
+  <text class="lm-point-label-good" x="560" y="52" text-anchor="middle">High</text>
+
+  <text class="lm-tick-label" x="100" y="234" text-anchor="middle">Start</text>
+  <text class="lm-tick-label" x="335" y="234" text-anchor="middle">Middle</text>
+  <text class="lm-tick-label" x="560" y="234" text-anchor="middle">End</text>
+
+  <text class="lm-axis-title" x="335" y="256" text-anchor="middle">POSITION OF THE RELEVANT FACT IN THE PROMPT</text>
+  <text class="lm-axis-title" x="20" y="120" text-anchor="middle" transform="rotate(-90 20 120)">MODEL ACCURACY</text>
+</svg>
