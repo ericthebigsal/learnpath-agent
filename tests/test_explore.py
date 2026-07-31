@@ -161,3 +161,40 @@ def test_explore_nav_link_appears_on_dashboard(client):
     response = client.get("/")
 
     assert 'href="/explore"' in response.text
+
+
+from starter_paths import get_starter_path
+
+
+def test_explore_starter_preview_shows_all_steps_with_rationale(client):
+    response = client.get("/explore/starter/product-manager")
+
+    assert response.status_code == 200
+    assert "What Is an LLM, Really?" in response.text
+    assert "Grounds every later conversation in what the model actually is." in response.text
+    assert 'action="/explore/starter/product-manager"' in response.text
+
+
+def test_explore_starter_preview_returns_404_for_unknown_id(client):
+    response = client.get("/explore/starter/does-not-exist")
+    assert response.status_code == 404
+
+
+def test_explore_starter_confirm_creates_track_with_fixed_plan(client):
+    response = client.post("/explore/starter/engineer", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/path/1"
+
+    track = db.get_track(1, app_module.DB_PATH)
+    assert track["name"] == "Engineer"
+
+    latest = db.get_latest_plan(1, app_module.DB_PATH)
+    assert latest["trigger"] == "starter"
+    expected = get_starter_path("engineer")
+    assert [step["item_id"] for step in latest["steps"]] == [s.item_id for s in expected.steps]
+
+
+def test_explore_starter_confirm_returns_404_for_unknown_id(client):
+    response = client.post("/explore/starter/does-not-exist")
+    assert response.status_code == 404

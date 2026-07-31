@@ -14,7 +14,7 @@ import planner
 import quiz as quiz_module
 from catalog import get_item, load_catalog
 from models import Level, PlanResponse, Track
-from starter_paths import STARTER_PATHS
+from starter_paths import STARTER_PATHS, get_starter_path
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = str(BASE_DIR / "learnpath.db")
@@ -301,6 +301,58 @@ def explore(
             "starter_paths": STARTER_PATHS,
         },
     )
+
+
+@app.get("/explore/starter/{starter_id}", response_class=HTMLResponse)
+def explore_starter_preview(
+    request: Request, starter_id: str, current_user: dict = Depends(get_current_user)
+):
+    try:
+        starter_path = get_starter_path(starter_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Starter path not found")
+
+    steps = [
+        {"item": get_item(CATALOG, step.item_id), "rationale": step.rationale}
+        for step in starter_path.steps
+    ]
+
+    return templates.TemplateResponse(
+        request,
+        "explore_starter_preview.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "starter_path": starter_path,
+            "steps": steps,
+        },
+    )
+
+
+@app.post("/explore/starter/{starter_id}")
+def explore_starter_confirm(starter_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        starter_path = get_starter_path(starter_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Starter path not found")
+
+    track = db.create_track(
+        current_user["id"],
+        starter_path.title,
+        starter_path.description,
+        current_user["default_starting_level"],
+        DB_PATH,
+    )
+    plan_dict = {
+        "steps": [
+            {"item_id": step.item_id, "rationale": step.rationale}
+            for step in starter_path.steps
+        ],
+        "summary": starter_path.description,
+        "dropped": [],
+    }
+    db.log_plan(track["id"], plan_dict, "starter", DB_PATH)
+    return RedirectResponse(url=f"/path/{track['id']}", status_code=303)
 
 
 @app.get("/item/{track_id}/{item_id}", response_class=HTMLResponse)

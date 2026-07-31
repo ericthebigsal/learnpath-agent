@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ starter_path.title }} — learnpath-agent{% endblock %}
+{% block content %}
+<p class="eyebrow">Starter path</p>
+<h1>{{ starter_path.title }}</h1>
+<p class="goal">{{ starter_path.description }}</p>
+
+<ol class="trail">
+  {% for step in steps %}
+  <li class="trail-stop">
+    <span class="trail-marker">&middot;</span>
+    <div class="trail-body">
+      <span class="trail-title">{{ step.item.title }}</span>
+      <div class="trail-tags">
+        <span class="badge">{{ step.item.track.value }}</span>
+        <span class="badge">{{ step.item.level.value }}</span>
+        <span class="badge">{{ step.item.duration_minutes }}m</span>
+      </div>
+      <p class="trail-rationale">{{ step.rationale }}</p>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+
+<form method="post" action="/explore/starter/{{ starter_path.id }}">
+  <button type="submit">Start this path</button>
+</form>
+
+<p class="path-footer"><a href="/explore">Back to Explore</a></p>
+{% endblock %}
