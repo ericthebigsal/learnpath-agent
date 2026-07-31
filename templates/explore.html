@@ -4,7 +4,7 @@
 <p class="eyebrow">Explore</p>
 <h1>Find your next track</h1>
 
-<h2>Starter paths</h2>
+<h2 id="starter-paths">Starter paths</h2>
 <div class="starter-grid">
   {% for starter in starter_paths %}
   <a class="starter-card" href="/explore/starter/{{ starter.id }}">
@@ -45,6 +45,7 @@
       <span class="badge">{{ item.track.value }}</span>
       <span class="badge">{{ item.level.value }}</span>
       <span class="badge">{{ item.duration_minutes }}m</span>
+      <span class="badge">{{ item.type.value }}</span>
     </div>
     {% if user_tracks %}
     <form class="explore-add-form" method="post" action="/explore/add/{{ item.id }}">
@@ -56,7 +57,7 @@
       <button type="submit">Add to track</button>
     </form>
     {% else %}
-    <p class="explore-empty-hint">Start a track first to add this course to it.</p>
+    <p class="explore-empty-hint"><a href="#starter-paths">Start a track first</a> to add this course to it.</p>
     {% endif %}
   </div>
   {% endfor %}

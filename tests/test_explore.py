@@ -186,6 +186,10 @@ def test_explore_starter_confirm_creates_track_with_fixed_plan(client):
     assert response.status_code == 303
     assert response.headers["location"] == "/path/1"
 
+    path_response = client.get("/path/1")
+    assert path_response.status_code == 200
+    assert "How LLMs Generate Text: Autoregression and Sampling" in path_response.text
+
     track = db.get_track(1, app_module.DB_PATH)
     assert track["name"] == "Engineer"
 

@@ -177,7 +177,8 @@ select:focus-visible, textarea:focus-visible {
 
 /* ---------- forms ---------- */
 
-.goal-form label {
+.goal-form label,
+.explore-filters label {
   display: block;
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -549,8 +550,6 @@ button:hover { background: var(--taken); }
   color: var(--ink-muted);
   background: var(--paper);
 }
-
-.catalog-code { font-family: var(--font-mono); color: var(--taken); font-weight: 600; }
 
 .path-footer { margin-top: 2.5rem; }
 
