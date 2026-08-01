@@ -1,0 +1,25 @@
+<svg class="diagram-golden-dataset-composition" viewBox="0 0 720 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="golden-dataset-composition-title">
+  <title id="golden-dataset-composition-title">A useful golden dataset mixes realistic examples pulled from real usage, deliberately engineered edge cases, and a smaller set of adversarial examples that probe known weaknesses</title>
+  <style>
+    .gd-heading { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .gd-seg-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .gd-seg-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .gd-seg-c { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 1.5; }
+    .gd-tick { stroke: var(--ink-muted); stroke-width: 1; }
+    .gd-label { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-muted); }
+  </style>
+
+  <text class="gd-heading" x="360" y="18" text-anchor="middle">GOLDEN DATASET COMPOSITION</text>
+
+  <rect class="gd-seg-a" x="40" y="40" width="380" height="60"/>
+  <rect class="gd-seg-b" x="420" y="40" width="160" height="60"/>
+  <rect class="gd-seg-c" x="580" y="40" width="100" height="60"/>
+
+  <line class="gd-tick" x1="230" y1="100" x2="230" y2="112"/>
+  <line class="gd-tick" x1="500" y1="100" x2="500" y2="112"/>
+  <line class="gd-tick" x1="630" y1="100" x2="630" y2="112"/>
+
+  <text class="gd-label" x="230" y="128" text-anchor="middle">Realistic examples</text>
+  <text class="gd-label" x="500" y="128" text-anchor="middle">Edge cases</text>
+  <text class="gd-label" x="630" y="128" text-anchor="middle">Adversarial</text>
+</svg>

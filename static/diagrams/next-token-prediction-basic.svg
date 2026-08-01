@@ -1,0 +1,41 @@
+<svg class="diagram-next-token-basic" viewBox="0 0 720 235" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="next-token-basic-title">
+  <title id="next-token-basic-title">An LLM predicts the single most statistically likely next token given the text so far, appends it, and repeats -- it never looks anything up</title>
+  <style>
+    .nt-box { fill: var(--surface); stroke-width: 2; }
+    .nt-box-neutral { stroke: var(--ink-muted); }
+    .nt-box-model { stroke: var(--ink); stroke-width: 2.5; }
+    .nt-box-live { stroke: var(--taken); }
+    .nt-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .nt-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .nt-arrow { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+    .nt-arrowhead { fill: var(--ink-muted); }
+    .nt-feedback { stroke: var(--taken); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+    .nt-feedback-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--taken); }
+  </style>
+
+  <rect class="nt-box nt-box-neutral" x="20" y="85" width="170" height="62" rx="8"/>
+  <text class="nt-title" x="105" y="111" text-anchor="middle">Text so far</text>
+  <text class="nt-sub" x="105" y="129" text-anchor="middle">everything generated</text>
+  <text class="nt-sub" x="105" y="141" text-anchor="middle">up to this point</text>
+
+  <path class="nt-arrow" d="M190,116 L226,116"/>
+  <path class="nt-arrowhead" d="M226,116 L217,111 L217,121 Z"/>
+
+  <rect class="nt-box nt-box-model" x="230" y="70" width="190" height="92" rx="8"/>
+  <text class="nt-title" x="325" y="98" text-anchor="middle">LLM</text>
+  <text class="nt-sub" x="325" y="116" text-anchor="middle">computes which token is</text>
+  <text class="nt-sub" x="325" y="129" text-anchor="middle">statistically most likely</text>
+  <text class="nt-sub" x="325" y="142" text-anchor="middle">to come next</text>
+
+  <path class="nt-arrow" d="M420,116 L456,116"/>
+  <path class="nt-arrowhead" d="M456,116 L447,111 L447,121 Z"/>
+
+  <rect class="nt-box nt-box-live" x="460" y="85" width="190" height="62" rx="8"/>
+  <text class="nt-title" x="555" y="111" text-anchor="middle">Predicted next token</text>
+  <text class="nt-sub" x="555" y="129" text-anchor="middle">no lookup, no fact-check --</text>
+  <text class="nt-sub" x="555" y="141" text-anchor="middle">just the likeliest continuation</text>
+
+  <path class="nt-feedback" d="M555,147 C555,200 105,200 105,147"/>
+  <path class="nt-arrowhead" d="M105,147 L98,136 L112,136 Z" fill="var(--taken)"/>
+  <text class="nt-feedback-label" x="330" y="222" text-anchor="middle">APPEND TOKEN, REPEAT</text>
+</svg>

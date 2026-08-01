@@ -195,6 +195,7 @@
     "sections": [
       {
         "heading": "Next-Token Prediction: The One Mechanism Underneath Everything",
+        "diagram": "next-token-prediction-basic",
         "body": "An LLM is trained on one objective: given a sequence of tokens (pieces of words, typically a few characters each, drawn from a vocabulary of 50,000-100,000 entries), predict a probability distribution over what token comes next. Training runs this over a corpus of trillions of tokens -- web pages, books, code, forum posts -- adjusting billions of internal weights via gradient descent so the model's predicted distribution gets closer to what actually followed in the real text. At generation time the model runs autoregressively: it predicts one token, appends it to the input, and repeats, one token at a time, each new token conditioned on everything before it including its own prior outputs. There is no separate 'thinking' phase and no lookup step -- every single token, whether it's finishing a sentence or stating a fact, comes out of the same forward pass through the same weights. A 'temperature' setting controls how much randomness is injected when sampling from that distribution, which is why the same prompt can produce different wording on different runs."
       },
       {
@@ -245,6 +246,7 @@
       },
       {
         "heading": "What a Context Window Actually Limits",
+        "diagram": "context-window-limit",
         "body": "The context window is the hard ceiling on how many tokens a single API call can involve, and for most chat-style APIs that ceiling covers input and output combined -- your system prompt, conversation history, retrieved documents, and the model's reply all draw from the same shared budget. A model advertised with a 128,000-token context window doesn't give you 128,000 tokens of input plus another 128,000 of output; if your prompt consumes 127,500 tokens, the model has only 500 tokens left to generate a response before hitting the limit. What happens when you try to exceed it depends on the system: some APIs reject the call outright with an explicit error, while others -- particularly chat applications managing a running conversation -- silently drop or truncate the oldest messages to make room, which can quietly erase context the user assumed was still available."
       },
       {
@@ -358,6 +360,7 @@
     "sections": [
       {
         "heading": "The Three-Part Anatomy of a Working Prompt",
+        "diagram": "prompt-anatomy",
         "body": "Almost every prompt that reliably produces good output has the same three ingredients, in roughly this order. First, the task instruction: a direct statement of what you want done, phrased as an imperative -- \"summarize this contract's termination clauses\" beats \"can you help me understand this document?\" Second, context: the specific material the model needs and nothing more -- the contract text itself, a customer's prior messages, a database schema, the relevant rows rather than the whole table. Models don't know what you know; if a fact matters to the answer, it has to be in the prompt. Third, the output format: how the response should be shaped, not just what it should contain. Leaving any one of these three out doesn't make the model fail outright, but it makes the output unpredictable -- you get a plausible-sounding response that may not be the one you actually needed, and you end up iterating in the chat window instead of getting it right the first time."
       },
       {
@@ -648,6 +651,7 @@
       },
       {
         "heading": "Aggregate Pass Rates Instead of All-or-Nothing",
+        "diagram": "pass-rate-shift",
         "body": "Run a rubric or reference score across a test set of, say, 200 representative cases, and the meaningful output isn't \"pass\" or \"fail\" for the suite -- it's a percentage: 174 of 200 cases met the bar, an 87% pass rate. This is the central shift from traditional testing, where CI expects 100% green. In LLM evaluation, 100% is rarely realistic or even desirable as a target, because some fraction of cases sit near the edge of what the rubric can cleanly resolve, and pushing for perfection on every case usually means overfitting the prompt to the test set rather than improving general quality. Instead, teams pick a target pass rate (85%, 90%, whatever the risk tolerance allows) and treat the aggregate number, tracked release over release, as the health metric -- the same way a search-relevance team tracks NDCG rather than asserting a single query's ranking."
       },
       {
@@ -674,6 +678,7 @@
     "sections": [
       {
         "heading": "What a Golden Dataset Is and Why Everything Else Depends On It",
+        "diagram": "golden-dataset-composition",
         "body": "A golden dataset is a curated set of inputs paired with expert-verified expected outputs or grading criteria -- not raw logs, but examples someone has actually checked and signed off on as correct. This distinction matters because every other evaluation technique in this catalog, from automated LLM-judge scoring to regression testing before a deploy, ultimately gets calibrated or validated against this set. If an LLM judge is used to grade thousands of production responses at scale, the judge itself first has to be checked against golden examples to confirm its scores agree with human judgment. If a prompt change looks like an improvement, the golden set is what confirms it didn't quietly break something else. Skip building this foundation and every downstream metric -- pass rates, judge scores, A/B deltas -- is measuring against nothing, which is why teams that skip straight to fancy evaluation pipelines often can't explain why their numbers keep contradicting what users report."
       },
       {
@@ -831,6 +836,7 @@
       },
       {
         "heading": "Handling Multiple Tool Calls Requested in One Turn",
+        "diagram": "parallel-tool-calls",
         "body": "Modern tool-calling APIs let a single model response include several tool calls at once -- the model might request weather for three cities, or an inventory check plus a price lookup, all in one turn because it determined they're independent lookups rather than a chain where one depends on another's output. Your execution loop needs to handle this as a batch: iterate the array of calls, validate each one's arguments independently, and where the calls don't depend on each other, execute them concurrently (asyncio.gather over async tool functions, or a thread pool for blocking I/O) rather than one at a time, since three sequential API round-trips at 300ms each is a full second of avoidable latency. Each result still needs to be matched back to its originating call ID when you append the results, since the model expects one result message per call it issued, in whatever order they resolve."
       }
     ],
@@ -956,6 +962,7 @@
     "sections": [
       {
         "heading": "Three Channels, One Context Window",
+        "diagram": "three-channels",
         "body": "Every chat completion request is actually three separate streams of text stitched together before the model ever sees them: a system message, one or more user messages, and (in a multi-turn conversation) an accumulating history of everything said so far. The API keeps these logically distinct -- each has its own role field -- but under the hood they're concatenated into a single sequence of tokens. The model doesn't experience three inboxes; it experiences one long document with role markers sprinkled through it. That matters because it means the *position* and *labeling* of a piece of text, not just its content, shapes how much weight the model gives it. A rule stated once in the system slot and never repeated still tends to hold 40 turns later, in a way a rule buried in turn 3 of a long user message often doesn't."
       },
       {
@@ -1087,6 +1094,7 @@
       },
       {
         "heading": "From Per-Call Pennies to Per-Day Line Items",
+        "diagram": "cost-scaling",
         "body": "A $0.0135 request looks negligible in isolation -- it's the kind of number that's easy to wave away in a design review. But cost per call is only half the picture; the other half is call volume, and production features rarely stay small. At 100,000 requests a day, that same $0.0135 becomes $1,350 a day, or roughly $40,000 a month, and $480,000+ annualized -- all from a single feature at a single usage tier, before any traffic growth. The arithmetic is linear and unforgiving: doubling daily active users doubles the bill, adding a second LLM call per request (a re-ranking step, a verification pass) roughly doubles it again. Costs that look trivial at prototype scale (a few dozen test calls) and costs that look alarming at production scale (hundreds of thousands of calls) are the exact same per-token rate -- only the multiplier changed."
       },
       {

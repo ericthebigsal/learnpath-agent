@@ -1,0 +1,24 @@
+<svg class="diagram-prompt-anatomy" viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="prompt-anatomy-title">
+  <title id="prompt-anatomy-title">A working prompt has three parts: clear instructions stated up front, the context the model needs, and an explicit description of the desired output format</title>
+  <style>
+    .pa-outer { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .pa-section-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .pa-section-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .pa-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .pa-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="pa-outer" x="180" y="18" width="360" height="184" rx="10"/>
+
+  <rect class="pa-section-a" x="200" y="30" width="320" height="48" rx="6"/>
+  <text class="pa-title" x="360" y="48" text-anchor="middle">Instructions</text>
+  <text class="pa-sub" x="360" y="66" text-anchor="middle">the task, stated clearly, up front</text>
+
+  <rect class="pa-section-b" x="200" y="88" width="320" height="48" rx="6"/>
+  <text class="pa-title" x="360" y="106" text-anchor="middle">Context</text>
+  <text class="pa-sub" x="360" y="124" text-anchor="middle">the information the model needs</text>
+
+  <rect class="pa-section-a" x="200" y="146" width="320" height="48" rx="6"/>
+  <text class="pa-title" x="360" y="164" text-anchor="middle">Output format</text>
+  <text class="pa-sub" x="360" y="182" text-anchor="middle">schema, length, tone</text>
+</svg>

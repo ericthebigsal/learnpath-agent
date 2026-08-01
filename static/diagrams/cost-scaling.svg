@@ -1,0 +1,26 @@
+<svg class="diagram-cost-scaling" viewBox="0 0 720 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cost-scaling-title">
+  <title id="cost-scaling-title">A trivial-looking per-call cost of about $0.0135 becomes over $1,300 a day once multiplied by 100,000 requests, which is why teams need to estimate cost before shipping a feature</title>
+  <style>
+    .cs-box { fill: var(--surface); stroke-width: 2; }
+    .cs-box-call { stroke: var(--taken); }
+    .cs-box-total { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 2; }
+    .cs-title { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: var(--ink); }
+    .cs-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .cs-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .cs-arrowhead { fill: var(--ink-muted); }
+    .cs-multiplier { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="cs-box cs-box-call" x="40" y="60" width="200" height="60" rx="8"/>
+  <text class="cs-title" x="140" y="88" text-anchor="middle">1 API call</text>
+  <text class="cs-sub" x="140" y="106" text-anchor="middle">&#8776; $0.0135</text>
+
+  <path class="cs-arrow" d="M240,100 L476,100"/>
+  <path class="cs-arrowhead" d="M476,100 L467,95 L467,105 Z"/>
+  <text class="cs-multiplier" x="358" y="85" text-anchor="middle">&#215; 100,000 REQUESTS/DAY</text>
+
+  <rect class="cs-box cs-box-total" x="480" y="45" width="200" height="90" rx="8"/>
+  <text class="cs-title" x="580" y="85" text-anchor="middle">$1,300+</text>
+  <text class="cs-sub" x="580" y="103" text-anchor="middle">per day, at that</text>
+  <text class="cs-sub" x="580" y="116" text-anchor="middle">volume</text>
+</svg>

@@ -1,0 +1,31 @@
+<svg class="diagram-context-window-limit" viewBox="0 0 720 195" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="context-window-limit-title">
+  <title id="context-window-limit-title">Input plus output tokens must fit under the context window's max token limit; exceeding it means an error or silent truncation of older content</title>
+  <style>
+    .cl-max-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink); }
+    .cl-max-line { stroke: var(--ink); stroke-width: 2; }
+    .cl-input { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .cl-output { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .cl-unused { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .cl-overflow { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .cl-seg-label { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink); }
+    .cl-caption { font-family: var(--font-body); font-size: 11px; fill: var(--ink-muted); }
+  </style>
+
+  <line class="cl-max-line" x1="600" y1="30" x2="600" y2="170"/>
+  <text class="cl-max-label" x="600" y="20" text-anchor="middle">MAX CONTEXT WINDOW</text>
+
+  <rect class="cl-input" x="40" y="40" width="280" height="45"/>
+  <text class="cl-seg-label" x="180" y="66" text-anchor="middle">Input</text>
+  <rect class="cl-output" x="320" y="40" width="140" height="45"/>
+  <text class="cl-seg-label" x="390" y="66" text-anchor="middle">Output</text>
+  <rect class="cl-unused" x="460" y="40" width="140" height="45"/>
+  <text class="cl-seg-label" x="530" y="66" text-anchor="middle">Unused</text>
+  <text class="cl-caption" x="320" y="100" text-anchor="middle">Fits within the window</text>
+
+  <rect class="cl-input" x="40" y="120" width="280" height="45"/>
+  <text class="cl-seg-label" x="180" y="146" text-anchor="middle">Input</text>
+  <rect class="cl-output" x="320" y="120" width="280" height="45"/>
+  <text class="cl-seg-label" x="460" y="146" text-anchor="middle">Output</text>
+  <rect class="cl-overflow" x="600" y="120" width="80" height="45"/>
+  <text class="cl-caption" x="320" y="180" text-anchor="middle">Exceeds the window -- truncated or error</text>
+</svg>
