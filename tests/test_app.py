@@ -532,3 +532,70 @@ def test_add_back_route_returns_404_for_another_users_track(client):
         response = other_client.post("/path/1/add/rag-fundamentals")
 
     assert response.status_code == 404
+
+
+def test_dashboard_shows_earned_badges(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+    client.post(
+        "/item/1/rag-fundamentals/submit",
+        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+    )
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "First Steps" in response.text
+    assert "Perfectionist" in response.text
+
+
+def test_dashboard_shows_due_for_review_item(client):
+    from datetime import datetime, timedelta, timezone
+
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+    client.post(
+        "/item/1/rag-fundamentals/submit",
+        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+    )
+    backdated = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
+    conn = db._connect(app_module.DB_PATH)
+    conn.execute(
+        "UPDATE progress SET completed_at = ? WHERE item_id = 'rag-fundamentals'", (backdated,)
+    )
+    conn.commit()
+    conn.close()
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "Due for review" in response.text
+    assert "RAG Fundamentals: Retrieval Meets Generation" in response.text
+
+
+def test_achievements_page_lists_locked_badges_before_any_completion(client):
+    response = client.get("/achievements")
+
+    assert response.status_code == 200
+    assert "First Steps" in response.text
+    assert "Perfectionist" in response.text
+
+
+def test_achievements_page_shows_earned_date_after_completion(client):
+    client.post(
+        "/tracks",
+        data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
+    )
+    client.post(
+        "/item/1/rag-fundamentals/submit",
+        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+    )
+
+    response = client.get("/achievements")
+
+    assert response.status_code == 200
+    assert "Earned " in response.text

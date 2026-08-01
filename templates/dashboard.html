@@ -17,6 +17,27 @@
 </ul>
 {% endif %}
 
+{% if earned_labels %}
+<div class="achievement-strip">
+  <p class="achievement-strip-label">Badges earned</p>
+  {% for label in earned_labels %}
+  <span class="achievement-pill">{{ label }}</span>
+  {% endfor %}
+  <a class="achievement-strip-link" href="/achievements">View all &rarr;</a>
+</div>
+{% endif %}
+
+{% if due_for_review %}
+<div class="review-widget">
+  <p class="review-widget-label">Due for review</p>
+  <ul class="review-widget-list">
+    {% for entry in due_for_review %}
+    <li><a href="/item/{{ entry.track_id }}/{{ entry.item.id }}">{{ entry.item.title }}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
 <h2>Start a new track</h2>
 <form class="goal-form" method="post" action="/tracks">
   <label for="goal_text">Your goal</label>

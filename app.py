@@ -12,6 +12,8 @@ import auth
 import db
 import planner
 import quiz as quiz_module
+import badges
+import review
 from catalog import get_item, load_catalog
 from models import Level, PlanResponse, Track
 from starter_paths import STARTER_PATHS, get_starter_path
@@ -164,6 +166,13 @@ def logout_submit(request: Request):
 @app.get("/", response_class=HTMLResponse)
 def dashboard(request: Request, current_user: dict = Depends(get_current_user)):
     tracks = db.get_tracks_for_user(current_user["id"], DB_PATH)
+    earned_badges = db.get_badges_for_user(current_user["id"], DB_PATH)
+    earned_labels = sorted({badges.BADGE_INFO[row["badge_type"]][0] for row in earned_badges})
+    due_items = review.get_due_items(current_user["id"], DB_PATH)[:5]
+    due_for_review = [
+        {"item": get_item(CATALOG, entry["item_id"]), "track_id": entry["track_id"]}
+        for entry in due_items
+    ]
     return templates.TemplateResponse(
         request,
         "dashboard.html",
@@ -173,7 +182,19 @@ def dashboard(request: Request, current_user: dict = Depends(get_current_user)):
             "tracks": tracks,
             "levels": [level.value for level in Level],
             "default_level": current_user["default_starting_level"],
+            "earned_labels": earned_labels,
+            "due_for_review": due_for_review,
         },
+    )
+
+
+@app.get("/achievements", response_class=HTMLResponse)
+def achievements(request: Request, current_user: dict = Depends(get_current_user)):
+    badge_rows = badges.describe_badges(current_user["id"], DB_PATH)
+    return templates.TemplateResponse(
+        request,
+        "achievements.html",
+        {"request": request, "current_user": current_user, "badges": badge_rows},
     )
 
 
@@ -277,7 +298,7 @@ def explore_add_item(
     return RedirectResponse(url=f"/item/{track_id}/{item_id}", status_code=303)
 
 
-AD_HOC_TRACK_NAME = "Ad Hoc"
+AD_HOC_TRACK_NAME = badges.AD_HOC_TRACK_NAME
 
 
 def _get_or_create_ad_hoc_track(current_user: dict) -> dict:
@@ -302,6 +323,7 @@ def explore_open_item(item_id: str, current_user: dict = Depends(get_current_use
 
     track = _get_or_create_ad_hoc_track(current_user)
     _add_item_to_plan(track["id"], item_id, "explore_open", "Opened directly from the catalog.")
+    badges.evaluate_badges(current_user["id"], CATALOG, DB_PATH)
     return RedirectResponse(url=f"/item/{track['id']}/{item_id}", status_code=303)
 
 
@@ -501,6 +523,7 @@ async def submit_quiz(
     score = quiz_module.grade_quiz(item.quiz, answers)
 
     db.record_progress(track_id, item_id, score, DB_PATH)
+    badges.evaluate_badges(current_user["id"], CATALOG, DB_PATH)
 
     previous_plan = db.get_latest_plan(track_id, DB_PATH)
     old_item_ids = [step["item_id"] for step in previous_plan["steps"]] if previous_plan else []

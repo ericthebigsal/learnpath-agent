@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Achievements — learnpath-agent{% endblock %}
+{% block content %}
+<p class="eyebrow">Registrar</p>
+<h1>Achievements</h1>
+
+{% if badges %}
+<ul class="achievement-grid">
+  {% for badge in badges %}
+  <li class="achievement-card {% if badge.earned %}achievement-card-earned{% else %}achievement-card-locked{% endif %}">
+    <p class="achievement-card-label">{{ badge.label }}</p>
+    <p class="achievement-card-description">{{ badge.description }}</p>
+    {% if badge.earned %}
+    <p class="achievement-card-date">Earned {{ badge.earned_at }}</p>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty-state">No badges yet -- complete a course to start earning them.</p>
+{% endif %}
+
+<p class="path-footer">
+  <a href="/">Back to your dashboard</a>
+</p>
+{% endblock %}

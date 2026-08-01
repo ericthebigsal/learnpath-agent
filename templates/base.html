@@ -15,6 +15,7 @@
     {% if current_user %}
     <nav class="site-nav">
       <a class="nav-link" href="/explore">Explore</a>
+      <a class="nav-link" href="/achievements">Achievements</a>
       <form method="post" action="/logout" class="logout-form">
         <span class="site-user">{{ current_user.email }}</span>
         <button type="submit" class="logout-button">Log out</button>
