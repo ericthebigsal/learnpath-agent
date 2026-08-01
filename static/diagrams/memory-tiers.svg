@@ -1,0 +1,45 @@
+<svg class="diagram-memory-tiers" viewBox="0 0 720 265" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="memory-tiers-title">
+  <title id="memory-tiers-title">Short-term session memory (sliding window, summarization buffer) and long-term persistent memory (an external store) are two distinct tiers, with facts flowing between them as they become relevant or worth persisting</title>
+  <style>
+    .mt-outer-a { fill: none; stroke: var(--taken); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .mt-outer-b { fill: none; stroke: var(--considered); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .mt-outer-label-a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--taken); }
+    .mt-outer-label-b { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--considered); }
+    .mt-box { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.75; }
+    .mt-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .mt-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .mt-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .mt-arrowhead { fill: var(--ink-muted); }
+    .mt-edge-label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.01em; fill: var(--ink-muted); }
+    .mt-caption { font-family: var(--font-body); font-size: 11px; fill: var(--signal); }
+  </style>
+
+  <text class="mt-outer-label-a" x="190" y="30" text-anchor="middle">SHORT-TERM -- THIS SESSION</text>
+  <rect class="mt-outer-a" x="30" y="40" width="320" height="185" rx="10"/>
+
+  <rect class="mt-box" x="50" y="65" width="280" height="60" rx="6"/>
+  <text class="mt-title" x="190" y="90" text-anchor="middle">Sliding window</text>
+  <text class="mt-sub" x="190" y="108" text-anchor="middle">keeps only the most recent N turns</text>
+
+  <rect class="mt-box" x="50" y="140" width="280" height="60" rx="6"/>
+  <text class="mt-title" x="190" y="165" text-anchor="middle">Summarization buffer</text>
+  <text class="mt-sub" x="190" y="183" text-anchor="middle">condenses older turns instead of dropping</text>
+
+  <text class="mt-outer-label-b" x="540" y="30" text-anchor="middle">LONG-TERM -- ACROSS SESSIONS</text>
+  <rect class="mt-outer-b" x="390" y="40" width="300" height="185" rx="10"/>
+
+  <rect class="mt-box" x="410" y="110" width="260" height="70" rx="6"/>
+  <text class="mt-title" x="540" y="138" text-anchor="middle">External memory store</text>
+  <text class="mt-sub" x="540" y="156" text-anchor="middle">database or vector store holding</text>
+  <text class="mt-sub" x="540" y="170" text-anchor="middle">facts recalled across sessions</text>
+
+  <path class="mt-arrow" d="M352,108 L388,108"/>
+  <path class="mt-arrowhead" d="M388,108 L379,104 L379,112 Z"/>
+  <text class="mt-edge-label" x="370" y="98" text-anchor="middle">persist</text>
+
+  <path class="mt-arrow" d="M388,155 L352,155"/>
+  <path class="mt-arrowhead" d="M352,155 L361,151 L361,159 Z"/>
+  <text class="mt-edge-label" x="370" y="172" text-anchor="middle">retrieve</text>
+
+  <text class="mt-caption" x="360" y="250" text-anchor="middle">Stale long-term facts can silently mislead a later session if never invalidated</text>
+</svg>

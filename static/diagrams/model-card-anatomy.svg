@@ -1,0 +1,32 @@
+<svg class="diagram-model-card-anatomy" viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="model-card-anatomy-title">
+  <title id="model-card-anatomy-title">A model card has five parts worth checking in order: training data and cutoff, intended use, benchmark scores read with context, license terms, and safety evaluations</title>
+  <style>
+    .mc-outer { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .mc-section-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .mc-section-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .mc-title { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+    .mc-sub { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="mc-outer" x="170" y="12" width="380" height="276" rx="10"/>
+
+  <rect class="mc-section-a" x="190" y="24" width="340" height="46" rx="6"/>
+  <text class="mc-title" x="360" y="42" text-anchor="middle">Training data &amp; cutoff</text>
+  <text class="mc-sub" x="360" y="58" text-anchor="middle">does it know your domain, recent events?</text>
+
+  <rect class="mc-section-b" x="190" y="76" width="340" height="46" rx="6"/>
+  <text class="mc-title" x="360" y="94" text-anchor="middle">Intended use</text>
+  <text class="mc-sub" x="360" y="110" text-anchor="middle">out-of-scope warnings are real signals</text>
+
+  <rect class="mc-section-a" x="190" y="128" width="340" height="46" rx="6"/>
+  <text class="mc-title" x="360" y="146" text-anchor="middle">Benchmark scores</text>
+  <text class="mc-sub" x="360" y="162" text-anchor="middle">version, contamination, relevance to you</text>
+
+  <rect class="mc-section-b" x="190" y="180" width="340" height="46" rx="6"/>
+  <text class="mc-title" x="360" y="198" text-anchor="middle">License terms</text>
+  <text class="mc-sub" x="360" y="214" text-anchor="middle">some "open" models restrict commercial use</text>
+
+  <rect class="mc-section-a" x="190" y="232" width="340" height="46" rx="6"/>
+  <text class="mc-title" x="360" y="250" text-anchor="middle">Safety evaluations</text>
+  <text class="mc-sub" x="360" y="266" text-anchor="middle">red-teaming done, known failure modes</text>
+</svg>

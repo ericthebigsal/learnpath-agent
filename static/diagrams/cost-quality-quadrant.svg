@@ -1,0 +1,31 @@
+<svg class="diagram-cost-quality-quadrant" viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cost-quality-quadrant-title">
+  <title id="cost-quality-quadrant-title">A cheap model is low cost but lower quality, an expensive model is high quality but high cost, and a well-routed cascade captures most of the quality at a fraction of the cost -- landing in the ideal low-cost, high-quality zone</title>
+  <style>
+    .cq-axis { stroke: var(--ink-muted); stroke-width: 1.5; }
+    .cq-axis-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .cq-zone { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .cq-zone-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--taken); }
+    .cq-point { fill: var(--ink); }
+    .cq-point-routed { fill: var(--taken); }
+    .cq-point-label { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--ink); }
+    .cq-point-label-routed { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--taken); }
+  </style>
+
+  <rect class="cq-zone" x="70" y="30" width="220" height="95" rx="8"/>
+  <text class="cq-zone-label" x="180" y="48" text-anchor="middle">IDEAL ZONE</text>
+
+  <line class="cq-axis" x1="70" y1="30" x2="70" y2="210"/>
+  <line class="cq-axis" x1="70" y1="210" x2="660" y2="210"/>
+
+  <text class="cq-axis-label" x="660" y="228" text-anchor="end">COST -&gt;</text>
+  <text class="cq-axis-label" x="45" y="120" text-anchor="middle" transform="rotate(-90 45 120)">QUALITY -&gt;</text>
+
+  <circle class="cq-point" cx="160" cy="175" r="7"/>
+  <text class="cq-point-label" x="160" y="197" text-anchor="middle">Cheap model</text>
+
+  <circle class="cq-point" cx="560" cy="55" r="7"/>
+  <text class="cq-point-label" x="575" y="59" text-anchor="start">Expensive model</text>
+
+  <circle class="cq-point-routed" cx="230" cy="85" r="7"/>
+  <text class="cq-point-label-routed" x="230" y="107" text-anchor="middle">Routed / Cascaded</text>
+</svg>

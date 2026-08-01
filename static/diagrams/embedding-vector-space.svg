@@ -1,0 +1,31 @@
+<svg class="diagram-embedding-vector-space" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="embedding-vector-space-title">
+  <title id="embedding-vector-space-title">In embedding space, "a friendly dog" and "a happy puppy" land close together, while "quarterly tax filing" lands far from both -- distance in the vector space represents difference in meaning</title>
+  <style>
+    .vs-space { fill: none; stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .vs-space-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .vs-point { fill: var(--ink); }
+    .vs-point-label { font-family: var(--font-body); font-size: 11px; fill: var(--ink); }
+    .vs-line-near { stroke: var(--taken); stroke-width: 1.75; stroke-dasharray: 4 3; fill: none; }
+    .vs-line-far { stroke: var(--considered); stroke-width: 1.75; stroke-dasharray: 4 3; fill: none; }
+    .vs-line-label-near { font-family: var(--font-mono); font-size: 10px; fill: var(--taken); }
+    .vs-line-label-far { font-family: var(--font-mono); font-size: 10px; fill: var(--considered); }
+  </style>
+
+  <rect class="vs-space" x="40" y="30" width="640" height="195" rx="10"/>
+  <text class="vs-space-label" x="360" y="235" text-anchor="middle">EMBEDDING SPACE (SIMPLIFIED TO 2D)</text>
+
+  <path class="vs-line-far" d="M250,125 L580,85"/>
+  <text class="vs-line-label-far" x="415" y="95" text-anchor="middle">far apart</text>
+
+  <path class="vs-line-near" d="M180,170 L250,125"/>
+  <text class="vs-line-label-near" x="180" y="145" text-anchor="middle">close</text>
+
+  <circle class="vs-point" cx="180" cy="170" r="5"/>
+  <text class="vs-point-label" x="180" y="196" text-anchor="middle">"a friendly dog"</text>
+
+  <circle class="vs-point" cx="250" cy="125" r="5"/>
+  <text class="vs-point-label" x="255" y="110" text-anchor="middle">"a happy puppy"</text>
+
+  <circle class="vs-point" cx="580" cy="85" r="5"/>
+  <text class="vs-point-label" x="580" y="65" text-anchor="middle">"quarterly tax filing"</text>
+</svg>

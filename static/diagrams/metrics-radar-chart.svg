@@ -1,0 +1,37 @@
+<svg class="diagram-metrics-radar" viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="metrics-radar-title">
+  <title id="metrics-radar-title">A prompt change that adds reasoning steps raises faithfulness and helpfulness, but shrinks cost-efficiency and speed dramatically while safety stays flat -- a tradeoff invisible if you only track accuracy</title>
+  <style>
+    .rc-grid { fill: none; stroke: var(--border); stroke-width: 1; }
+    .rc-axis { stroke: var(--border); stroke-width: 1; }
+    .rc-axis-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.01em; fill: var(--ink-muted); }
+    .rc-before { fill: none; stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 5 4; }
+    .rc-after { fill: var(--taken-tint); fill-opacity: 0.55; stroke: var(--taken); stroke-width: 2.25; }
+    .rc-legend-label { font-family: var(--font-body); font-size: 11px; fill: var(--ink); }
+    .rc-caption { font-family: var(--font-body); font-size: 11px; fill: var(--ink-muted); }
+  </style>
+
+  <line class="rc-legend" x1="30" y1="20" x2="55" y2="20" stroke="var(--ink-muted)" stroke-width="2" stroke-dasharray="5 4"/>
+  <text class="rc-legend-label" x="62" y="24">Before (baseline prompt)</text>
+  <line class="rc-legend" x1="230" y1="20" x2="255" y2="20" stroke="var(--taken)" stroke-width="2.25"/>
+  <text class="rc-legend-label" x="262" y="24">After (added reasoning steps)</text>
+
+  <polygon class="rc-grid" points="360,95 403,126 387,176 334,176 317,126"/>
+  <polygon class="rc-grid" points="360,50 446,112 413,213 307,213 274,112"/>
+
+  <line class="rc-axis" x1="360" y1="140" x2="360" y2="50"/>
+  <line class="rc-axis" x1="360" y1="140" x2="446" y2="112"/>
+  <line class="rc-axis" x1="360" y1="140" x2="413" y2="213"/>
+  <line class="rc-axis" x1="360" y1="140" x2="307" y2="213"/>
+  <line class="rc-axis" x1="360" y1="140" x2="274" y2="112"/>
+
+  <polygon class="rc-before" points="360,77 416,122 402,198 320,195 287,116"/>
+  <polygon class="rc-after" points="360,64 429,118 376,162 347,158 287,116"/>
+
+  <text class="rc-axis-label" x="360" y="38" text-anchor="middle">Faithfulness</text>
+  <text class="rc-axis-label" x="486" y="108" text-anchor="middle">Helpfulness</text>
+  <text class="rc-axis-label" x="430" y="240" text-anchor="middle">Cost efficiency</text>
+  <text class="rc-axis-label" x="290" y="240" text-anchor="middle">Speed</text>
+  <text class="rc-axis-label" x="234" y="108" text-anchor="middle">Safety</text>
+
+  <text class="rc-caption" x="360" y="272" text-anchor="middle">+5 points of accuracy, but cost and speed collapse -- a tradeoff invisible if you only track accuracy</text>
+</svg>

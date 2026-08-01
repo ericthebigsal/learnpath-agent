@@ -1,0 +1,43 @@
+<svg class="diagram-rag-eval-diagnostic" viewBox="0 0 720 285" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="rag-eval-diagnostic-title">
+  <title id="rag-eval-diagnostic-title">A wrong answer with high retrieval precision and recall points to a generation problem (faithfulness, relevance); low retrieval metrics point to a retrieval problem instead</title>
+  <style>
+    .rd-box { fill: var(--surface); stroke-width: 2; }
+    .rd-box-neutral { stroke: var(--ink-muted); }
+    .rd-diamond { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+    .rd-box-a { stroke: var(--considered); }
+    .rd-box-b { stroke: var(--taken); }
+    .rd-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .rd-title-a { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--considered); }
+    .rd-title-b { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--taken); }
+    .rd-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .rd-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .rd-arrowhead { fill: var(--ink-muted); }
+    .rd-edge-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="rd-box rd-box-neutral" x="280" y="15" width="160" height="45" rx="8"/>
+  <text class="rd-title" x="360" y="43" text-anchor="middle">Wrong answer</text>
+
+  <path class="rd-arrow" d="M360,60 L360,76"/>
+  <path class="rd-arrowhead" d="M360,76 L355,66 L365,66 Z"/>
+
+  <polygon class="rd-diamond" points="360,78 460,123 360,168 260,123"/>
+  <text class="rd-title" x="360" y="119" text-anchor="middle">High recall &amp;</text>
+  <text class="rd-title" x="360" y="133" text-anchor="middle">precision?</text>
+
+  <path class="rd-arrow" d="M270,135 L182,199"/>
+  <path class="rd-arrowhead" d="M182,199 L191,193 L184,186 Z"/>
+  <text class="rd-edge-label" x="205" y="158" text-anchor="middle">yes</text>
+
+  <path class="rd-arrow" d="M450,135 L538,199"/>
+  <path class="rd-arrowhead" d="M538,199 L536,188 L528,195 Z"/>
+  <text class="rd-edge-label" x="515" y="158" text-anchor="middle">no</text>
+
+  <rect class="rd-box rd-box-a" x="40" y="205" width="300" height="65" rx="8"/>
+  <text class="rd-title-a" x="190" y="230" text-anchor="middle">Problem is likely GENERATION</text>
+  <text class="rd-sub" x="190" y="248" text-anchor="middle">check faithfulness &amp; answer relevance</text>
+
+  <rect class="rd-box rd-box-b" x="380" y="205" width="300" height="65" rx="8"/>
+  <text class="rd-title-b" x="530" y="230" text-anchor="middle">Problem is likely RETRIEVAL</text>
+  <text class="rd-sub" x="530" y="248" text-anchor="middle">check precision &amp; recall of the search step</text>
+</svg>

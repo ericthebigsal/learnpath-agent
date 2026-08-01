@@ -1,0 +1,31 @@
+<svg class="diagram-lever-spectrum" viewBox="0 0 720 195" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="lever-spectrum-title">
+  <title id="lever-spectrum-title">Prompting, RAG, and fine-tuning sit on a spectrum of increasing effort and infrastructure, each suited to a different kind of problem</title>
+  <style>
+    .lv-axis { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+    .lv-arrowhead { fill: var(--ink-muted); }
+    .lv-marker { fill: var(--taken); }
+    .lv-label { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: var(--ink); }
+    .lv-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .lv-axis-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+  </style>
+
+  <path class="lv-axis" d="M60,100 L650,100"/>
+  <path class="lv-arrowhead" d="M650,100 L638,94 L638,106 Z"/>
+
+  <circle class="lv-marker" cx="140" cy="100" r="9"/>
+  <text class="lv-label" x="140" y="72" text-anchor="middle">Prompting</text>
+  <text class="lv-sub" x="140" y="128" text-anchor="middle">Format, tone, framing</text>
+  <text class="lv-sub" x="140" y="143" text-anchor="middle">fast, no training infra</text>
+
+  <circle class="lv-marker" cx="360" cy="100" r="9"/>
+  <text class="lv-label" x="360" y="72" text-anchor="middle">RAG</text>
+  <text class="lv-sub" x="360" y="128" text-anchor="middle">New or changing facts</text>
+  <text class="lv-sub" x="360" y="143" text-anchor="middle">injects fresh knowledge</text>
+
+  <circle class="lv-marker" cx="580" cy="100" r="9"/>
+  <text class="lv-label" x="580" y="72" text-anchor="middle">Fine-tuning</text>
+  <text class="lv-sub" x="580" y="128" text-anchor="middle">Consistent style or format</text>
+  <text class="lv-sub" x="580" y="143" text-anchor="middle">changes the model's weights</text>
+
+  <text class="lv-axis-label" x="360" y="178" text-anchor="middle">INCREASING EFFORT &amp; INFRASTRUCTURE --&gt;</text>
+</svg>

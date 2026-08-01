@@ -1,0 +1,51 @@
+<svg class="diagram-error-handling-flowchart" viewBox="0 0 720 375" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="error-handling-flowchart-title">
+  <title id="error-handling-flowchart-title">On a tool-call failure, transient errors get a bounded retry while permanent errors go straight to a structured error message, and both paths let the model adjust intelligently rather than crash or silently proceed</title>
+  <style>
+    .eh-box { fill: var(--surface); stroke-width: 2; }
+    .eh-box-neutral { stroke: var(--ink-muted); }
+    .eh-box-final { stroke: var(--ink); stroke-width: 2.5; }
+    .eh-diamond { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+    .eh-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .eh-sub { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+    .eh-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .eh-arrowhead { fill: var(--ink-muted); }
+    .eh-edge-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="eh-box eh-box-neutral" x="280" y="15" width="160" height="45" rx="8"/>
+  <text class="eh-title" x="360" y="43" text-anchor="middle">Tool call fails</text>
+
+  <path class="eh-arrow" d="M360,60 L360,76"/>
+  <path class="eh-arrowhead" d="M360,76 L355,66 L365,66 Z"/>
+
+  <polygon class="eh-diamond" points="360,78 455,120 360,162 265,120"/>
+  <text class="eh-title" x="360" y="116" text-anchor="middle">Transient or</text>
+  <text class="eh-title" x="360" y="130" text-anchor="middle">permanent?</text>
+
+  <path class="eh-arrow" d="M275,132 L182,196"/>
+  <path class="eh-arrowhead" d="M182,196 L191,190 L184,183 Z"/>
+  <text class="eh-edge-label" x="205" y="155" text-anchor="middle">transient</text>
+
+  <path class="eh-arrow" d="M445,132 L538,196"/>
+  <path class="eh-arrowhead" d="M538,196 L536,185 L528,192 Z"/>
+  <text class="eh-edge-label" x="515" y="155" text-anchor="middle">permanent</text>
+
+  <rect class="eh-box eh-box-neutral" x="40" y="205" width="280" height="65" rx="8"/>
+  <text class="eh-title" x="180" y="230" text-anchor="middle">Retry, up to a capped</text>
+  <text class="eh-title" x="180" y="246" text-anchor="middle">number of times</text>
+  <text class="eh-sub" x="180" y="262" text-anchor="middle">timeout, rate limit</text>
+
+  <rect class="eh-box eh-box-neutral" x="400" y="205" width="280" height="65" rx="8"/>
+  <text class="eh-title" x="540" y="230" text-anchor="middle">Return structured error</text>
+  <text class="eh-title" x="540" y="246" text-anchor="middle">to the model</text>
+  <text class="eh-sub" x="540" y="262" text-anchor="middle">invalid ID, permissions error</text>
+
+  <path class="eh-arrow" d="M195,270 L280,308"/>
+  <path class="eh-arrowhead" d="M280,308 L275,298 L266,302 Z"/>
+  <path class="eh-arrow" d="M525,270 L440,308"/>
+  <path class="eh-arrowhead" d="M440,308 L449,304 L445,314 Z"/>
+
+  <rect class="eh-box eh-box-final" x="170" y="310" width="380" height="55" rx="8"/>
+  <text class="eh-title" x="360" y="335" text-anchor="middle">Model adjusts</text>
+  <text class="eh-sub" x="360" y="352" text-anchor="middle">retries smartly, tries an alternative, or tells the user</text>
+</svg>

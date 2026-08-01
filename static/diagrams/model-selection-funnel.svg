@@ -1,0 +1,38 @@
+<svg class="diagram-model-selection-funnel" viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="model-selection-funnel-title">
+  <title id="model-selection-funnel-title">Model selection narrows down through four filters in order -- task complexity, latency budget, cost at volume, and special requirements -- to arrive at the right model for the job</title>
+  <style>
+    .mf-bar { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.75; }
+    .mf-bar-final { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 2.25; }
+    .mf-label { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .mf-label-final { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--taken); }
+    .mf-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .mf-arrowhead { fill: var(--ink-muted); }
+  </style>
+
+  <rect class="mf-bar" x="60" y="15" width="600" height="42" rx="8"/>
+  <text class="mf-label" x="360" y="41" text-anchor="middle">Start: task complexity</text>
+
+  <path class="mf-arrow" d="M360,57 L360,73"/>
+  <path class="mf-arrowhead" d="M360,73 L355,64 L365,64 Z"/>
+
+  <rect class="mf-bar" x="130" y="75" width="460" height="42" rx="8"/>
+  <text class="mf-label" x="360" y="101" text-anchor="middle">+ latency budget</text>
+
+  <path class="mf-arrow" d="M360,117 L360,133"/>
+  <path class="mf-arrowhead" d="M360,133 L355,124 L365,124 Z"/>
+
+  <rect class="mf-bar" x="190" y="135" width="340" height="42" rx="8"/>
+  <text class="mf-label" x="360" y="161" text-anchor="middle">+ cost at volume</text>
+
+  <path class="mf-arrow" d="M360,177 L360,193"/>
+  <path class="mf-arrowhead" d="M360,193 L355,184 L365,184 Z"/>
+
+  <rect class="mf-bar" x="230" y="195" width="260" height="42" rx="8"/>
+  <text class="mf-label" x="360" y="221" text-anchor="middle">+ special requirements</text>
+
+  <path class="mf-arrow" d="M360,237 L360,253"/>
+  <path class="mf-arrowhead" d="M360,253 L355,244 L365,244 Z"/>
+
+  <rect class="mf-bar-final" x="260" y="255" width="200" height="42" rx="8"/>
+  <text class="mf-label-final" x="360" y="281" text-anchor="middle">Right model for the job</text>
+</svg>

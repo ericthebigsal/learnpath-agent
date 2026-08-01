@@ -1,0 +1,42 @@
+<svg class="diagram-context-budget-caps" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="context-budget-caps-title">
+  <title id="context-budget-caps-title">Each section of the context window gets an explicit token cap; when conversation history grows past its cap, the oldest portion gets truncated or summarized rather than silently crowding out other content</title>
+  <style>
+    .cc-heading { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .cc-seg-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .cc-seg-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .cc-seg-over { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 1.5; stroke-dasharray: 3 2; }
+    .cc-seg-empty { fill: none; stroke: var(--ink-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .cc-cap-line { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .cc-cap-label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.02em; fill: var(--ink); }
+    .cc-tick { stroke: var(--ink-muted); stroke-width: 1; }
+    .cc-label { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink-muted); }
+    .cc-trim-label { font-family: var(--font-body); font-size: 10px; fill: var(--signal); }
+  </style>
+
+  <text class="cc-heading" x="360" y="16" text-anchor="middle">CONTEXT BUDGET WITH EXPLICIT PER-SECTION CAPS</text>
+
+  <rect class="cc-seg-a" x="40" y="30" width="120" height="55"/>
+  <rect class="cc-seg-b" x="160" y="30" width="160" height="55"/>
+  <rect class="cc-seg-a" x="320" y="30" width="160" height="55"/>
+  <rect class="cc-seg-over" x="480" y="30" width="80" height="55"/>
+  <rect class="cc-seg-empty" x="560" y="30" width="120" height="55"/>
+
+  <line class="cc-cap-line" x1="480" y1="20" x2="480" y2="95"/>
+  <text class="cc-cap-label" x="480" y="15" text-anchor="middle">HISTORY CAP</text>
+
+  <line class="cc-tick" x1="100" y1="85" x2="100" y2="97"/>
+  <line class="cc-tick" x1="240" y1="85" x2="240" y2="97"/>
+  <line class="cc-tick" x1="400" y1="85" x2="400" y2="97"/>
+  <line class="cc-tick" x1="620" y1="85" x2="620" y2="97"/>
+
+  <text class="cc-label" x="100" y="112" text-anchor="middle">System + tools</text>
+  <text class="cc-label" x="240" y="112" text-anchor="middle">Retrieved (cutoff)</text>
+  <text class="cc-label" x="400" y="112" text-anchor="middle">History (kept)</text>
+  <text class="cc-label" x="620" y="112" text-anchor="middle">Output headroom</text>
+
+  <path class="cc-trim-label" d="M520,130 L520,100" stroke="var(--signal)" stroke-width="1.5" fill="none"/>
+  <path d="M520,100 L516,110 L524,110 Z" fill="var(--signal)"/>
+  <text class="cc-trim-label" x="520" y="145" text-anchor="middle">over cap --</text>
+  <text class="cc-trim-label" x="520" y="158" text-anchor="middle">truncate or</text>
+  <text class="cc-trim-label" x="520" y="171" text-anchor="middle">summarize</text>
+</svg>

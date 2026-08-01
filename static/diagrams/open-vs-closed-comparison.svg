@@ -1,0 +1,31 @@
+<svg class="diagram-open-vs-closed" viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="open-vs-closed-title">
+  <title id="open-vs-closed-title">Open-weight models trade infrastructure burden for hosting control and data privacy; closed models trade data control and provider dependence for zero infrastructure burden and frontier capability</title>
+  <style>
+    .oc-col-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .oc-col-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .oc-header-a { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.03em; fill: var(--taken); font-weight: 600; }
+    .oc-header-b { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.03em; fill: var(--considered); font-weight: 600; }
+    .oc-row { font-family: var(--font-body); font-size: 11px; fill: var(--ink); }
+  </style>
+
+  <rect class="oc-col-a" x="30" y="15" width="300" height="220" rx="10"/>
+  <rect class="oc-col-b" x="390" y="15" width="300" height="220" rx="10"/>
+
+  <text class="oc-header-a" x="180" y="40" text-anchor="middle">OPEN-WEIGHT</text>
+  <text class="oc-header-b" x="540" y="40" text-anchor="middle">CLOSED</text>
+
+  <text class="oc-row" x="180" y="75" text-anchor="middle">Full hosting control</text>
+  <text class="oc-row" x="540" y="75" text-anchor="middle">Zero infrastructure burden</text>
+
+  <text class="oc-row" x="180" y="110" text-anchor="middle">Data never leaves your infra</text>
+  <text class="oc-row" x="540" y="110" text-anchor="middle">Data sent to a third party</text>
+
+  <text class="oc-row" x="180" y="145" text-anchor="middle">Free to fine-tune on your data</text>
+  <text class="oc-row" x="540" y="145" text-anchor="middle">No access to change the weights</text>
+
+  <text class="oc-row" x="180" y="180" text-anchor="middle">License limits vary by scale</text>
+  <text class="oc-row" x="540" y="180" text-anchor="middle">Pricing &amp; deprecation, provider's call</text>
+
+  <text class="oc-row" x="180" y="215" text-anchor="middle">You own reliability engineering</text>
+  <text class="oc-row" x="540" y="215" text-anchor="middle">Provider owns reliability &amp; uptime</text>
+</svg>

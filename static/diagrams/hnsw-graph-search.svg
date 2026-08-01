@@ -1,0 +1,60 @@
+<svg class="diagram-hnsw-graph-search" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="hnsw-graph-search-title">
+  <title id="hnsw-graph-search-title">HNSW search enters at a sparse top layer, greedily hops toward the query across a handful of nodes, drops into the dense bottom layer, and finds the nearest neighbor after visiting only a few of the graph's nodes</title>
+  <style>
+    .hg-layer-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .hg-node-skip { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+    .hg-node-path { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 2; }
+    .hg-node-final { fill: var(--taken); stroke: var(--taken); stroke-width: 2; }
+    .hg-edge-skip { stroke: var(--border); stroke-width: 1; fill: none; }
+    .hg-edge-path { stroke: var(--taken); stroke-width: 2.25; fill: none; }
+    .hg-arrowhead { fill: var(--taken); }
+    .hg-node-label { font-family: var(--font-mono); font-size: 9.5px; fill: var(--taken); }
+    .hg-caption { font-family: var(--font-body); font-size: 11px; fill: var(--ink-muted); }
+  </style>
+
+  <text class="hg-layer-label" x="360" y="24" text-anchor="middle">LAYER 1 -- SPARSE ENTRY POINTS</text>
+
+  <line class="hg-edge-skip" x1="80" y1="65" x2="220" y2="65"/>
+  <line class="hg-edge-skip" x1="220" y1="65" x2="360" y2="65"/>
+  <line class="hg-edge-skip" x1="500" y1="65" x2="640" y2="65"/>
+
+  <circle class="hg-node-skip" cx="80" cy="65" r="11"/>
+  <circle class="hg-node-path" cx="220" cy="65" r="11"/>
+  <circle class="hg-node-path" cx="360" cy="65" r="11"/>
+  <circle class="hg-node-path" cx="500" cy="65" r="11"/>
+  <circle class="hg-node-skip" cx="640" cy="65" r="11"/>
+
+  <path class="hg-edge-path" d="M371,65 L489,65"/>
+  <path class="hg-arrowhead" d="M489,65 L478,60 L478,70 Z"/>
+  <text class="hg-node-label" x="360" y="90" text-anchor="middle">entry point</text>
+
+  <text class="hg-layer-label" x="360" y="130" text-anchor="middle">LAYER 0 -- ALL VECTORS (DENSE)</text>
+
+  <path class="hg-edge-path" d="M500,76 L462,163"/>
+  <path class="hg-arrowhead" d="M462,163 L466,152 L457,149 Z"/>
+
+  <line class="hg-edge-skip" x1="60" y1="175" x2="140" y2="175"/>
+  <line class="hg-edge-skip" x1="140" y1="175" x2="220" y2="175"/>
+  <line class="hg-edge-skip" x1="220" y1="175" x2="300" y2="175"/>
+  <line class="hg-edge-skip" x1="300" y1="175" x2="380" y2="175"/>
+
+  <circle class="hg-node-skip" cx="60" cy="175" r="9"/>
+  <circle class="hg-node-skip" cx="140" cy="175" r="9"/>
+  <circle class="hg-node-skip" cx="220" cy="175" r="9"/>
+  <circle class="hg-node-skip" cx="300" cy="175" r="9"/>
+  <circle class="hg-node-skip" cx="380" cy="175" r="9"/>
+  <circle class="hg-node-path" cx="460" cy="175" r="9"/>
+  <circle class="hg-node-path" cx="540" cy="175" r="9"/>
+  <circle class="hg-node-final" cx="600" cy="175" r="12"/>
+  <circle class="hg-node-skip" cx="660" cy="175" r="9"/>
+
+  <path class="hg-edge-path" d="M469,175 L531,175"/>
+  <path class="hg-arrowhead" d="M531,175 L520,171 L520,179 Z"/>
+  <path class="hg-edge-path" d="M549,175 L586,175"/>
+  <path class="hg-arrowhead" d="M586,175 L575,171 L575,179 Z"/>
+
+  <text class="hg-node-label" x="600" y="204" text-anchor="middle">nearest neighbor</text>
+
+  <text class="hg-caption" x="360" y="240" text-anchor="middle">Greedy search hops through a handful of nodes across layers --</text>
+  <text class="hg-caption" x="360" y="255" text-anchor="middle">most of the graph is never visited</text>
+</svg>

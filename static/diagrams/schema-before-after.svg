@@ -1,0 +1,26 @@
+<svg class="diagram-schema-before-after" viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="schema-before-after-title">
+  <title id="schema-before-after-title">Three narrow, overlapping tools with a loosely-typed date parameter consolidate into one well-scoped tool with a constrained identifier type and an explicitly formatted date parameter</title>
+  <style>
+    .sb-panel-bad { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .sb-panel-good { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 2; }
+    .sb-header-bad { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; fill: var(--signal); font-weight: 600; }
+    .sb-header-good { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; fill: var(--taken); font-weight: 600; }
+    .sb-code { font-family: var(--font-mono); font-size: 11px; fill: var(--ink); }
+    .sb-comment { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="sb-panel-bad" x="40" y="30" width="290" height="180" rx="10"/>
+  <text class="sb-header-bad" x="185" y="55" text-anchor="middle">BAD SCHEMA</text>
+  <text class="sb-code" x="60" y="90">get_user_by_id(id)</text>
+  <text class="sb-code" x="60" y="112">get_user_by_email(email)</text>
+  <text class="sb-code" x="60" y="134">get_user_by_username(username)</text>
+  <text class="sb-code" x="60" y="168">"date": string</text>
+  <text class="sb-comment" x="60" y="184">no format specified</text>
+
+  <rect class="sb-panel-good" x="390" y="30" width="290" height="180" rx="10"/>
+  <text class="sb-header-good" x="535" y="55" text-anchor="middle">GOOD SCHEMA</text>
+  <text class="sb-code" x="410" y="90">get_user(identifier,</text>
+  <text class="sb-code" x="410" y="112">  id_type: enum)</text>
+  <text class="sb-code" x="410" y="150">"date": string</text>
+  <text class="sb-comment" x="410" y="166">format: YYYY-MM-DD</text>
+</svg>

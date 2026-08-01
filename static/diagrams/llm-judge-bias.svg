@@ -1,0 +1,48 @@
+<svg class="diagram-llm-judge-bias" viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="llm-judge-bias-title">
+  <title id="llm-judge-bias-title">A judge model scores two candidate answers, but is subject to position, verbosity, and self-preference bias -- mitigated by randomizing order, penalizing length, calibrating against humans, and using a different judge model family</title>
+  <style>
+    .lj-box { fill: var(--surface); stroke-width: 2; }
+    .lj-box-neutral { stroke: var(--ink-muted); }
+    .lj-box-judge { stroke: var(--ink); stroke-width: 2.5; }
+    .lj-box-score { stroke: var(--taken); }
+    .lj-title { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+    .lj-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .lj-arrowhead { fill: var(--ink-muted); }
+    .lj-tag { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 1.5; }
+    .lj-tag-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.01em; fill: var(--signal); }
+    .lj-connector { stroke: var(--signal); stroke-width: 1.25; stroke-dasharray: 3 2; fill: none; }
+    .lj-caption { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="lj-box lj-box-neutral" x="30" y="85" width="130" height="50" rx="8"/>
+  <text class="lj-title" x="95" y="115" text-anchor="middle">Answer A</text>
+  <rect class="lj-box lj-box-neutral" x="30" y="155" width="130" height="50" rx="8"/>
+  <text class="lj-title" x="95" y="185" text-anchor="middle">Answer B</text>
+
+  <path class="lj-arrow" d="M160,110 L248,128"/>
+  <path class="lj-arrowhead" d="M248,128 L240,121 L236,130 Z"/>
+  <path class="lj-arrow" d="M160,180 L248,162"/>
+  <path class="lj-arrowhead" d="M248,162 L237,161 L240,170 Z"/>
+
+  <rect class="lj-box lj-box-judge" x="254" y="95" width="190" height="100" rx="8"/>
+  <text class="lj-title" x="349" y="150" text-anchor="middle">Judge model</text>
+
+  <path class="lj-arrow" d="M444,145 L484,145"/>
+  <path class="lj-arrowhead" d="M484,145 L475,140 L475,150 Z"/>
+
+  <rect class="lj-box lj-box-score" x="488" y="120" width="150" height="50" rx="8"/>
+  <text class="lj-title" x="563" y="150" text-anchor="middle">Score / winner</text>
+
+  <path class="lj-connector" d="M290,195 L235,213"/>
+  <path class="lj-connector" d="M349,195 L349,213"/>
+  <path class="lj-connector" d="M408,195 L463,213"/>
+
+  <rect class="lj-tag" x="175" y="215" width="120" height="26" rx="13"/>
+  <text class="lj-tag-label" x="235" y="232" text-anchor="middle">POSITION BIAS</text>
+  <rect class="lj-tag" x="305" y="215" width="120" height="26" rx="13"/>
+  <text class="lj-tag-label" x="365" y="232" text-anchor="middle">VERBOSITY BIAS</text>
+  <rect class="lj-tag" x="435" y="215" width="145" height="26" rx="13"/>
+  <text class="lj-tag-label" x="507" y="232" text-anchor="middle">SELF-PREFERENCE BIAS</text>
+
+  <text class="lj-caption" x="360" y="262" text-anchor="middle">Mitigate: randomize order, penalize length, calibrate vs. humans, use a different judge family</text>
+</svg>

@@ -1,0 +1,43 @@
+<svg class="diagram-task-decomposition-tree" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="task-decomposition-tree-title">
+  <title id="task-decomposition-tree-title">A pricing analysis goal decomposed along genuinely different skill boundaries into four subtasks, each delegated to a specialist agent</title>
+  <style>
+    .td-root { fill: var(--surface); stroke: var(--ink); stroke-width: 2.5; }
+    .td-root-label { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .td-node { fill: var(--surface); stroke: var(--taken); stroke-width: 2; }
+    .td-node-title { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+    .td-node-sub { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.01em; fill: var(--ink-muted); }
+    .td-branch { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .td-arrowhead { fill: var(--ink-muted); }
+    .td-caption { font-family: var(--font-body); font-size: 11px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="td-root" x="260" y="15" width="200" height="50" rx="8"/>
+  <text class="td-root-label" x="360" y="44" text-anchor="middle">Goal: Pricing Analysis Report</text>
+
+  <path class="td-branch" d="M360,65 L112,113"/>
+  <path class="td-arrowhead" d="M112,113 L118,103 L124,110 Z"/>
+  <path class="td-branch" d="M360,65 L278,113"/>
+  <path class="td-arrowhead" d="M278,113 L279,101 L288,105 Z"/>
+  <path class="td-branch" d="M360,65 L442,113"/>
+  <path class="td-arrowhead" d="M442,113 L441,101 L432,105 Z"/>
+  <path class="td-branch" d="M360,65 L608,113"/>
+  <path class="td-arrowhead" d="M608,113 L602,103 L596,110 Z"/>
+
+  <rect class="td-node" x="30" y="120" width="150" height="60" rx="8"/>
+  <text class="td-node-title" x="105" y="145" text-anchor="middle">Data Collection</text>
+  <text class="td-node-sub" x="105" y="163" text-anchor="middle">RESEARCH AGENT</text>
+
+  <rect class="td-node" x="200" y="120" width="150" height="60" rx="8"/>
+  <text class="td-node-title" x="275" y="145" text-anchor="middle">Normalization</text>
+  <text class="td-node-sub" x="275" y="163" text-anchor="middle">DATA AGENT</text>
+
+  <rect class="td-node" x="370" y="120" width="150" height="60" rx="8"/>
+  <text class="td-node-title" x="445" y="145" text-anchor="middle">Gap Analysis</text>
+  <text class="td-node-sub" x="445" y="163" text-anchor="middle">ANALYST AGENT</text>
+
+  <rect class="td-node" x="540" y="120" width="150" height="60" rx="8"/>
+  <text class="td-node-title" x="615" y="145" text-anchor="middle">Report Writing</text>
+  <text class="td-node-sub" x="615" y="163" text-anchor="middle">WRITER AGENT</text>
+
+  <text class="td-caption" x="360" y="210" text-anchor="middle">One goal, decomposed along genuinely different skill boundaries</text>
+</svg>
