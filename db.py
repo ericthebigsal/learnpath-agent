@@ -45,6 +45,15 @@ CREATE TABLE IF NOT EXISTS plan_log (
     plan_json TEXT NOT NULL,
     trigger TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS badges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    badge_type TEXT NOT NULL,
+    track_id INTEGER NOT NULL DEFAULT 0,
+    earned_at TEXT NOT NULL,
+    UNIQUE(user_id, badge_type, track_id)
+);
 """
 
 
@@ -288,5 +297,38 @@ def get_latest_plan(track_id: int, db_path: str = DEFAULT_DB_PATH) -> dict | Non
             (track_id,),
         ).fetchone()
         return _plan_row_to_dict(row) if row else None
+    finally:
+        conn.close()
+
+
+# ---------- badges ----------
+
+def insert_badge(
+    user_id: int,
+    badge_type: str,
+    earned_at: str,
+    track_id: int = 0,
+    db_path: str = DEFAULT_DB_PATH,
+) -> bool:
+    conn = _connect(db_path)
+    try:
+        cursor = conn.execute(
+            "INSERT OR IGNORE INTO badges (user_id, badge_type, track_id, earned_at) "
+            "VALUES (?, ?, ?, ?)",
+            (user_id, badge_type, track_id, earned_at),
+        )
+        conn.commit()
+        return cursor.rowcount == 1
+    finally:
+        conn.close()
+
+
+def get_badges_for_user(user_id: int, db_path: str = DEFAULT_DB_PATH) -> list[dict]:
+    conn = _connect(db_path)
+    try:
+        rows = conn.execute(
+            "SELECT * FROM badges WHERE user_id = ? ORDER BY earned_at ASC", (user_id,)
+        ).fetchall()
+        return [dict(row) for row in rows]
     finally:
         conn.close()

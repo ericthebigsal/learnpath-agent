@@ -202,3 +202,68 @@ def test_get_plan_log_returns_all_plans_in_order(tmp_path):
     log = db.get_plan_log(track["id"], db_path)
 
     assert [entry["summary"] for entry in log] == ["first", "second"]
+
+
+def test_insert_badge_returns_true_when_newly_earned(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    user = db.create_user("eric@example.com", "hashed-password", db_path)
+
+    inserted = db.insert_badge(
+        user["id"], "first_beginner_course", "2026-08-01T00:00:00+00:00", db_path=db_path
+    )
+
+    assert inserted is True
+    rows = db.get_badges_for_user(user["id"], db_path)
+    assert len(rows) == 1
+    assert rows[0]["badge_type"] == "first_beginner_course"
+    assert rows[0]["track_id"] == 0
+    assert rows[0]["earned_at"] == "2026-08-01T00:00:00+00:00"
+
+
+def test_insert_badge_is_idempotent_for_same_user_type_and_track(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    user = db.create_user("eric@example.com", "hashed-password", db_path)
+
+    first = db.insert_badge(
+        user["id"], "perfectionist", "2026-08-01T00:00:00+00:00", db_path=db_path
+    )
+    second = db.insert_badge(
+        user["id"], "perfectionist", "2026-08-02T00:00:00+00:00", db_path=db_path
+    )
+
+    assert first is True
+    assert second is False
+    rows = db.get_badges_for_user(user["id"], db_path)
+    assert len(rows) == 1
+    assert rows[0]["earned_at"] == "2026-08-01T00:00:00+00:00"  # never overwritten
+
+
+def test_insert_badge_allows_same_type_for_different_tracks(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    user = db.create_user("eric@example.com", "hashed-password", db_path)
+
+    db.insert_badge(
+        user["id"], "track_master", "2026-08-01T00:00:00+00:00", track_id=1, db_path=db_path
+    )
+    db.insert_badge(
+        user["id"], "track_master", "2026-08-02T00:00:00+00:00", track_id=2, db_path=db_path
+    )
+
+    rows = db.get_badges_for_user(user["id"], db_path)
+    assert len(rows) == 2
+
+
+def test_get_badges_for_user_returns_only_that_users_badges(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    user_a = db.create_user("a@example.com", "hash-a", db_path)
+    user_b = db.create_user("b@example.com", "hash-b", db_path)
+
+    db.insert_badge(user_a["id"], "first_beginner_course", "2026-08-01T00:00:00+00:00", db_path=db_path)
+    db.insert_badge(user_b["id"], "first_beginner_course", "2026-08-01T00:00:00+00:00", db_path=db_path)
+
+    a_rows = db.get_badges_for_user(user_a["id"], db_path)
+    assert len(a_rows) == 1
