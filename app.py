@@ -167,12 +167,20 @@ def logout_submit(request: Request):
 def dashboard(request: Request, current_user: dict = Depends(get_current_user)):
     tracks = db.get_tracks_for_user(current_user["id"], DB_PATH)
     earned_badges = db.get_badges_for_user(current_user["id"], DB_PATH)
-    earned_labels = sorted({badges.BADGE_INFO[row["badge_type"]][0] for row in earned_badges})
+    earned_labels = set()
+    for row in earned_badges:
+        info = badges.BADGE_INFO.get(row["badge_type"])
+        if info is not None:
+            earned_labels.add(info[0])
+    earned_labels = sorted(earned_labels)
     due_items = review.get_due_items(current_user["id"], DB_PATH)[:5]
-    due_for_review = [
-        {"item": get_item(CATALOG, entry["item_id"]), "track_id": entry["track_id"]}
-        for entry in due_items
-    ]
+    due_for_review = []
+    for entry in due_items:
+        try:
+            item = get_item(CATALOG, entry["item_id"])
+        except KeyError:
+            continue
+        due_for_review.append({"item": item, "track_id": entry["track_id"]})
     return templates.TemplateResponse(
         request,
         "dashboard.html",

@@ -20,6 +20,8 @@ def get_due_items(user_id: int, db_path: str) -> list[dict]:
     now = datetime.now(timezone.utc)
     due = []
     for item_id, entries in by_item.items():
+        # necessary: progress rows are per-track ordered, but entries here are merged
+        # across all the user's tracks, so a global id-order isn't guaranteed without this.
         entries.sort(key=lambda e: e["id"])
         n = min(len(entries), 3)
         latest = entries[-1]

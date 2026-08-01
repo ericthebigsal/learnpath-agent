@@ -174,6 +174,13 @@ def describe_badges(user_id: int, db_path: str) -> list[dict]:
                         "earned": False,
                         "earned_at": None,
                     })
+            if not tracks and not matches:
+                rows.append({
+                    "label": label,
+                    "description": description,
+                    "earned": False,
+                    "earned_at": None,
+                })
         elif matches:
             rows.append({
                 "label": label,

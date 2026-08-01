@@ -97,6 +97,41 @@ def test_item_never_completed_never_appears(tmp_path):
     assert review.get_due_items(user["id"], db_path) == []
 
 
+def test_due_items_uses_latest_by_id_across_merged_tracks(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    db.init_db(db_path)
+    user = db.create_user("eric@example.com", "hash", db_path)
+    track_a = db.create_track(user["id"], "Track A", "Learn RAG", "beginner", db_path)
+    track_b = db.create_track(user["id"], "Track B", "Learn RAG", "beginner", db_path)
+
+    # Same item_id completed under two different tracks: track A first, then track B --
+    # so track B's progress row has a higher id (it was created later) even though the two
+    # rows live in different tracks. db.get_progress only guarantees id-order *within* a
+    # single track; get_due_items has to merge rows for this item_id across both tracks, so
+    # picking the "latest" row correctly depends on sorting the merged list by id.
+    db.record_progress(track_a["id"], "rag-fundamentals", 90.0, db_path)
+    db.record_progress(track_b["id"], "rag-fundamentals", 90.0, db_path)
+
+    # Leave track A's row's completed_at as "now" (fresh), and backdate track B's (the
+    # later/higher-id) row far enough in the past that the 2nd-completion interval (n=2 ->
+    # 30-day rung) has clearly elapsed. This is deliberately the opposite of what a
+    # completed_at-based (rather than id-based) "latest" pick would assume.
+    _backdate(db_path, "rag-fundamentals", datetime.now(timezone.utc) - timedelta(days=35))
+
+    due = review.get_due_items(user["id"], db_path)
+    matches = [entry for entry in due if entry["item_id"] == "rag-fundamentals"]
+
+    # If the merge incorrectly picked track A's row as "latest" (e.g. by using the row with
+    # the most recent completed_at, or by track creation/iteration order instead of id),
+    # next_due would be computed from track A's "now" timestamp and land ~30 days in the
+    # future -- so the item would wrongly NOT be due yet.
+    assert len(matches) == 1
+    # And if the wrong row were picked, this would report track A's id instead of track B's --
+    # proving the merge correctly identifies the truly-latest row (track B's, by id) across
+    # all of the user's tracks, not just the first/last track iterated.
+    assert matches[0]["track_id"] == track_b["id"]
+
+
 def test_due_items_sorted_most_overdue_first(tmp_path):
     db_path = str(tmp_path / "test.db")
     db.init_db(db_path)
