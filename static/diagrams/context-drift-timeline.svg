@@ -1,0 +1,39 @@
+<svg class="diagram-context-drift-timeline" viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="context-drift-timeline-title">
+  <title id="context-drift-timeline-title">An outdated assumption from turn 2 and its correction at turn 5 both flow forward, but if the agent weighs them equally instead of favoring the correction, its behavior at the current turn still drifts toward the outdated state</title>
+  <style>
+    .cd-timeline { stroke: var(--ink-muted); stroke-width: 2; }
+    .cd-dot { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.5; }
+    .cd-dot-key { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 2; }
+    .cd-turn-label { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-muted); }
+    .cd-key-label { font-family: var(--font-body); font-weight: 600; font-size: 10.5px; fill: var(--taken); }
+    .cd-arc-old { stroke: var(--signal); stroke-width: 1.75; stroke-dasharray: 5 4; fill: none; }
+    .cd-arc-new { stroke: var(--taken); stroke-width: 1.75; fill: none; }
+    .cd-arc-label-old { font-family: var(--font-mono); font-size: 9.5px; fill: var(--signal); }
+    .cd-arc-label-new { font-family: var(--font-mono); font-size: 9.5px; fill: var(--taken); }
+    .cd-now-label { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--ink); }
+    .cd-warn { font-family: var(--font-body); font-size: 10px; fill: var(--signal); }
+  </style>
+
+  <line class="cd-timeline" x1="40" y1="100" x2="660" y2="100"/>
+  <circle class="cd-dot" cx="80" cy="100" r="6"/>
+  <circle class="cd-dot-key" cx="180" cy="100" r="7"/>
+  <circle class="cd-dot" cx="280" cy="100" r="6"/>
+  <circle class="cd-dot" cx="380" cy="100" r="6"/>
+  <circle class="cd-dot-key" cx="480" cy="100" r="7"/>
+  <circle class="cd-dot" cx="580" cy="100" r="6"/>
+
+  <text class="cd-key-label" x="180" y="70" text-anchor="middle">Turn 2:</text>
+  <text class="cd-key-label" x="180" y="83" text-anchor="middle">assumes Plan A</text>
+
+  <text class="cd-key-label" x="480" y="70" text-anchor="middle">Turn 5:</text>
+  <text class="cd-key-label" x="480" y="83" text-anchor="middle">corrects to Plan B</text>
+
+  <path class="cd-arc-old" d="M180,100 Q420,55 655,97"/>
+  <text class="cd-arc-label-old" x="420" y="45" text-anchor="middle">outdated assumption -- still weighted</text>
+
+  <path class="cd-arc-new" d="M480,100 Q580,132 655,103"/>
+  <text class="cd-arc-label-new" x="580" y="150" text-anchor="middle">correction -- under-weighted</text>
+
+  <text class="cd-now-label" x="660" y="80" text-anchor="middle">Now</text>
+  <text class="cd-warn" x="660" y="185" text-anchor="middle">Agent still leans on Plan A</text>
+</svg>

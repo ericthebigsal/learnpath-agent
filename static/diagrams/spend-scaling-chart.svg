@@ -1,0 +1,26 @@
+<svg class="diagram-spend-scaling-chart" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="spend-scaling-chart-title">
+  <title id="spend-scaling-chart-title">A feature costing $50 a day at 1,000 daily users can cost $5,000 a day at 100,000 users -- understanding this scaling relationship early lets you invest in cost-efficiency before the bill arrives</title>
+  <style>
+    .sp-axis { stroke: var(--ink-muted); stroke-width: 1.5; }
+    .sp-axis-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .sp-line { stroke: var(--taken); stroke-width: 2.5; fill: none; }
+    .sp-point { fill: var(--taken); }
+    .sp-point-label { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--ink); }
+  </style>
+
+  <line class="sp-axis" x1="70" y1="20" x2="70" y2="190"/>
+  <line class="sp-axis" x1="70" y1="190" x2="660" y2="190"/>
+
+  <text class="sp-axis-label" x="365" y="215" text-anchor="middle">DAILY ACTIVE USERS --&gt;</text>
+  <text class="sp-axis-label" x="30" y="105" text-anchor="middle" transform="rotate(-90 30 105)">DAILY COST --&gt;</text>
+
+  <path class="sp-line" d="M150,170 C300,150 400,100 550,50"/>
+
+  <circle class="sp-point" cx="150" cy="170" r="7"/>
+  <text class="sp-point-label" x="150" y="150" text-anchor="middle">1,000 users</text>
+  <text class="sp-point-label" x="150" y="165" text-anchor="middle" fill="var(--ink-muted)" font-weight="400" font-size="10.5">$50 / day</text>
+
+  <circle class="sp-point" cx="550" cy="50" r="7"/>
+  <text class="sp-point-label" x="550" y="35" text-anchor="middle">100,000 users</text>
+  <text class="sp-point-label" x="550" y="80" text-anchor="middle" fill="var(--ink-muted)" font-weight="400" font-size="10.5">$5,000 / day</text>
+</svg>

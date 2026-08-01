@@ -1,0 +1,45 @@
+<svg class="diagram-injection-handoff-trace" viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="injection-handoff-trace-title">
+  <title id="injection-handoff-trace-title">A hidden instruction in an untrusted document survives Agent A's summarization, rides along unvalidated in the handoff object, and gets executed by Agent B, which trusts it only because it arrived from "your own system"</title>
+  <style>
+    .ih-box { fill: var(--surface); stroke-width: 2; }
+    .ih-box-danger { stroke: var(--signal); }
+    .ih-box-neutral { stroke: var(--ink-muted); }
+    .ih-title { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--ink); }
+    .ih-title-danger { font-family: var(--font-display); font-weight: 600; font-size: 12px; fill: var(--signal); }
+    .ih-sub { font-family: var(--font-body); font-size: 9.5px; fill: var(--ink-muted); }
+    .ih-sub-danger { font-family: var(--font-mono); font-size: 9px; fill: var(--signal); }
+    .ih-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .ih-arrowhead { fill: var(--ink-muted); }
+    .ih-warn { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.01em; fill: var(--signal); }
+    .ih-caption { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="ih-box ih-box-danger" x="15" y="75" width="150" height="60" rx="8"/>
+  <text class="ih-title-danger" x="90" y="98" text-anchor="middle">Untrusted doc</text>
+  <text class="ih-sub-danger" x="90" y="115" text-anchor="middle">hidden instruction inside</text>
+
+  <path class="ih-arrow" d="M165,105 L191,105"/>
+  <path class="ih-arrowhead" d="M191,105 L182,101 L182,109 Z"/>
+
+  <rect class="ih-box ih-box-neutral" x="195" y="75" width="150" height="60" rx="8"/>
+  <text class="ih-title" x="270" y="98" text-anchor="middle">Agent A</text>
+  <text class="ih-sub" x="270" y="115" text-anchor="middle">reads &amp; summarizes</text>
+
+  <path class="ih-arrow" d="M345,105 L371,105"/>
+  <path class="ih-arrowhead" d="M371,105 L362,101 L362,109 Z"/>
+  <text class="ih-warn" x="358" y="88" text-anchor="middle">not validated</text>
+
+  <rect class="ih-box ih-box-danger" x="375" y="75" width="170" height="60" rx="8"/>
+  <text class="ih-title-danger" x="460" y="96" text-anchor="middle">Handoff object</text>
+  <text class="ih-sub-danger" x="460" y="112" text-anchor="middle">excerpt: [injected text]</text>
+  <text class="ih-sub-danger" x="460" y="124" text-anchor="middle">carried through unchanged</text>
+
+  <path class="ih-arrow" d="M545,105 L571,105"/>
+  <path class="ih-arrowhead" d="M571,105 L562,101 L562,109 Z"/>
+
+  <rect class="ih-box ih-box-danger" x="575" y="75" width="130" height="60" rx="8"/>
+  <text class="ih-title-danger" x="640" y="98" text-anchor="middle">Agent B</text>
+  <text class="ih-sub-danger" x="640" y="115" text-anchor="middle">send_email(...)</text>
+
+  <text class="ih-caption" x="360" y="170" text-anchor="middle">Trust doesn't transfer across a handoff just because both sides are agents you built</text>
+</svg>

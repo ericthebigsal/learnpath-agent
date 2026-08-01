@@ -1,0 +1,38 @@
+<svg class="diagram-compression-techniques-bars" viewBox="0 0 720 215" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="compression-techniques-bars-title">
+  <title id="compression-techniques-bars">Summarization, structured extraction, and prompt caching all shrink what gets reprocessed, but by different amounts and for different reasons -- extraction is most precise, caching isn't compression at all but achieves a similar effect</title>
+  <style>
+    .cx-panel-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.015em; fill: var(--ink-muted); }
+    .cx-bar-before { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.5; }
+    .cx-bar-after { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.75; }
+    .cx-bar-label { font-family: var(--font-mono); font-size: 9.5px; fill: var(--ink-muted); }
+    .cx-bar-label-after { font-family: var(--font-mono); font-size: 9.5px; fill: var(--taken); font-weight: 600; }
+    .cx-caption { font-family: var(--font-body); font-size: 9.5px; fill: var(--ink-muted); }
+  </style>
+
+  <line x1="0" y1="190" x2="720" y2="190" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="cx-panel-label" x="120" y="18" text-anchor="middle">SUMMARIZATION</text>
+  <text class="cx-bar-label" x="77" y="72" text-anchor="middle">2000 tok</text>
+  <rect class="cx-bar-before" x="60" y="80" width="35" height="110"/>
+  <text class="cx-bar-label-after" x="127" y="168" text-anchor="middle">150 tok</text>
+  <rect class="cx-bar-after" x="110" y="175" width="35" height="15"/>
+  <text class="cx-caption" x="120" y="205" text-anchor="middle">trades wording for size</text>
+
+  <line x1="240" y1="8" x2="240" y2="200" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="cx-panel-label" x="360" y="18" text-anchor="middle">STRUCTURED EXTRACTION</text>
+  <text class="cx-bar-label" x="317" y="72" text-anchor="middle">2000 tok</text>
+  <rect class="cx-bar-before" x="300" y="80" width="35" height="110"/>
+  <text class="cx-bar-label-after" x="367" y="175" text-anchor="middle">40 tok</text>
+  <rect class="cx-bar-after" x="350" y="182" width="35" height="8"/>
+  <text class="cx-caption" x="360" y="205" text-anchor="middle">precise, no paraphrase</text>
+
+  <line x1="480" y1="8" x2="480" y2="200" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="cx-panel-label" x="600" y="18" text-anchor="middle">PROMPT CACHING</text>
+  <text class="cx-bar-label" x="557" y="72" text-anchor="middle">full cost</text>
+  <rect class="cx-bar-before" x="540" y="80" width="35" height="110"/>
+  <text class="cx-bar-label-after" x="607" y="171" text-anchor="middle">~10% cost</text>
+  <rect class="cx-bar-after" x="590" y="178" width="35" height="12"/>
+  <text class="cx-caption" x="600" y="205" text-anchor="middle">not compression, same effect</text>
+</svg>

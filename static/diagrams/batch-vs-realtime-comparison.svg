@@ -1,0 +1,31 @@
+<svg class="diagram-batch-vs-realtime" viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="batch-vs-realtime-title">
+  <title id="batch-vs-realtime-title">Real-time synchronous calls cost full price but stream back live; batch mode costs roughly half as much but completes within a longer window with no streaming, making it fit only latency-tolerant workloads</title>
+  <style>
+    .bv-col-a { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 1.5; }
+    .bv-col-b { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; }
+    .bv-header-a { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; fill: var(--taken); font-weight: 600; }
+    .bv-header-b { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; fill: var(--considered); font-weight: 600; }
+    .bv-row { font-family: var(--font-body); font-size: 11px; fill: var(--ink); }
+  </style>
+
+  <rect class="bv-col-a" x="30" y="15" width="300" height="220" rx="10"/>
+  <rect class="bv-col-b" x="390" y="15" width="300" height="220" rx="10"/>
+
+  <text class="bv-header-a" x="180" y="40" text-anchor="middle">REAL-TIME</text>
+  <text class="bv-header-b" x="540" y="40" text-anchor="middle">BATCH</text>
+
+  <text class="bv-row" x="180" y="75" text-anchor="middle">User waits live</text>
+  <text class="bv-row" x="540" y="75" text-anchor="middle">Completes within ~24h window</text>
+
+  <text class="bv-row" x="180" y="110" text-anchor="middle">Full price per token</text>
+  <text class="bv-row" x="540" y="110" text-anchor="middle">Roughly half price</text>
+
+  <text class="bv-row" x="180" y="145" text-anchor="middle">Streams token-by-token</text>
+  <text class="bv-row" x="540" y="145" text-anchor="middle">No streaming</text>
+
+  <text class="bv-row" x="180" y="180" text-anchor="middle">Separate submit/retrieve API</text>
+  <text class="bv-row" x="540" y="180" text-anchor="middle">Own submission &amp; retrieval mechanics</text>
+
+  <text class="bv-row" x="180" y="215" text-anchor="middle">Chat, live user-facing features</text>
+  <text class="bv-row" x="540" y="215" text-anchor="middle">Nightly scoring, bulk classification</text>
+</svg>

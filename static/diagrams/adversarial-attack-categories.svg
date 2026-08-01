@@ -1,0 +1,52 @@
+<svg class="diagram-adversarial-attack-categories" viewBox="0 0 720 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="adversarial-attack-categories-title">
+  <title id="adversarial-attack-categories-title">Three categories of adversarial testing: prompt injection hidden in untrusted input, jailbreaks that erode safety gradually over several turns, and data exfiltration probes that trick an agent's tool access into leaking data</title>
+  <style>
+    .aa-panel-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.015em; fill: var(--ink-muted); }
+    .aa-box-danger { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 1.75; }
+    .aa-box-neutral { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.75; }
+    .aa-node-label { font-family: var(--font-body); font-size: 9.5px; fill: var(--ink); }
+    .aa-node-label-danger { font-family: var(--font-mono); font-size: 8.5px; fill: var(--signal); }
+    .aa-arrow { stroke: var(--ink-muted); stroke-width: 1.5; fill: none; }
+    .aa-arrowhead { fill: var(--ink-muted); }
+    .aa-edge-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.01em; fill: var(--signal); }
+  </style>
+
+  <text class="aa-panel-label" x="120" y="18" text-anchor="middle">PROMPT INJECTION</text>
+  <rect class="aa-box-danger" x="20" y="70" width="110" height="45" rx="6"/>
+  <text class="aa-node-label-danger" x="75" y="90" text-anchor="middle">Untrusted input</text>
+  <text class="aa-node-label-danger" x="75" y="102" text-anchor="middle">hidden instruction</text>
+  <path class="aa-arrow" d="M130,92 L163,92"/>
+  <path class="aa-arrowhead" d="M163,92 L155,88 L155,96 Z"/>
+  <circle class="aa-box-neutral" cx="195" cy="92" r="24"/>
+  <text class="aa-node-label" x="195" y="95" text-anchor="middle">Agent</text>
+  <text class="aa-edge-label" x="145" y="115" text-anchor="middle">overrides system</text>
+
+  <line x1="240" y1="8" x2="240" y2="200" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="aa-panel-label" x="360" y="18" text-anchor="middle">JAILBREAK (MULTI-TURN)</text>
+  <rect class="aa-box-neutral" x="270" y="30" width="180" height="28" rx="6"/>
+  <text class="aa-node-label" x="360" y="48" text-anchor="middle">Turn 1: normal request</text>
+  <path class="aa-arrow" d="M360,58 L360,68"/>
+  <path class="aa-arrowhead" d="M360,68 L356,61 L364,61 Z"/>
+  <rect class="aa-box-neutral" x="270" y="70" width="180" height="28" rx="6"/>
+  <text class="aa-node-label" x="360" y="88" text-anchor="middle">Turn 2: pushes boundary</text>
+  <path class="aa-arrow" d="M360,98 L360,108"/>
+  <path class="aa-arrowhead" d="M360,108 L356,101 L364,101 Z"/>
+  <rect class="aa-box-danger" x="270" y="110" width="180" height="28" rx="6"/>
+  <text class="aa-node-label-danger" x="360" y="128" text-anchor="middle">Turn 3: bypasses safety</text>
+
+  <line x1="480" y1="8" x2="480" y2="200" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="aa-panel-label" x="600" y="18" text-anchor="middle">DATA EXFILTRATION</text>
+  <circle class="aa-box-neutral" cx="520" cy="92" r="22"/>
+  <text class="aa-node-label" x="520" y="95" text-anchor="middle">Agent</text>
+  <path class="aa-arrow" d="M544,92 L568,92"/>
+  <path class="aa-arrowhead" d="M568,92 L560,88 L560,96 Z"/>
+  <rect class="aa-box-neutral" x="572" y="72" width="70" height="40" rx="6"/>
+  <text class="aa-node-label" x="607" y="96" text-anchor="middle">Tool call</text>
+  <path class="aa-arrow" d="M642,92 L661,92"/>
+  <path class="aa-arrowhead" d="M661,92 L653,88 L653,96 Z"/>
+  <rect class="aa-box-danger" x="665" y="65" width="50" height="55" rx="6"/>
+  <text class="aa-node-label-danger" x="690" y="90" text-anchor="middle">data</text>
+  <text class="aa-node-label-danger" x="690" y="102" text-anchor="middle">leaked</text>
+</svg>

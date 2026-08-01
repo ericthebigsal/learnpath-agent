@@ -1,0 +1,37 @@
+<svg class="diagram-skill-composability-tree" viewBox="0 0 720 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-composability-tree-title">
+  <title id="skill-composability-tree-title">A higher-level skill like "draft a refund email" is composed from lower-level skills -- look up the order, check refund policy, draft the email -- the same way a function calls other functions</title>
+  <style>
+    .sc-root { fill: var(--surface); stroke: var(--ink); stroke-width: 2.5; }
+    .sc-root-label { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .sc-node { fill: var(--surface); stroke: var(--taken); stroke-width: 2; }
+    .sc-node-title { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+    .sc-node-sub { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.01em; fill: var(--ink-muted); }
+    .sc-branch { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .sc-arrowhead { fill: var(--ink-muted); }
+    .sc-caption { font-family: var(--font-body); font-size: 10.5px; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="sc-root" x="235" y="15" width="250" height="50" rx="8"/>
+  <text class="sc-root-label" x="360" y="45" text-anchor="middle">Skill: Draft Refund Email</text>
+
+  <path class="sc-branch" d="M360,65 L152,113"/>
+  <path class="sc-arrowhead" d="M152,113 L158,103 L164,110 Z"/>
+  <path class="sc-branch" d="M360,65 L360,113"/>
+  <path class="sc-arrowhead" d="M360,113 L355,104 L365,104 Z"/>
+  <path class="sc-branch" d="M360,65 L568,113"/>
+  <path class="sc-arrowhead" d="M568,113 L562,104 L556,110 Z"/>
+
+  <rect class="sc-node" x="30" y="120" width="180" height="60" rx="8"/>
+  <text class="sc-node-title" x="120" y="145" text-anchor="middle">Look Up Order</text>
+  <text class="sc-node-sub" x="120" y="163" text-anchor="middle">LOWER-LEVEL SKILL</text>
+
+  <rect class="sc-node" x="270" y="120" width="180" height="60" rx="8"/>
+  <text class="sc-node-title" x="360" y="145" text-anchor="middle">Check Refund Policy</text>
+  <text class="sc-node-sub" x="360" y="163" text-anchor="middle">LOWER-LEVEL SKILL</text>
+
+  <rect class="sc-node" x="510" y="120" width="180" height="60" rx="8"/>
+  <text class="sc-node-title" x="600" y="145" text-anchor="middle">Draft Email Copy</text>
+  <text class="sc-node-sub" x="600" y="163" text-anchor="middle">LOWER-LEVEL SKILL</text>
+
+  <text class="sc-caption" x="360" y="200" text-anchor="middle">A skill invoking other skills, like a function calling functions</text>
+</svg>

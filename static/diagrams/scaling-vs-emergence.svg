@@ -1,0 +1,26 @@
+<svg class="diagram-scaling-vs-emergence" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="scaling-vs-emergence-title">
+  <title id="scaling-vs-emergence-title">Training loss decreases smoothly and predictably with scale, but whether specific capabilities appear as a sudden jump or actually improve gradually and just look sudden is a contested measurement question</title>
+  <style>
+    .se-panel-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.015em; fill: var(--ink-muted); }
+    .se-axis { stroke: var(--ink-muted); stroke-width: 1.5; }
+    .se-curve-smooth { stroke: var(--taken); stroke-width: 2.5; fill: none; }
+    .se-curve-jump { stroke: var(--considered); stroke-width: 2.5; fill: none; stroke-dasharray: 6 4; }
+    .se-caption { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+    .se-question { font-family: var(--font-display); font-weight: 600; font-size: 16px; fill: var(--considered); }
+  </style>
+
+  <text class="se-panel-label" x="180" y="20" text-anchor="middle">TRAINING LOSS -- SMOOTH</text>
+  <line class="se-axis" x1="55" y1="45" x2="55" y2="180"/>
+  <line class="se-axis" x1="55" y1="180" x2="330" y2="180"/>
+  <path class="se-curve-smooth" d="M65,60 C130,75 180,120 320,170"/>
+  <text class="se-caption" x="192" y="200" text-anchor="middle">scale --&gt;</text>
+
+  <line x1="360" y1="10" x2="360" y2="215" stroke="var(--border)" stroke-width="1"/>
+
+  <text class="se-panel-label" x="540" y="20" text-anchor="middle">A CAPABILITY -- DEBATED</text>
+  <line class="se-axis" x1="415" y1="45" x2="415" y2="180"/>
+  <line class="se-axis" x1="415" y1="180" x2="690" y2="180"/>
+  <path class="se-curve-jump" d="M425,168 L540,163 L565,60 L680,55"/>
+  <text class="se-question" x="552" y="115" text-anchor="middle">?</text>
+  <text class="se-caption" x="552" y="200" text-anchor="middle">scale --&gt;</text>
+</svg>

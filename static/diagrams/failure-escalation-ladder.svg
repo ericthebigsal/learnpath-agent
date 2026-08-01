@@ -1,0 +1,39 @@
+<svg class="diagram-failure-escalation-ladder" viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="failure-escalation-ladder-title">
+  <title id="failure-escalation-ladder-title">A runaway loop escalates through four defenses in order: iteration limits, timeout and retry with backoff, circuit breakers, and finally human escalation once automated recovery is exhausted</title>
+  <style>
+    .fe-bar { fill: var(--surface); stroke-width: 2; }
+    .fe-bar-neutral { stroke: var(--ink-muted); }
+    .fe-bar-final { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 2.25; }
+    .fe-title { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: var(--ink); }
+    .fe-title-final { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: var(--taken); }
+    .fe-arrow { stroke: var(--signal); stroke-width: 1.75; fill: none; }
+    .fe-arrowhead { fill: var(--signal); }
+    .fe-edge-label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.01em; fill: var(--signal); }
+  </style>
+
+  <rect class="fe-bar fe-bar-neutral" x="100" y="12" width="520" height="46" rx="8"/>
+  <text class="fe-title" x="360" y="40" text-anchor="middle">1. Iteration limits</text>
+
+  <path class="fe-arrow" d="M360,58 L360,74"/>
+  <path class="fe-arrowhead" d="M360,74 L355,65 L365,65 Z"/>
+  <text class="fe-edge-label" x="440" y="70" text-anchor="middle">still looping</text>
+
+  <rect class="fe-bar fe-bar-neutral" x="100" y="76" width="520" height="46" rx="8"/>
+  <text class="fe-title" x="360" y="104" text-anchor="middle">2. Timeout + retry with backoff</text>
+
+  <path class="fe-arrow" d="M360,122 L360,138"/>
+  <path class="fe-arrowhead" d="M360,138 L355,129 L365,129 Z"/>
+  <text class="fe-edge-label" x="440" y="134" text-anchor="middle">still failing</text>
+
+  <rect class="fe-bar fe-bar-neutral" x="100" y="140" width="520" height="46" rx="8"/>
+  <text class="fe-title" x="360" y="168" text-anchor="middle">3. Circuit breaker</text>
+
+  <path class="fe-arrow" d="M360,186 L360,202"/>
+  <path class="fe-arrowhead" d="M360,202 L355,193 L365,193 Z"/>
+  <text class="fe-edge-label" x="440" y="198" text-anchor="middle">unresolved</text>
+
+  <rect class="fe-bar fe-bar-final" x="100" y="204" width="520" height="46" rx="8"/>
+  <text class="fe-title-final" x="360" y="232" text-anchor="middle">4. Human escalation</text>
+
+  <text class="fe-edge-label" x="360" y="266" text-anchor="middle" fill="var(--ink-muted)" stroke="none">Monitor token and cost consumption in real time at every stage</text>
+</svg>

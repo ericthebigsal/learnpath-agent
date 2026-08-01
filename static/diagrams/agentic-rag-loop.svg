@@ -1,0 +1,49 @@
+<svg class="diagram-agentic-rag-loop" viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="agentic-rag-loop-title">
+  <title id="agentic-rag-loop-title">Agentic RAG retrieves, reasons about whether it has enough evidence, and searches again with a refined query before generating -- tracing a two-hop vendor contract comparison</title>
+  <style>
+    .al2-box { fill: var(--surface); stroke-width: 2; }
+    .al2-box-search { stroke: var(--taken); }
+    .al2-box-reason { stroke: var(--ink-muted); }
+    .al2-box-final { stroke: var(--ink); stroke-width: 2.5; }
+    .al2-title { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; fill: var(--ink); }
+    .al2-sub { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+    .al2-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .al2-arrowhead { fill: var(--ink-muted); }
+    .al2-loop { stroke: var(--considered); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+    .al2-loop-label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.01em; fill: var(--considered); }
+  </style>
+
+  <rect class="al2-box al2-box-search" x="30" y="20" width="210" height="55" rx="8"/>
+  <text class="al2-title" x="135" y="43" text-anchor="middle">Search: Vendor A</text>
+  <text class="al2-sub" x="135" y="60" text-anchor="middle">contract renewal cost</text>
+
+  <path class="al2-arrow" d="M240,47 L266,47"/>
+  <path class="al2-arrowhead" d="M266,47 L257,43 L257,51 Z"/>
+
+  <rect class="al2-box al2-box-reason" x="270" y="20" width="250" height="55" rx="8"/>
+  <text class="al2-title" x="395" y="43" text-anchor="middle">Reason: partial evidence</text>
+  <text class="al2-sub" x="395" y="60" text-anchor="middle">need Vendor B too -- search again</text>
+
+  <path class="al2-loop" d="M395,75 C395,110 135,110 135,133"/>
+  <path class="al2-arrowhead" d="M135,133 L128,122 L142,122 Z" fill="var(--considered)"/>
+  <text class="al2-loop-label" x="265" y="105" text-anchor="middle">REFINED QUERY, SEARCH AGAIN</text>
+
+  <rect class="al2-box al2-box-search" x="30" y="135" width="210" height="55" rx="8"/>
+  <text class="al2-title" x="135" y="158" text-anchor="middle">Search: Vendor B</text>
+  <text class="al2-sub" x="135" y="175" text-anchor="middle">contract renewal cost</text>
+
+  <path class="al2-arrow" d="M240,162 L266,162"/>
+  <path class="al2-arrowhead" d="M266,162 L257,158 L257,166 Z"/>
+
+  <rect class="al2-box al2-box-reason" x="270" y="135" width="250" height="55" rx="8"/>
+  <text class="al2-title" x="395" y="158" text-anchor="middle">Reason: sufficient evidence</text>
+  <text class="al2-sub" x="395" y="175" text-anchor="middle">both contracts now retrieved</text>
+
+  <path class="al2-arrow" d="M540,162 L576,162"/>
+  <path class="al2-arrowhead" d="M576,162 L567,158 L567,166 Z"/>
+
+  <rect class="al2-box al2-box-final" x="580" y="118" width="110" height="90" rx="8"/>
+  <text class="al2-title" x="635" y="150" text-anchor="middle">Generate</text>
+  <text class="al2-sub" x="635" y="168" text-anchor="middle">compare both,</text>
+  <text class="al2-sub" x="635" y="182" text-anchor="middle">answer</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg class="diagram-tool-surface-reduction" viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tool-surface-reduction-title">
+  <title id="tool-surface-reduction-title">Tool retrieval, hierarchical routing, and toolset grouping all work the same way: shrinking a flat list of dozens of tools down to only the handful relevant to the current request</title>
+  <style>
+    .ts-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+    .ts-dot { fill: var(--ink-muted); opacity: 0.55; }
+    .ts-dot-relevant { fill: var(--taken); }
+    .ts-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .ts-arrowhead { fill: var(--ink-muted); }
+    .ts-edge-label { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+  </style>
+
+  <text class="ts-label" x="135" y="25" text-anchor="middle">ALL 50 TOOLS -- FLAT LIST</text>
+
+  <g>
+    <circle class="ts-dot" cx="40" cy="50" r="4"/><circle class="ts-dot" cx="58" cy="50" r="4"/><circle class="ts-dot" cx="76" cy="50" r="4"/><circle class="ts-dot" cx="94" cy="50" r="4"/><circle class="ts-dot" cx="112" cy="50" r="4"/><circle class="ts-dot" cx="130" cy="50" r="4"/><circle class="ts-dot" cx="148" cy="50" r="4"/><circle class="ts-dot" cx="166" cy="50" r="4"/><circle class="ts-dot" cx="184" cy="50" r="4"/><circle class="ts-dot" cx="202" cy="50" r="4"/>
+    <circle class="ts-dot" cx="40" cy="68" r="4"/><circle class="ts-dot" cx="58" cy="68" r="4"/><circle class="ts-dot" cx="76" cy="68" r="4"/><circle class="ts-dot" cx="94" cy="68" r="4"/><circle class="ts-dot" cx="112" cy="68" r="4"/><circle class="ts-dot" cx="130" cy="68" r="4"/><circle class="ts-dot" cx="148" cy="68" r="4"/><circle class="ts-dot" cx="166" cy="68" r="4"/><circle class="ts-dot" cx="184" cy="68" r="4"/><circle class="ts-dot" cx="202" cy="68" r="4"/>
+    <circle class="ts-dot" cx="40" cy="86" r="4"/><circle class="ts-dot" cx="58" cy="86" r="4"/><circle class="ts-dot" cx="76" cy="86" r="4"/><circle class="ts-dot" cx="94" cy="86" r="4"/><circle class="ts-dot" cx="112" cy="86" r="4"/><circle class="ts-dot" cx="130" cy="86" r="4"/><circle class="ts-dot" cx="148" cy="86" r="4"/><circle class="ts-dot" cx="166" cy="86" r="4"/><circle class="ts-dot" cx="184" cy="86" r="4"/><circle class="ts-dot" cx="202" cy="86" r="4"/>
+    <circle class="ts-dot" cx="40" cy="104" r="4"/><circle class="ts-dot" cx="58" cy="104" r="4"/><circle class="ts-dot" cx="76" cy="104" r="4"/><circle class="ts-dot" cx="94" cy="104" r="4"/><circle class="ts-dot" cx="112" cy="104" r="4"/><circle class="ts-dot" cx="130" cy="104" r="4"/><circle class="ts-dot" cx="148" cy="104" r="4"/><circle class="ts-dot" cx="166" cy="104" r="4"/><circle class="ts-dot" cx="184" cy="104" r="4"/><circle class="ts-dot" cx="202" cy="104" r="4"/>
+    <circle class="ts-dot" cx="40" cy="122" r="4"/><circle class="ts-dot" cx="58" cy="122" r="4"/><circle class="ts-dot" cx="76" cy="122" r="4"/><circle class="ts-dot" cx="94" cy="122" r="4"/><circle class="ts-dot" cx="112" cy="122" r="4"/><circle class="ts-dot" cx="130" cy="122" r="4"/><circle class="ts-dot" cx="148" cy="122" r="4"/><circle class="ts-dot" cx="166" cy="122" r="4"/><circle class="ts-dot" cx="184" cy="122" r="4"/><circle class="ts-dot" cx="202" cy="122" r="4"/>
+  </g>
+
+  <path class="ts-arrow" d="M232,86 L398,86"/>
+  <path class="ts-arrowhead" d="M398,86 L389,81 L389,91 Z"/>
+  <text class="ts-edge-label" x="315" y="72" text-anchor="middle">retrieval / routing /</text>
+  <text class="ts-edge-label" x="315" y="105" text-anchor="middle">toolset grouping</text>
+
+  <text class="ts-label" x="585" y="25" text-anchor="middle">RELEVANT SUBSET (~5)</text>
+  <circle class="ts-dot-relevant" cx="500" cy="60" r="10"/>
+  <circle class="ts-dot-relevant" cx="565" cy="48" r="10"/>
+  <circle class="ts-dot-relevant" cx="545" cy="100" r="10"/>
+  <circle class="ts-dot-relevant" cx="610" cy="88" r="10"/>
+  <circle class="ts-dot-relevant" cx="580" cy="128" r="10"/>
+
+  <text class="ts-edge-label" x="315" y="160" text-anchor="middle" fill="var(--ink)">Fewer irrelevant options at decision time, not better descriptions</text>
+</svg>

@@ -1,0 +1,47 @@
+<svg class="diagram-ci-regression-gate" viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ci-regression-gate-title">
+  <title id="ci-regression-gate-title">Every prompt or model change runs the golden test set with per-category deltas; if any category drops below the agreed threshold, the deploy is blocked rather than shipped and hoped for</title>
+  <style>
+    .cg-box { fill: var(--surface); stroke-width: 2; }
+    .cg-box-neutral { stroke: var(--ink-muted); }
+    .cg-diamond { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+    .cg-box-ship { stroke: var(--taken); }
+    .cg-box-block { stroke: var(--signal); }
+    .cg-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .cg-title-ship { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: var(--taken); }
+    .cg-title-block { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: var(--signal); }
+    .cg-sub { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+    .cg-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .cg-arrowhead { fill: var(--ink-muted); }
+    .cg-edge-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; fill: var(--ink-muted); }
+  </style>
+
+  <rect class="cg-box cg-box-neutral" x="270" y="12" width="180" height="45" rx="8"/>
+  <text class="cg-title" x="360" y="40" text-anchor="middle">Prompt or model change</text>
+
+  <path class="cg-arrow" d="M360,57 L360,71"/>
+  <path class="cg-arrowhead" d="M360,71 L355,62 L365,62 Z"/>
+
+  <rect class="cg-box cg-box-neutral" x="250" y="73" width="220" height="45" rx="8"/>
+  <text class="cg-title" x="360" y="101" text-anchor="middle">Run golden set, per-category deltas</text>
+
+  <path class="cg-arrow" d="M360,118 L360,132"/>
+  <path class="cg-arrowhead" d="M360,132 L355,123 L365,123 Z"/>
+
+  <polygon class="cg-diamond" points="360,134 460,178 360,222 260,178"/>
+  <text class="cg-title" x="360" y="174" text-anchor="middle">Any category</text>
+  <text class="cg-title" x="360" y="188" text-anchor="middle">below threshold?</text>
+
+  <path class="cg-arrow" d="M270,190 L182,230"/>
+  <path class="cg-arrowhead" d="M182,230 L191,224 L184,217 Z"/>
+  <text class="cg-edge-label" x="205" y="205" text-anchor="middle">no</text>
+
+  <path class="cg-arrow" d="M450,190 L538,230"/>
+  <path class="cg-arrowhead" d="M538,230 L536,219 L528,226 Z"/>
+  <text class="cg-edge-label" x="515" y="205" text-anchor="middle">yes</text>
+
+  <rect class="cg-box cg-box-ship" x="40" y="232" width="280" height="45" rx="8"/>
+  <text class="cg-title-ship" x="180" y="260" text-anchor="middle">Ship it</text>
+
+  <rect class="cg-box cg-box-block" x="400" y="232" width="280" height="45" rx="8"/>
+  <text class="cg-title-block" x="540" y="260" text-anchor="middle">Block the deploy</text>
+</svg>

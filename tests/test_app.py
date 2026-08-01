@@ -205,19 +205,20 @@ def test_current_path_screen_returns_404_for_another_users_track(client, tmp_pat
 
 
 def test_item_view_shows_content_but_not_the_quiz_form(client):
-    # rag-agentic-rag-patterns has legacy flat content (no sections) — this test
-    # covers the non-paginated rendering path in item.html.
+    # rag-capstone-certification is a capstone assessment with legacy flat content
+    # (deliberately left unexpanded) — this test covers the non-paginated
+    # rendering path in item.html.
     client.post(
         "/tracks",
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    response = client.get("/item/1/rag-agentic-rag-patterns")
+    response = client.get("/item/1/rag-capstone-certification")
 
     assert response.status_code == 200
-    assert "Classic RAG retrieves once, then generates once" in response.text
-    assert 'action="/item/1/rag-agentic-rag-patterns/submit"' not in response.text
-    assert 'href="/item/1/rag-agentic-rag-patterns/quiz"' in response.text
+    assert "This capstone assessment validates practical RAG knowledge" in response.text
+    assert 'action="/item/1/rag-capstone-certification/submit"' not in response.text
+    assert 'href="/item/1/rag-capstone-certification/quiz"' in response.text
 
 
 def test_item_quiz_page_shows_the_quiz_form_but_not_the_lesson_content(client):
@@ -226,12 +227,12 @@ def test_item_quiz_page_shows_the_quiz_form_but_not_the_lesson_content(client):
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    response = client.get("/item/1/rag-agentic-rag-patterns/quiz")
+    response = client.get("/item/1/rag-capstone-certification/quiz")
 
     assert response.status_code == 200
-    assert 'action="/item/1/rag-agentic-rag-patterns/submit"' in response.text
-    assert "Classic RAG retrieves once, then generates once" not in response.text
-    assert 'href="/item/1/rag-agentic-rag-patterns"' in response.text  # link back to re-read the material
+    assert 'action="/item/1/rag-capstone-certification/submit"' in response.text
+    assert "This capstone assessment validates practical RAG knowledge" not in response.text
+    assert 'href="/item/1/rag-capstone-certification"' in response.text  # link back to re-read the material
 
 
 def test_item_quiz_page_returns_404_for_nonexistent_item(client):
@@ -370,10 +371,10 @@ def test_item_section_view_redirects_to_flat_view_for_item_without_sections(clie
         data={"goal_text": "I want to learn about RAG", "starting_level": "beginner"},
     )
 
-    response = client.get("/item/1/rag-agentic-rag-patterns/section/1", follow_redirects=False)
+    response = client.get("/item/1/rag-capstone-certification/section/1", follow_redirects=False)
 
     assert response.status_code == 303
-    assert response.headers["location"] == "/item/1/rag-agentic-rag-patterns"
+    assert response.headers["location"] == "/item/1/rag-capstone-certification"
 
 
 def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):

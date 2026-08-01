@@ -1,0 +1,32 @@
+<svg class="diagram-reranking-funnel" viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="reranking-funnel-title">
+  <title id="reranking-funnel-title">Cheap broad retrieval narrows the full corpus to the top 50 candidates, and expensive precise cross-encoder reranking narrows that further to the top 5 actually used</title>
+  <style>
+    .rf-bar { fill: var(--surface); stroke: var(--ink-muted); stroke-width: 1.75; }
+    .rf-bar-final { fill: var(--taken-tint); stroke: var(--taken); stroke-width: 2.25; }
+    .rf-label { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--ink); }
+    .rf-label-final { font-family: var(--font-display); font-weight: 600; font-size: 13px; fill: var(--taken); }
+    .rf-sub { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.01em; fill: var(--ink-muted); }
+    .rf-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .rf-arrowhead { fill: var(--ink-muted); }
+  </style>
+
+  <rect class="rf-bar" x="60" y="15" width="600" height="48" rx="8"/>
+  <text class="rf-label" x="360" y="40" text-anchor="middle">Full corpus</text>
+  <text class="rf-sub" x="360" y="55" text-anchor="middle">every indexed chunk</text>
+
+  <path class="rf-arrow" d="M360,63 L360,79"/>
+  <path class="rf-arrowhead" d="M360,79 L355,70 L365,70 Z"/>
+
+  <rect class="rf-bar" x="160" y="81" width="400" height="48" rx="8"/>
+  <text class="rf-label" x="360" y="106" text-anchor="middle">Top 50 candidates</text>
+  <text class="rf-sub" x="360" y="121" text-anchor="middle">cheap: dense + BM25 hybrid search</text>
+
+  <path class="rf-arrow" d="M360,129 L360,145"/>
+  <path class="rf-arrowhead" d="M360,145 L355,136 L365,136 Z"/>
+
+  <rect class="rf-bar-final" x="240" y="147" width="240" height="48" rx="8"/>
+  <text class="rf-label-final" x="360" y="172" text-anchor="middle">Top 5 reranked</text>
+  <text class="rf-sub" x="360" y="187" text-anchor="middle">expensive: cross-encoder</text>
+
+  <text class="rf-sub" x="360" y="218" text-anchor="middle">Broad and cheap first, narrow and precise last</text>
+</svg>
