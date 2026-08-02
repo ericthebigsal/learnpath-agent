@@ -1,0 +1,54 @@
+<svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .header-box { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 2; }
+    .threat-box { fill: var(--considered-tint); stroke: var(--considered); stroke-width: 1.5; rx: 4; }
+    .header-text { font-family: var(--font-display); font-size: 22px; font-weight: bold; fill: var(--ink); }
+    .threat-text { font-family: var(--font-body); font-size: 15px; fill: var(--ink); }
+    .separator { stroke: var(--border); stroke-width: 3; }
+  </style>
+
+  <title>Classic AppSec vs LLM-Specific Security Threats</title>
+
+  <!-- Vertical separator -->
+  <line x1="450" y1="30" x2="450" y2="510" class="separator"/>
+
+  <!-- Left column header -->
+  <rect x="30" y="20" width="420" height="60" class="header-box"/>
+  <text x="240" y="57" text-anchor="middle" class="header-text">Classic AppSec</text>
+
+  <!-- Left column threats -->
+  <rect x="50" y="100" width="380" height="50" class="threat-box"/>
+  <text x="240" y="132" text-anchor="middle" class="threat-text">SQL Injection</text>
+
+  <rect x="50" y="165" width="380" height="50" class="threat-box"/>
+  <text x="240" y="197" text-anchor="middle" class="threat-text">Cross-Site Scripting (XSS)</text>
+
+  <rect x="50" y="230" width="380" height="50" class="threat-box"/>
+  <text x="240" y="262" text-anchor="middle" class="threat-text">Broken Authentication</text>
+
+  <rect x="50" y="295" width="380" height="50" class="threat-box"/>
+  <text x="240" y="327" text-anchor="middle" class="threat-text">Insecure Deserialization</text>
+
+  <rect x="50" y="360" width="380" height="50" class="threat-box"/>
+  <text x="240" y="392" text-anchor="middle" class="threat-text">Insufficient Logging</text>
+
+  <!-- Right column header -->
+  <rect x="470" y="20" width="420" height="60" class="header-box"/>
+  <text x="680" y="57" text-anchor="middle" class="header-text">LLM-Specific Risks</text>
+
+  <!-- Right column threats -->
+  <rect x="490" y="100" width="380" height="50" class="threat-box"/>
+  <text x="680" y="132" text-anchor="middle" class="threat-text">Prompt Injection</text>
+
+  <rect x="490" y="165" width="380" height="50" class="threat-box"/>
+  <text x="680" y="197" text-anchor="middle" class="threat-text">Model Theft / Extraction</text>
+
+  <rect x="490" y="230" width="380" height="50" class="threat-box"/>
+  <text x="680" y="262" text-anchor="middle" class="threat-text">Training Data Poisoning</text>
+
+  <rect x="490" y="295" width="380" height="50" class="threat-box"/>
+  <text x="680" y="327" text-anchor="middle" class="threat-text">Model Denial of Service</text>
+
+  <rect x="490" y="360" width="380" height="50" class="threat-box"/>
+  <text x="680" y="392" text-anchor="middle" class="threat-text">Jailbreaking / Guardrail Bypass</text>
+</svg>

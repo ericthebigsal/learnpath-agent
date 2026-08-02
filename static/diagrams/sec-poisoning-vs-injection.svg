@@ -1,0 +1,132 @@
+<svg viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: var(--font-body, system-ui); fill: var(--ink); }
+      .title { font-size: 16px; font-weight: 700; }
+      .label { font-size: 13px; font-weight: 600; }
+      .body { font-size: 12px; line-height: 1.4; }
+      .muted { fill: var(--ink-muted); font-size: 11px; }
+      .box { stroke-width: 1.5; rx: 4; }
+      .box-left { fill: var(--taken-tint); stroke: var(--taken-border); }
+      .box-right { fill: var(--considered-tint); stroke: var(--considered-border); }
+      .arrow-line { stroke: var(--ink-muted); stroke-width: 2; fill: none; }
+      .step-num { font-size: 14px; font-weight: 700; fill: var(--surface); }
+      circle.step-left { fill: var(--taken); }
+      circle.step-right { fill: var(--considered); }
+      .divider { stroke: var(--border); stroke-width: 1; }
+      .consequence-box { stroke-width: 2; }
+    </style>
+    <marker id="arrow-left" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="var(--taken-border)" />
+    </marker>
+    <marker id="arrow-right" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="var(--considered-border)" />
+    </marker>
+  </defs>
+  <title>Training-Time Poisoning vs Inference-Time Prompt Injection</title>
+
+  <!-- LEFT COLUMN: TRAINING-TIME POISONING -->
+  <g id="left">
+    <text x="40" y="30" class="title" fill="var(--taken)">Training-Time Poisoning</text>
+
+    <!-- Step 1 -->
+    <circle cx="60" cy="80" r="16" class="step-left"/>
+    <text x="55" y="87" class="step-num">1</text>
+
+    <rect x="35" y="65" width="230" height="65" class="box box-left"/>
+    <text x="50" y="85" class="label">Data Preparation</text>
+    <text x="50" y="102" class="body">Attacker injects poisoned</text>
+    <text x="50" y="116" class="body">examples into training data</text>
+
+    <!-- Arrow down -->
+    <path d="M 150 135 L 150 165" class="arrow-line" marker-end="url(#arrow-left)"/>
+
+    <!-- Step 2 -->
+    <circle cx="60" cy="185" r="16" class="step-left"/>
+    <text x="55" y="192" class="step-num">2</text>
+
+    <rect x="35" y="170" width="230" height="65" class="box box-left"/>
+    <text x="50" y="190" class="label">Model Training</text>
+    <text x="50" y="207" class="body">Model learns trigger →</text>
+    <text x="50" y="221" class="body">malicious output association</text>
+
+    <!-- Arrow down -->
+    <path d="M 150 240 L 150 270" class="arrow-line" marker-end="url(#arrow-left)"/>
+
+    <!-- Step 3 -->
+    <circle cx="60" cy="290" r="16" class="step-left"/>
+    <text x="55" y="297" class="step-num">3</text>
+
+    <rect x="35" y="275" width="230" height="65" class="box box-left"/>
+    <text x="50" y="295" class="label">Model Deployed</text>
+    <text x="50" y="312" class="body">Backdoor baked into</text>
+    <text x="50" y="326" class="body">model weights permanently</text>
+
+    <!-- Consequence box -->
+    <rect x="30" y="380" width="250" height="100" class="box consequence-box box-left"/>
+    <text x="50" y="405" class="label" fill="var(--taken)">When Detected & How to Defend</text>
+    <text x="50" y="425" class="muted">When: During training (ideally)</text>
+    <text x="50" y="440" class="muted">Detection: Data validation, anomaly detection</text>
+    <text x="50" y="455" class="muted">Defense: Source verification, access controls</text>
+    <text x="50" y="470" class="muted">At runtime: Cannot be removed by input guards</text>
+
+    <!-- Bottom label -->
+    <text x="40" y="530" class="muted">Baked into weights</text>
+    <text x="40" y="545" class="muted">One-time attack</text>
+    <text x="40" y="560" class="muted">Invisible on normal inputs</text>
+  </g>
+
+  <!-- DIVIDER -->
+  <line x1="330" y1="20" x2="330" y2="580" class="divider"/>
+
+  <!-- RIGHT COLUMN: INFERENCE-TIME INJECTION -->
+  <g id="right">
+    <text x="360" y="30" class="title" fill="var(--considered)">Inference-Time Prompt Injection</text>
+
+    <!-- Step 1 -->
+    <circle cx="500" cy="80" r="16" class="step-right"/>
+    <text x="495" y="87" class="step-num">1</text>
+
+    <rect x="375" y="65" width="250" height="65" class="box box-right"/>
+    <text x="390" y="85" class="label">Model Ready</text>
+    <text x="390" y="102" class="body">Normal model deployed with</text>
+    <text x="390" y="116" class="body">unmodified weights and guardrails</text>
+
+    <!-- Arrow down -->
+    <path d="M 500" y="135" L="500" y="165" class="arrow-line" marker-end="url(#arrow-right)"/>
+
+    <!-- Step 2 -->
+    <circle cx="500" cy="185" r="16" class="step-right"/>
+    <text x="495" y="192" class="step-num">2</text>
+
+    <rect x="375" y="170" width="250" height="65" class="box box-right"/>
+    <text x="390" y="190" class="label">Attacker Prompts</text>
+    <text x="390" y="207" class="body">Crafts clever input to trick</text>
+    <text x="390" y="221" class="body">model's reasoning at runtime</text>
+
+    <!-- Arrow down -->
+    <path d="M 500 240 L 500 270" class="arrow-line" marker-end="url(#arrow-right)"/>
+
+    <!-- Step 3 -->
+    <circle cx="500" cy="290" r="16" class="step-right"/>
+    <text x="495" y="297" class="step-num">3</text>
+
+    <rect x="375" y="275" width="250" height="65" class="box box-right"/>
+    <text x="390" y="295" class="label">Harmful Output</text>
+    <text x="390" y="312" class="body">Model responds to that specific</text>
+    <text x="390" y="326" class="body">prompt with malicious behavior</text>
+
+    <!-- Consequence box -->
+    <rect x="370" y="380" width="260" height="100" class="box consequence-box box-right"/>
+    <text x="390" y="405" class="label" fill="var(--considered)">When Detected & How to Defend</text>
+    <text x="390" y="425" class="muted">When: At inference time (each prompt)</text>
+    <text x="390" y="440" class="muted">Detection: Input/output monitoring</text>
+    <text x="390" y="455" class="muted">Defense: Input validation, prompt guards</text>
+    <text x="390" y="470" class="muted">Fix: Retrain with guardrails or block triggers</text>
+
+    <!-- Bottom label -->
+    <text x="380" y="530" class="muted">Weights unchanged</text>
+    <text x="380" y="545" class="muted">Per-prompt attack</text>
+    <text x="380" y="560" class="muted">Requires trigger on every use</text>
+  </g>
+</svg>

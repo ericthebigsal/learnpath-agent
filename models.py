@@ -23,6 +23,8 @@ class Track(str, Enum):
     AGENT_TOOLS_SKILLS = "Agent Tools & Skills"
     CONTEXT_ENGINEERING = "Context Engineering"
     LLM_BILLING = "LLM Billing & Cost Models"
+    RESPONSIBLE_AI = "Responsible AI"
+    AI_SECURITY = "AI Security & Risk"
 
 
 class QuizQuestion(BaseModel):

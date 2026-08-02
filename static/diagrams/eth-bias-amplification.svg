@@ -1,0 +1,102 @@
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+  <title>Synthetic Data Feedback Loop: How Bias Amplifies</title>
+  <style>
+    rect {
+      stroke-width: 2;
+      stroke: var(--border);
+    }
+
+    text {
+      font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+      fill: var(--ink);
+    }
+
+    .label {
+      font-size: 10px;
+      fill: var(--ink-muted);
+    }
+
+    .arrow {
+      stroke: var(--ink-muted);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .data-box {
+      fill: var(--considered-tint);
+      stroke: var(--considered-border);
+    }
+
+    .model-box {
+      fill: var(--signal-tint);
+      stroke: var(--signal);
+    }
+
+    .feedback-arrow {
+      stroke-dasharray: 4,4;
+    }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="var(--ink-muted)" />
+    </marker>
+  </defs>
+
+  <text x="350" y="28" text-anchor="middle" style="font-size: 16px; font-weight: bold;">Bias Amplification Loop</text>
+
+  <!-- Generation 1 -->
+  <rect class="data-box" x="40" y="55" width="105" height="48" rx="4"/>
+  <text x="92.5" y="77" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Internet</text>
+  <text x="92.5" y="97" text-anchor="middle" class="label">(with bias)</text>
+
+  <path class="arrow" d="M 145 79 L 185 79" marker-end="url(#arrowhead)"/>
+
+  <rect class="model-box" x="185" y="55" width="90" height="48" rx="4"/>
+  <text x="230" y="83" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Model A</text>
+
+  <path class="arrow" d="M 275 79 L 315 79" marker-end="url(#arrowhead)"/>
+
+  <rect class="data-box" x="315" y="55" width="115" height="48" rx="4"/>
+  <text x="372.5" y="77" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Output A</text>
+  <text x="372.5" y="97" text-anchor="middle" class="label">(synthetic)</text>
+
+  <!-- Feedback curve 1 -->
+  <path class="arrow feedback-arrow" d="M 372.5 103 Q 372.5 135 230 145 L 230 158" marker-end="url(#arrowhead)"/>
+
+  <!-- Generation 2 -->
+  <rect class="model-box" x="185" y="158" width="90" height="48" rx="4"/>
+  <text x="230" y="180" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Model B</text>
+  <text x="230" y="198" text-anchor="middle" class="label">(amplified)</text>
+
+  <path class="arrow" d="M 275 182 L 315 182" marker-end="url(#arrowhead)"/>
+
+  <rect class="data-box" x="315" y="158" width="115" height="48" rx="4"/>
+  <text x="372.5" y="180" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Output B</text>
+  <text x="372.5" y="198" text-anchor="middle" class="label">(stronger bias)</text>
+
+  <!-- Feedback curve 2 -->
+  <path class="arrow feedback-arrow" d="M 372.5 206 Q 372.5 238 230 248 L 230 261" marker-end="url(#arrowhead)"/>
+
+  <!-- Generation 3 -->
+  <rect class="model-box" x="185" y="261" width="90" height="48" rx="4"/>
+  <text x="230" y="283" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Model C</text>
+  <text x="230" y="301" text-anchor="middle" class="label">(further amp.)</text>
+
+  <path class="arrow" d="M 275 285 L 315 285" marker-end="url(#arrowhead)"/>
+
+  <rect class="data-box" x="315" y="261" width="115" height="48" rx="4"/>
+  <text x="372.5" y="283" text-anchor="middle" style="font-size: 11px; font-weight: bold;">Output C</text>
+  <text x="372.5" y="301" text-anchor="middle" class="label">(max bias)</text>
+
+  <!-- Legend -->
+  <rect class="data-box" x="530" y="70" width="14" height="14" rx="2"/>
+  <text x="550" y="80" style="font-size: 10px;">Data/Outputs</text>
+
+  <rect class="model-box" x="530" y="96" width="14" height="14" rx="2"/>
+  <text x="550" y="106" style="font-size: 10px;">AI Models</text>
+
+  <line x1="530" y1="125" x2="555" y2="125" class="arrow feedback-arrow" marker-end="url(#arrowhead)"/>
+  <text x="560" y="131" style="font-size: 10px;">Synthetic data</text>
+  <text x="560" y="141" style="font-size: 10px;">feedback</text>
+</svg>

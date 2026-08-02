@@ -801,6 +801,41 @@
     "related_item_ids": []
   },
   {
+    "id": "mas-federated-swarms-hybrid-patterns",
+    "title": "Advanced Hybrid Architectures: Hierarchical & Federated Swarms",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Multi-Agent Systems",
+    "duration_minutes": 30,
+    "content": "This course advances beyond pure orchestrator or pure swarm models to explore hybrid architectures: Hierarchical Orchestration, where swarms are nested under a master controller; and Federated Swarms, where autonomous peer-swarms coordinate via a shared data backbone. You'll move past high-level tradeoffs to tackle the engineering reality: managing state consistency across asynchronous swarm boundaries, designing error propagation policies that balance local containment versus orchestrator visibility, and choosing communication protocols that handle cross-swarm service discovery without re-introducing centralized bottlenecks. This is advanced material for teams building large-scale, multi-department agent deployments.",
+    "sections": [
+      {
+        "heading": "Architectural Patterns: Hierarchical vs. Federated Hybrids",
+        "diagram": "federated-swarms",
+        "body": "Hybrid coordination comes in two main flavors, each solving a different scaling problem. 1. Hierarchical Orchestration: A top-down approach where a master orchestrator decomposes high-level goals into sub-milestones, delegating each to a dedicated, specialized swarm. The master retains visibility and veto power over swarm results. This is superior when business logic is complex and auditability is non-negotiable. 2. Federated Swarms: A more decentralized model where autonomous 'peer-swarms' operate independently, communicating state changes asynchronously through a shared backbone or service discovery layer. This favors extreme scalability and resilience but makes reconstructing a single global plan difficult. Understanding when to favor a hierarchical chain-of-command over an asynchronous federated network is the first critical design decision."
+      },
+      {
+        "heading": "State Synchronization and Boundary Consistency",
+        "body": "In a pure system, state is centralized. In hybrid systems, state is fragmented across boundaries. You face a classic distributed systems problem: how do you ensure the Analyzing Swarm and the Researching Swarm are operating on the same version of the truth? Naive solutions like synchronizing the entire shared context are cost-prohibitive. Practical solutions involve: (a) Immutable State Snapshots: swarms operate on read-only snapshots of the data backbone, minimizing locking contention. (b) Eventual Consistency: agents broadcast state updates asynchronously; downstream agents subscribe to updates only for data fields relevant to their current sub-task. The engineering tradeoff is between the latency of waiting for a global 'lock' versus the quality risk of working on stale information."
+      },
+      {
+        "heading": "Failure Propagation: Local Containment vs. Error Bubbling",
+        "body": "A key advantage of hybrid patterns is failure isolation, but poorly designed systems propagate local noise into global outages. You must define a failure-propagation policy for every boundary: 1. Local Containment (Default): Exceptions inside a sub-swarm (e.g., agent timeouts, retries, deadlocked bidding) are handled internally via local self-healing. The orchestrator is completely unaware of these 'micro-failures'. 2. Error Bubbling: Only terminal failures (e.g., swarm cannot meet its milestone within the iteration limit) are escalated to the master orchestrator. Decoupling macro-stability from micro-volatility is essential—the master orchestrator must only trigger re-planning when a sub-swarm explicitly declares failure, otherwise you re-introduce the bottleneck of the centralized manager needing to inspect every minor retry."
+      },
+      {
+        "heading": "Cross-Swarm Discovery and Protocol Selection",
+        "body": "How do peer-swarms discover each other without a central broker? A robust hybrid system needs a service-discovery layer, similar to microservice architectures, where swarms publish their capabilities (e.g., 'I handle price-parsing') to a directory. When a swarm needs to delegate to another, it uses this directory rather than hard-coding dependencies. Protocol selection is critical: avoid heavy-weight JSON-RPC across swarms if possible, as it forces synchronous blocking behavior. Favor asynchronous, message-queue-based patterns (e.g., AMQP/PubSub models) that allow swarms to ingest tasks at their own pace, effectively buffering traffic spikes and preventing the 'Orchestrator Bottleneck' described in introductory courses."
+      }
+    ],
+    "quiz": [
+      {"question": "What is the key differentiator between Hierarchical Orchestration and Federated Swarms?", "options": ["Hierarchical is faster, Federated is slower", "Hierarchical is top-down with a master controller, Federated is a network of autonomous, asynchronous peer-swarms", "They are identical in practice", "Hierarchical requires more agents"], "correct_index": 1},
+      {"question": "What is the primary danger of 'Error Bubbling' in hybrid systems?", "options": ["It makes the system too resilient", "It can cause the master orchestrator to be overwhelmed by micro-failures that should have been contained locally", "It makes debugging too easy", "It's not dangerous"], "correct_index": 1},
+      {"question": "Why favor message-queue/asynchronous patterns for cross-swarm communication?", "options": ["It forces everything to be synchronous", "It decouples swarm execution times, effectively buffering traffic spikes and avoiding centralized bottlenecks", "It's the only way to send JSON", "It's always cheaper"], "correct_index": 1}
+    ],
+    "certification_eligible": false,
+    "related_item_ids": ["mas-orchestrator-vs-swarm-patterns", "mas-agent-communication-protocols"]
+  },
+  {
     "id": "mas-agent-communication-protocols",
     "title": "Agent Communication: How Agents Actually Pass State",
     "type": "course",
@@ -1949,5 +1984,321 @@
     "quiz": [],
     "certification_eligible": false,
     "related_item_ids": ["ctx-what-is-context-engineering", "ctx-context-window-budgeting", "bill-how-token-pricing-works"]
+  },
+  {
+    "id": "eth-capstone-certification",
+    "title": "Responsible AI Certification Assessment",
+    "type": "course",
+    "level": "advanced",
+    "track": "Responsible AI",
+    "duration_minutes": 30,
+    "content": "This capstone validates practical judgment in responsible AI: recognizing bias and fairness failures in real systems, knowing when a hallucination risk requires disclosure or fact-checking rather than shipping as-is, applying privacy-conscious defaults, navigating governance and regulatory obligations, and -- critically -- distinguishing genuine ethical risk from unsubstantiated or hype-driven claims. Before attempting it you should be comfortable explaining how training-data bias propagates into model outputs even when protected attributes are removed, why hallucinated citations demand manual verification in high-stakes domains, what a real pre-release ethics review actually checks for, and how to evaluate a widely-repeated risk claim against actual evidence rather than its popularity. The questions are scenario-driven: given a real product situation, can you name the specific failure mode and the practical mitigation, not just recite a definition. Passing signals you could run an actual responsible-AI review on a shipping feature, not just discuss ethics in the abstract.",
+    "quiz": [
+      {
+        "question": "A resume-screening tool trained on 10 years of historical hiring data starts scoring candidates from a specific demographic lower on average, even though demographic fields were removed from its input. What is the most likely cause and the right response?",
+        "options": [
+          "Coincidence -- no action needed",
+          "The model learned proxy signals correlated with the removed demographic from patterns baked into historical biased hiring data; audit training data and real-world outputs, and add fairness testing before further use",
+          "Delete the training data immediately with no further investigation",
+          "Bias is only a concern for image-generation models, not text models"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "A support chatbot confidently cites a specific policy clause and page number that does not exist in any real document. What is happening, and what is the right practical response?",
+        "options": [
+          "The model is deliberately lying to the user",
+          "This is a hallucination -- a plausible-sounding but fabricated claim; high-stakes outputs like this need grounding in real retrieved sources and manual fact-checking before reaching users",
+          "This cannot be mitigated in any way",
+          "Hallucinations only occur in older, smaller models"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "Before shipping a new AI feature, a PM wants to run an internal ethics review. Which approach best reflects real practice rather than a token gesture?",
+        "options": [
+          "Skip review and ship fast",
+          "Have one engineer give it a five-minute sanity check",
+          "Evaluate the feature against a specific risk taxonomy (bias, privacy, harmful content, transparency), consult real documented incidents involving similar features, and record the review's findings before release",
+          "Rely solely on the AI vendor's own marketing claims about safety"
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "A colleague repeats a widely-cited claim that generative AI is uniquely catastrophic for the environment, without checking what it's being compared against. What does this track's critical-thinking lesson suggest you do?",
+        "options": [
+          "Accept the claim because it appears in many papers",
+          "Evaluate the claim against actual evidence and an appropriate baseline (for example, emissions relative to a human completing the same task), rather than treating repetition or citation-chain popularity as proof",
+          "Dismiss all sustainability concerns about AI as irrelevant",
+          "Assume any claim repeated in multiple publications must be independently verified true"
+        ],
+        "correct_index": 1
+      }
+    ],
+    "certification_eligible": true,
+    "related_item_ids": []
+  },
+  {
+    "id": "sec-capstone-certification",
+    "title": "AI Security & Risk Certification Assessment",
+    "type": "course",
+    "level": "advanced",
+    "track": "AI Security & Risk",
+    "duration_minutes": 30,
+    "content": "This capstone validates practical judgment in AI-specific security: recognizing direct and indirect prompt injection, safely handling model-generated output, applying least-privilege and human-in-the-loop controls to autonomous agents, evaluating supply-chain and data-poisoning risk, and building a real threat model using frameworks like MITRE ATLAS and the NIST AI Risk Management Framework. Before attempting it you should be comfortable explaining why LLM security differs from classic application security, how an attacker can hijack an agent through content it merely reads rather than a command a user types, why generated code or SQL must never be trusted and executed directly, and how to map a new AI feature's attack surface using a recognized adversary-tactic taxonomy. The questions are scenario-driven: given a live incident description, can you name the specific attack category and the control that would have prevented it. Passing signals you could actually threat-model and harden a production AI feature, not just define the terms.",
+    "quiz": [
+      {
+        "question": "An internal support agent reads incoming customer emails and can also send emails and update account records on its own. An attacker sends an email containing hidden instructions telling the agent to forward customer PII to an external address. What is this attack, and what mitigation would have prevented it?",
+        "options": [
+          "SQL injection; the fix is to parameterize database queries",
+          "Indirect prompt injection; treating ingested content as untrusted and requiring human confirmation before the agent takes external or destructive actions (least privilege plus human-in-the-loop) would have stopped it",
+          "This is normal, expected agent behavior with no attack involved",
+          "A distributed denial-of-service attack; the fix is rate limiting"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "A generated code snippet from an LLM assistant is piped directly into a shell for execution in a CI pipeline, and it turns out to contain a destructive command. What risk category is this, and what is the fix?",
+        "options": [
+          "Model theft; the fix is encrypting the model weights",
+          "Insecure output handling; LLM output must never be executed or rendered directly without sandboxing, validation, and parameterization",
+          "Overreliance; this risk cannot be mitigated",
+          "Training data poisoning; the fix is retraining the model"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "A company wants to threat-model a new AI-powered feature before launch. Which approach matches the frameworks covered in this track?",
+        "options": [
+          "Skip threat modeling, since AI systems can't be attacked the way traditional software can",
+          "Map the feature against a recognized adversary-tactic taxonomy (such as MITRE ATLAS) and a risk-management framework (such as NIST AI RMF's govern/map/measure/manage functions) to identify and mitigate specific attack paths",
+          "Rely only on the AI vendor's default security settings",
+          "Threat modeling only applies to network infrastructure, not AI features"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "A team is choosing a third-party pretrained model and a plugin ecosystem for a new AI product. What risk category applies, and what should they check?",
+        "options": [
+          "Excessive agency; there is nothing to check before adoption",
+          "Supply chain vulnerabilities; vet the provenance of models, datasets, and plugins, and evaluate ongoing maintenance and dependency risk, the same way you would vet any third-party software dependency",
+          "This only matters for open-source software, not commercial models",
+          "Hallucination; the fix is retraining the model"
+        ],
+        "correct_index": 1
+      }
+    ],
+    "certification_eligible": true,
+    "related_item_ids": []
+  },
+  {
+    "id": "eth-intro-bias",
+    "title": "Bias in Training Data",
+    "type": "course",
+    "level": "beginner",
+    "track": "Responsible AI",
+    "duration_minutes": 15,
+    "content": "Understanding how historical and systemic bias propagates through training data.",
+    "sections": [
+        {"heading": "The Feedback Loop", "diagram": "bias-loop", "body": "Models amplify the biases present in the training data, creating a feedback loop where skewed outputs are fed back into future training sets, reinforcing and often accelerating these systemic disparities over time."},
+        {"heading": "Identifying Sources", "body": "Data sources frequently contain latent proxies for protected attributes like race, gender, or age, even when those specific labels are removed, allowing models to learn these correlations implicitly."},
+        {"heading": "Mitigation Approaches", "body": "Mitigation involves proactive steps: diversifying the training data, employing sophisticated re-weighting techniques to reduce the influence of overrepresented groups, and using balanced sampling strategies."},
+        {"heading": "Datasheets for Datasets", "body": "Maintaining comprehensive documentation for every dataset, known as a 'Datasheet for Datasets', allows engineering teams to transparently communicate the provenance, intended use, and limitations of the data, which is essential for identifying potential biases before training begins."},
+        {"heading": "Algorithmic Impact Assessments", "body": "Algorithmic impact assessments are a proactive governance mechanism that requires teams to evaluate the potential social, ethical, and legal impacts of an AI system throughout its development and deployment, documenting risks and mitigation plans."}
+    ],
+    "quiz": [
+      {"question": "How do models behave regarding bias?", "options": ["They remove it", "They amplify it", "They are neutral", "They don't see it"], "correct_index": 1},
+      {"question": "What is latent bias?", "options": ["Clear labels", "Hidden proxy signals", "None", "Random"], "correct_index": 1},
+      {"question": "Why is it a loop?", "options": ["Outputs become inputs", "It's circular", "It stops", "It's fast"], "correct_index": 0}
+    ]
+  },
+  {
+    "id": "eth-intro-fairness",
+    "title": "Defining Fairness Metrics",
+    "type": "course",
+    "level": "beginner",
+    "track": "Responsible AI",
+    "duration_minutes": 15,
+    "content": "Exploring key metrics for measuring fairness in AI models.",
+    "sections": [
+        {"heading": "Fairness Definitions", "diagram": "fairness-metrics", "body": "Fairness is not a single concept; it can be defined in multiple, often mathematically conflicting ways, requiring teams to explicitly choose which fairness criteria are prioritized for their specific use case."},
+        {"heading": "Statistical Parity", "body": "Statistical parity focuses on equalizing outcomes across demographic groups, ensuring that the probability of a positive outcome is identical for different segments of the population regardless of underlying differences."},
+        {"heading": "Equal Opportunity", "body": "Equal opportunity metrics strive to equalize true positive rates across groups, ensuring that qualified individuals have an equal chance of being identified as such, regardless of their demographic group membership."},
+        {"heading": "Individual Fairness", "body": "Individual fairness is based on the principle that similar individuals should be treated similarly by the model, a property that can be difficult to measure but is fundamentally important for ensuring that the model does not produce disparate outcomes for individuals in the same context."},
+        {"heading": "Fair Representation", "body": "Fair representation focuses on the input data, ensuring that the training set adequately and proportionally covers all segments of the population to prevent the model from learning a skewed or incomplete understanding of the world, which is a common root cause of unfair predictions."}
+    ],
+    "quiz": [
+      {"question": "What is a core challenge with fairness?", "options": ["It's always solved", "It's mathematically simple", "Definitions often conflict", "It's irrelevant"], "correct_index": 2},
+      {"question": "What is statistical parity?", "options": ["Equal outcomes", "Equal inputs", "Random", "Faster"], "correct_index": 0},
+      {"question": "What does equal opportunity aim to equalize?", "options": ["Errors", "True positive rates", "Inputs", "Nothing"], "correct_index": 1}
+    ]
+  },
+  {
+    "id": "eth-int-privacy-by-design",
+    "title": "Privacy by Design in GenAI",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Responsible AI",
+    "duration_minutes": 20,
+    "content": "Implementing privacy protections from the ground up in AI products.",
+    "sections": [
+        {"heading": "Core Privacy", "diagram": "privacy-design", "body": "Protecting user PII is paramount, requiring developers to adopt privacy-by-design principles where security and data protection are integrated into every phase of the AI development lifecycle, not just at the end."},
+        {"heading": "Differential Privacy", "body": "Differential privacy provides a mathematically rigorous way to add calculated noise to training data or query results, ensuring that individual data points cannot be identified even if the dataset is compromised or queried extensively."},
+        {"heading": "Data Minimization", "body": "Data minimization mandates collecting only the minimum amount of information strictly necessary to perform a task, reducing the blast radius in case of data breaches and aligning with modern privacy regulations."},
+        {"heading": "User Control & Consent", "body": "Modern privacy frameworks necessitate providing users with granular control over their data, including clear, understandable consent mechanisms, options for opting out of data collection, and methods for requesting the deletion of their personal information."},
+        {"heading": "Transparency & Explainability", "body": "Transparency requires AI products to provide clear, accessible explanations about how user data is utilized, the purpose of collection, and any inferences the model makes, building user trust through open communication rather than opaque black-box operations."}
+    ],
+    "quiz": [
+      {"question": "What is privacy by design?", "options": ["An afterthought", "Building privacy in from the start", "An optional feature", "Only for legal"], "correct_index": 1},
+      {"question": "What does differential privacy add?", "options": ["Noise", "Data", "Speed", "Nothing"], "correct_index": 0},
+      {"question": "What is data minimization?", "options": ["Collecting max data", "Collecting minimal data", "Random data", "No data"], "correct_index": 1}
+    ]
+  },
+  {
+    "id": "eth-int-hallucination-mitigation",
+    "title": "Hallucination Mitigation Strategies",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Responsible AI",
+    "duration_minutes": 20,
+    "content": "Techniques for reducing and detecting model fabrications.",
+    "sections": [
+        {"heading": "Mitigation", "diagram": "hallucination-mitigation", "body": "Grounding model responses in verifiable facts is the most effective defense against hallucinations, transforming the model's role from a source of facts to a synthesizer of retrieved information."},
+        {"heading": "RAG Approaches", "body": "Retrieval-augmented generation significantly reduces reliance on parametric memory by providing the model with relevant, up-to-date context documents, drastically improving the accuracy and verifiability of its answers."},
+        {"heading": "Fact-Checking Flows", "body": "Multi-agent pipelines can be designed to verify claims against trusted external sources, acting as an automated editorial layer that critiques and checks the model's output before it reaches the end user."},
+        {"heading": "Confidence Calibration", "body": "Implementing confidence calibration allows models to output a 'confidence score' alongside their response, enabling the system to detect and signal when it is unsure, and potentially routing low-confidence answers to a human expert for review."},
+        {"heading": "Human-in-the-Loop Reviews", "body": "Integrating human-in-the-loop workflows ensures that high-stakes outputs are validated by subject-matter experts, turning the AI into a productivity tool that assists humans rather than an autonomous decision-maker that is prone to undetected fabrications."}
+    ],
+    "quiz": [
+      {"question": "What is the best defense against hallucinations?", "options": ["Retraining only", "Grounding in facts", "Ignoring them", "Adding more data"], "correct_index": 1},
+      {"question": "What does RAG do?", "options": ["Increases memory", "Reduces memory reliance", "Adds hallucinations", "Nothing"], "correct_index": 1},
+      {"question": "What is a fact-checking pipeline?", "options": ["Editorial layer", "Manual task", "Useless", "Slower"], "correct_index": 0}
+    ]
+  },
+  {
+    "id": "eth-adv-governance",
+    "title": "AI Governance & Regulatory Compliance",
+    "type": "course",
+    "level": "advanced",
+    "track": "Responsible AI",
+    "duration_minutes": 25,
+    "content": "Navigating the landscape of AI laws and internal governance.",
+    "sections": [
+        {"heading": "Compliance", "diagram": "governance-compliance", "body": "Governance bridges the gap between high-level ethical policies and the concrete technical implementation of safe AI, ensuring that engineering teams are aligned with regulatory expectations throughout the development process."},
+        {"heading": "Regulatory Landscapes", "body": "Understanding emerging frameworks like the EU AI Act is crucial for developers, as they introduce new requirements for risk assessment, technical documentation, and human oversight for high-risk AI applications."},
+        {"heading": "Internal Controls", "body": "Implementing robust internal controls, such as audit logs for every model decision, rigorous safety reviews, and clear reporting paths, is vital for maintaining compliance and accountability in enterprise AI deployments."},
+        {"heading": "Accountability Structures", "body": "Defining clear accountability structures ensures that for every AI decision—from training data selection to final output—there is a specific team or individual responsible, preventing the dilution of responsibility that often occurs in complex AI pipelines."},
+        {"heading": "Ethical AI Review Boards", "body": "Cross-functional ethical AI review boards provide necessary oversight by evaluating AI features from multiple perspectives—including technical, legal, and sociological—before these features are approved for production, ensuring a balanced approach to risk management."}
+    ],
+    "quiz": [
+      {"question": "What role does governance play?", "options": ["Slows down teams", "Bridges policy and engineering", "Irrelevant to AI", "None"], "correct_index": 1},
+      {"question": "What is the EU AI Act?", "options": ["A law", "A tool", "A test", "Nothing"], "correct_index": 0},
+      {"question": "What do internal controls provide?", "options": ["Speed", "Accountability", "Errors", "Nothing"], "correct_index": 1}
+    ]
+  },
+  {
+    "id": "sec-intro-threat-model",
+    "title": "Introduction to AI Threat Modeling",
+    "type": "course",
+    "level": "beginner",
+    "track": "AI Security & Risk",
+    "duration_minutes": 15,
+    "content": "Basic principles of identifying risks in AI systems.",
+    "sections": [
+        {"heading": "Threats", "diagram": "threat-modeling", "body": "To build a secure AI system, you must think like an attacker, proactively identifying what assets are at risk and how an adversary might attempt to gain unauthorized access or manipulate model outcomes."},
+        {"heading": "Attack Surface Mapping", "body": "Mapping the attack surface involves cataloging all entry points—from API endpoints and user-provided prompts to ingested datasets and model plugins—and identifying potential vulnerabilities at each of these interfaces."},
+        {"heading": "Risk Assessment", "body": "Evaluating risk requires balancing the likelihood of an attack occurring against the potential impact of a successful breach, allowing teams to prioritize their security investments and mitigation strategies effectively."},
+        {"heading": "Asset Identification", "body": "A rigorous threat model begins by identifying the most critical assets the system must protect, such as sensitive user data, intellectual property, proprietary model weights, and the system's ability to operate without disruption."},
+        {"heading": "Adversary Profiling", "body": "Adversary profiling involves understanding who might want to attack the system—from opportunistic script kiddies to sophisticated, well-funded malicious actors—and analyzing their motivations and capabilities to better predict the types of attacks they might employ."}
+    ],
+    "quiz": [
+      {"question": "What is threat modeling?", "options": ["Identifying risks early", "Only for servers", "Ignoring threats", "Optional"], "correct_index": 0},
+      {"question": "What is attack surface mapping?", "options": ["Cataloging entry points", "Ignoring inputs", "Nothing", "None"], "correct_index": 0},
+      {"question": "How to evaluate risk?", "options": ["Likelihood vs impact", "Random", "Ignoring", "None"], "correct_index": 0}
+    ]
+  },
+  {
+    "id": "sec-intro-prompt-injection",
+    "title": "Understanding Prompt Injection",
+    "type": "course",
+    "level": "beginner",
+    "track": "AI Security & Risk",
+    "duration_minutes": 15,
+    "content": "The fundamentals of prompt injection attacks.",
+    "sections": [
+        {"heading": "Injection", "diagram": "prompt-injection", "body": "Prompt injection occurs when a user successfully hijacks the model's instructions, forcing it to ignore its safety training or business logic and perform actions that the developer never intended."},
+        {"heading": "Direct Injection", "body": "Direct prompt injection involves a user crafting a malicious prompt designed to override the system instructions immediately, often through role-playing techniques or explicit commands that command the model to ignore prior constraints."},
+        {"heading": "Indirect Injection", "body": "Indirect prompt injection is more insidious; it involves an attacker injecting malicious instructions into data that the AI agent later ingests, such as a website or an email, causing the agent to execute hidden malicious commands."},
+        {"heading": "Prompt Shielding", "body": "Prompt shielding involves the proactive design of prompts to include robust defense-in-depth measures, such as explicit instruction-confinement patterns, delimiter usage, and structured task-delegation, which collectively make it significantly harder for an attacker to hijack the system's logic."},
+        {"heading": "Structural Validation", "body": "Structural validation ensures that all input—especially user-provided prompts or data from external sources—is strictly parsed into a defined format before the model ever sees it, effectively neutralizing attempts to inject executable code or arbitrary instructions as raw text."}
+    ],
+    "quiz": [
+      {"question": "What is prompt injection?", "options": ["Fixing prompts", "Hijacking instructions", "Safe input", "A feature"], "correct_index": 1},
+      {"question": "What is direct injection?", "options": ["Immediate override", "None", "Safe", "Nothing"], "correct_index": 0},
+      {"question": "What is indirect injection?", "options": ["Through data sources", "Direct command", "Nothing", "None"], "correct_index": 0}
+    ]
+  },
+  {
+    "id": "sec-int-output-sanitization",
+    "title": "Secure Output Handling",
+    "type": "course",
+    "level": "intermediate",
+    "track": "AI Security & Risk",
+    "duration_minutes": 20,
+    "content": "Safely handling untrusted model outputs.",
+    "sections": [
+        {"heading": "Sanitization", "diagram": "output-sanitization", "body": "Never trust LLM output; always sanitize and validate model-generated content to ensure it adheres to expected schemas and safety constraints before it is rendered to the user or passed to downstream systems."},
+        {"heading": "Sandboxing Code", "body": "When a model generates code that must be executed, it should always be run within a strictly isolated, limited-privilege environment or sandbox, which prevents the code from accessing host system resources or sensitive data."},
+        {"heading": "Input/Output Encoding", "body": "Properly encoding all LLM outputs before they are rendered in a web context is a critical defense against cross-site scripting (XSS), as models can inadvertently generate executable scripts if not handled with standard web-security practices."},
+        {"heading": "Content Filtering", "body": "Content filtering adds a dedicated safety layer that scans model output for predefined categories of toxic, malicious, or sensitive content, blocking responses that violate safety policies before they reach the user and thereby enforcing an essential defensive boundary."},
+        {"heading": "Data Masking", "body": "Data masking involves automatically identifying and redacting sensitive PII in model output—like emails, phone numbers, or credit card info—using lightweight regex or specialized models, ensuring that even if the LLM produces a response containing sensitive data, it is sanitized prior to final display."}
+    ],
+    "quiz": [
+      {"question": "What to do with model output?", "options": ["Run immediately", "Sanitize and validate", "Ignore", "Trust entirely"], "correct_index": 1},
+      {"question": "Why sandbox code?", "options": ["Speed", "Isolation", "Nothing", "None"], "correct_index": 1},
+      {"question": "What does encoding prevent?", "options": ["XSS", "Nothing", "Speed", "None"], "correct_index": 0}
+    ]
+  },
+  {
+    "id": "sec-int-supply-chain",
+    "title": "Securing the AI Supply Chain",
+    "type": "course",
+    "level": "intermediate",
+    "track": "AI Security & Risk",
+    "duration_minutes": 20,
+    "content": "Managing risks from dependencies and third-party models.",
+    "sections": [
+        {"heading": "Supply Chain", "diagram": "supply-chain", "body": "The AI supply chain includes models, training data, and plugins from third-party vendors, all of which represent potential security risks if the provenance and integrity of these components are not verified."},
+        {"heading": "Model Provenance", "body": "Verifying the origin of models is critical; developers should confirm where models were trained, what data was used, and whether there have been any unauthorized modifications to the model weights."},
+        {"heading": "Dependency Scanning", "body": "Regularly scanning third-party plugins, Python packages, and other AI-related libraries for known vulnerabilities is as essential for AI applications as it is for any traditional software development project."},
+        {"heading": "Software Bill of Materials (SBOM) for AI", "body": "An SBOM for AI provides a comprehensive inventory of all components used to build an AI application, including the model architecture, the dataset used for training, all third-party libraries, and plugin metadata, which is essential for tracking vulnerabilities and managing the security of the entire AI software supply chain."},
+        {"heading": "Third-Party Risk Management", "body": "Robust third-party risk management involves a formal vetting process for any vendor-provided AI models, APIs, or data, ensuring that their security controls, compliance posture, and data-retention policies align with your organization's own standards before integrating them into production environments."}
+    ],
+    "quiz": [
+      {"question": "What is a supply chain risk?", "options": ["None", "Insecure third-party models", "Better performance", "Faster builds"], "correct_index": 1},
+      {"question": "What is provenance?", "options": ["Origin verification", "Speed", "Nothing", "None"], "correct_index": 0},
+      {"question": "Why scan dependencies?", "options": ["Speed", "Find vulnerabilities", "Nothing", "None"], "correct_index": 1}
+    ]
+  },
+  {
+    "id": "sec-adv-atlas-framework",
+    "title": "Adversarial Tactics with MITRE ATLAS",
+    "type": "course",
+    "level": "advanced",
+    "track": "AI Security & Risk",
+    "duration_minutes": 25,
+    "content": "Advanced threat mapping using MITRE ATLAS.",
+    "sections": [
+        {"heading": "ATLAS", "diagram": "atlas-framework", "body": "MITRE ATLAS is a comprehensive knowledge base that maps real-world adversary tactics and techniques specifically against AI systems, providing a common language for security teams to discuss AI-specific threats."},
+        {"heading": "Tactic Matrix", "body": "The ATLAS tactic matrix outlines the different stages of an attack against an AI system, including reconnaissance, data tampering, and model exploitation, helping teams identify which tactics they need to defend against."},
+        {"heading": "Defense Mapping", "body": "By mapping their system's features against the ATLAS matrix, security teams can proactively design and test their defenses, ensuring they have countermeasures in place for each known adversarial tactic."},
+        {"heading": "Incident Response for AI", "body": "Incident response for AI requires a specialized playbook for detecting and neutralizing AI-specific attacks, such as model poisoning or prompt injection, including rapid-response procedures to disconnect or re-train compromised models, minimizing the impact of a security incident."},
+        {"heading": "Continuous Monitoring", "body": "Continuous monitoring for security involves tracking model performance and output in real-time, looking for anomalies—such as unusual output patterns, latency spikes, or unexpected safety-policy violations—that could indicate that the model is being actively exploited or is experiencing harmful drift."}
+    ],
+    "quiz": [
+      {"question": "What is ATLAS?", "options": ["A map of AI attacks", "A server type", "A model", "A language"], "correct_index": 0},
+      {"question": "What is the tactic matrix?", "options": ["Attack stages", "Nothing", "None", "Speed"], "correct_index": 0},
+      {"question": "How to use ATLAS?", "options": ["Design defenses", "Nothing", "None", "Speed"], "correct_index": 0}
+    ]
   }
 ]

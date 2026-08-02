@@ -1,0 +1,98 @@
+<svg viewBox="0 0 1200 420" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: var(--font-body); fill: var(--ink); }
+      .stage-box { fill: var(--considered-tint); stroke: var(--considered-border); stroke-width: 2.5; }
+      .attack-box { fill: var(--signal-tint); stroke: var(--signal-border); stroke-width: 2.5; }
+      .stage-label { font-size: 15px; font-weight: 600; }
+      .stage-detail { font-size: 12px; fill: var(--ink-muted); }
+      .arrow { stroke: var(--ink-muted); stroke-width: 2.5; fill: none; }
+      .arrow-head { fill: var(--ink-muted); }
+      .feedback-line { stroke: var(--ink-muted); stroke-width: 2; stroke-dasharray: 5,5; fill: none; }
+      .feedback-label { font-size: 11px; fill: var(--ink-muted); font-style: italic; }
+      .title-text { font-size: 16px; font-weight: 700; fill: var(--ink); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" class="arrow-head" />
+    </marker>
+    <marker id="arrowhead-feedback" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" class="arrow-head" />
+    </marker>
+  </defs>
+
+  <title>AI Incident Response Pipeline: Detect to Prevention</title>
+
+  <!-- Background -->
+  <rect width="1200" height="420" fill="var(--surface)" />
+
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" class="title-text">Incident Response Pipeline: Prompt Injection Scenario</text>
+
+  <!-- Attack Entry Point -->
+  <rect x="30" y="70" width="130" height="70" rx="5" class="attack-box" />
+  <text x="95" y="95" text-anchor="middle" class="stage-label">Attack Entry</text>
+  <text x="95" y="115" text-anchor="middle" class="stage-detail">Prompt injection</text>
+  <text x="95" y="130" text-anchor="middle" class="stage-detail">in customer email</text>
+
+  <!-- Arrow to Detect -->
+  <path d="M 160 105 L 190 105" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Stage 1: Detect -->
+  <rect x="190" y="70" width="130" height="70" rx="5" class="stage-box" />
+  <text x="255" y="95" text-anchor="middle" class="stage-label">Detect</text>
+  <text x="255" y="115" text-anchor="middle" class="stage-detail">Unusual data</text>
+  <text x="255" y="130" text-anchor="middle" class="stage-detail">access in logs</text>
+
+  <!-- Arrow to Contain -->
+  <path d="M 320 105 L 350 105" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Stage 2: Contain -->
+  <rect x="350" y="70" width="130" height="70" rx="5" class="stage-box" />
+  <text x="415" y="95" text-anchor="middle" class="stage-label">Contain</text>
+  <text x="415" y="115" text-anchor="middle" class="stage-detail">Revoke/throttle</text>
+  <text x="415" y="130" text-anchor="middle" class="stage-detail">permissions</text>
+
+  <!-- Arrow to Assess -->
+  <path d="M 480 105 L 510 105" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Stage 3: Assess -->
+  <rect x="510" y="70" width="130" height="70" rx="5" class="stage-box" />
+  <text x="575" y="95" text-anchor="middle" class="stage-label">Assess</text>
+  <text x="575" y="115" text-anchor="middle" class="stage-detail">Quantify impact:</text>
+  <text x="575" y="130" text-anchor="middle" class="stage-detail">affected users/data</text>
+
+  <!-- Arrow to Remediate -->
+  <path d="M 640 105 L 670 105" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Stage 4: Remediate -->
+  <rect x="670" y="70" width="130" height="70" rx="5" class="stage-box" />
+  <text x="735" y="95" text-anchor="middle" class="stage-label">Remediate</text>
+  <text x="735" y="115" text-anchor="middle" class="stage-detail">Harden input</text>
+  <text x="735" y="130" text-anchor="middle" class="stage-detail">validation + HITL</text>
+
+  <!-- Arrow to Post-Mortem -->
+  <path d="M 800 105 L 830 105" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Stage 5: Post-Mortem -->
+  <rect x="830" y="70" width="130" height="70" rx="5" class="stage-box" />
+  <text x="895" y="95" text-anchor="middle" class="stage-label">Post-Mortem</text>
+  <text x="895" y="115" text-anchor="middle" class="stage-detail">Document and</text>
+  <text x="895" y="130" text-anchor="middle" class="stage-detail">share to DB</text>
+
+  <!-- Final arrow exits right -->
+  <path d="M 960 105 L 1000 105" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Feedback loop: curves back down and left -->
+  <path d="M 1000 105 Q 1050 250 575 300" class="feedback-line" marker-end="url(#arrowhead-feedback)" />
+  <text x="850" y="280" text-anchor="middle" class="feedback-label">Feeds into threat modeling (MITRE ATLAS, NIST AI RMF)</text>
+  <text x="850" y="300" text-anchor="middle" class="feedback-label">and AI Incident Database for future prevention</text>
+
+  <!-- Details section -->
+  <line x1="30" y1="350" x2="1170" y2="350" stroke="var(--border)" stroke-width="1" />
+
+  <text x="30" y="375" class="stage-detail" font-weight="bold">Key Vulnerabilities in This Scenario:</text>
+  <text x="50" y="395" class="stage-detail">• Excessive agency: agent has broad permissions without human-in-the-loop gates</text>
+  <text x="50" y="410" class="stage-detail">• Weak input validation: prompt injection in customer email goes undetected</text>
+  <text x="600" y="395" class="stage-detail">• Silent unauthorized actions: agent executes without crashing -- looks normal in logs</text>
+  <text x="600" y="410" class="stage-detail">• Monitoring gap: system health metrics miss what the agent is actually authorized to do</text>
+</svg>

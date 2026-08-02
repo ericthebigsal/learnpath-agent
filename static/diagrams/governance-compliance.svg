@@ -1,0 +1,5 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <title>AI Governance</title>
+  <polygon points="100,10 190,90 10,90" fill="#eee" stroke="#333" />
+  <text x="100" y="60" text-anchor="middle" font-size="12">Compliance</text>
+</svg>

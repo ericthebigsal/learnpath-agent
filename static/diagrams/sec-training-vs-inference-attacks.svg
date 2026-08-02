@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520">
+  <defs>
+    <style>
+      text { font-family: var(--font-body); }
+      .title { font-size: 22px; font-weight: 700; fill: var(--ink); }
+      .subheading { font-size: 16px; font-weight: 700; fill: var(--ink); }
+      .label { font-size: 14px; font-weight: 600; fill: var(--ink); }
+      .detail { font-size: 13px; fill: var(--ink-muted); }
+
+      .training-box { fill: var(--taken-tint); stroke: var(--taken-border); stroke-width: 2; }
+      .inference-box { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 2; }
+      .center-box { fill: var(--considered-tint); stroke: var(--considered-border); stroke-width: 2; }
+      .line { stroke: var(--border); stroke-width: 2; fill: none; }
+    </style>
+    <title>AI Attacks: Training-Time vs Inference-Time</title>
+  </defs>
+
+  <!-- Title -->
+  <text x="460" y="40" class="title" text-anchor="middle">AI Attacks: Training-Time vs Inference-Time</text>
+
+  <!-- Root -->
+  <rect x="340" y="65" width="240" height="55" rx="8" class="center-box"/>
+  <text x="460" y="98" class="subheading" text-anchor="middle">AI Safety Attacks</text>
+
+  <!-- Lines to branches -->
+  <line x1="360" y1="120" x2="220" y2="175" class="line"/>
+  <line x1="560" y1="120" x2="700" y2="175" class="line"/>
+
+  <!-- Training-Time Box -->
+  <rect x="30" y="175" width="380" height="155" rx="8" class="training-box"/>
+  <text x="220" y="205" class="subheading" text-anchor="middle">Training-Time Attacks</text>
+  <text x="220" y="225" class="detail" text-anchor="middle">(Poisoning &amp; Backdoors)</text>
+
+  <text x="50" y="260" class="label">Requires:</text>
+  <text x="70" y="280" class="detail">— Access to training pipeline</text>
+  <text x="70" y="300" class="detail">— Ability to corrupt training data/weights</text>
+
+  <text x="50" y="325" class="label">Effect:</text>
+  <text x="70" y="345" class="detail">— Permanent within model weights</text>
+  <text x="70" y="363" class="detail">— Covered in earlier track courses</text>
+
+  <!-- Inference-Time Box -->
+  <rect x="510" y="175" width="380" height="155" rx="8" class="inference-box"/>
+  <text x="700" y="205" class="subheading" text-anchor="middle">Inference-Time Attacks</text>
+  <text x="700" y="225" class="detail" text-anchor="middle">(Jailbreaking)</text>
+
+  <text x="530" y="260" class="label">Requires:</text>
+  <text x="550" y="280" class="detail">— User-facing access only</text>
+  <text x="550" y="300" class="detail">— No access to model internals</text>
+
+  <text x="530" y="325" class="label">Effect:</text>
+  <text x="550" y="345" class="detail">— Works on deployed models</text>
+  <text x="550" y="363" class="detail">— Extensively documented in literature</text>
+
+  <!-- Bottom box: jailbreak techniques -->
+  <rect x="50" y="380" width="820" height="100" rx="8" class="inference-box"/>
+  <text x="460" y="410" class="subheading" text-anchor="middle">Common Jailbreak Techniques (This Course)</text>
+  <text x="460" y="435" class="detail" text-anchor="middle">Prompt Injection • Role Play Framings • Reverse Exposure Framings •</text>
+  <text x="460" y="455" class="detail" text-anchor="middle">Visual Adversarial Examples • Multilingual Attacks</text>
+  <text x="460" y="475" class="detail" text-anchor="middle">Mitigated proactively through: Red-Teaming</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <title>Supply Chain Security</title>
+  <circle cx="50" cy="50" r="10" fill="#333" />
+  <circle cx="100" cy="50" r="10" fill="#333" />
+  <circle cx="150" cy="50" r="10" fill="#333" />
+  <path d="M50,50 L150,50" stroke="#333" />
+</svg>

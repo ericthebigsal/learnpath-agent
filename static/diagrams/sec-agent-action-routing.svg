@@ -1,0 +1,76 @@
+<svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text {
+      font-family: var(--font-body);
+      fill: var(--ink);
+    }
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+    .label {
+      font-size: 13px;
+      text-anchor: middle;
+    }
+    .box {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+    .low-risk {
+      fill: var(--taken-tint);
+      stroke: var(--taken-border);
+      stroke-width: 2;
+    }
+    .high-risk {
+      fill: var(--considered-tint);
+      stroke: var(--considered-border);
+      stroke-width: 2;
+    }
+    .arrow {
+      stroke: var(--ink);
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="var(--ink)" />
+    </marker>
+  </defs>
+
+  <title>Agent Action Routing: Auto-Execute vs. Human Confirmation</title>
+
+  <!-- Starting box -->
+  <rect x="250" y="20" width="200" height="50" rx="5" class="box"/>
+  <text x="350" y="50" class="title">Agent Proposes Action</text>
+
+  <!-- Arrow down -->
+  <path d="M 350 70 L 350 110" class="arrow"/>
+
+  <!-- Decision diamond -->
+  <polygon points="350,110 430,160 350,210 270,160" class="box"/>
+  <text x="350" y="155" class="title">Destructive or</text>
+  <text x="350" y="175" class="title">Externally-Visible?</text>
+
+  <!-- Left path: No -->
+  <path d="M 270 160 L 150 160 L 150 280" class="arrow"/>
+  <text x="200" y="155" class="label">No</text>
+
+  <rect x="50" y="280" width="200" height="80" rx="5" class="low-risk"/>
+  <text x="150" y="305" class="title">Auto-Execute</text>
+  <text x="150" y="325" class="label">(within scoped</text>
+  <text x="150" y="342" class="label">permissions)</text>
+
+  <!-- Right path: Yes -->
+  <path d="M 430 160 L 550 160 L 550 280" class="arrow"/>
+  <text x="480" y="155" class="label">Yes</text>
+
+  <rect x="450" y="280" width="200" height="80" rx="5" class="high-risk"/>
+  <text x="550" y="305" class="title">Wait for Human</text>
+  <text x="550" y="325" class="label">Approval</text>
+  <text x="550" y="342" class="label">(then execute)</text>
+</svg>

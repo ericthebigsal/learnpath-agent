@@ -1,0 +1,83 @@
+<svg viewBox="0 0 800 470" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text {
+    font-family: var(--font-body);
+    fill: var(--ink);
+  }
+  .heading { font-size: 16px; font-weight: 600; }
+  .label { font-size: 14px; font-weight: 500; }
+  .desc { font-size: 12px; fill: var(--ink-muted); }
+  .arrow { stroke: var(--ink-muted); stroke-width: 2.5; fill: none; }
+  .attack-box { fill: var(--taken-tint); stroke: var(--taken-border); stroke-width: 2; }
+  .system-box { fill: var(--considered-tint); stroke: var(--considered-border); stroke-width: 2; }
+</style>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+    <polygon points="0 0, 10 3, 0 6" fill="var(--ink-muted)" />
+  </marker>
+</defs>
+<title>Direct vs Indirect Prompt Injection Attack Paths</title>
+
+<!-- Background -->
+<rect width="800" height="470" fill="var(--surface)"/>
+
+<!-- Left Section: Direct Injection -->
+<text x="50" y="30" class="heading">Direct Injection</text>
+<text x="50" y="50" class="desc">Attacker interacts with the system directly</text>
+
+<!-- User/Attacker -->
+<rect x="20" y="65" width="170" height="75" rx="6" class="attack-box"/>
+<text x="40" y="90" class="label">User/Attacker</text>
+<text x="40" y="110" class="desc">Types malicious</text>
+<text x="40" y="128" class="desc">instructions into chat</text>
+
+<!-- Arrow down -->
+<path d="M 105 140 L 105 180" class="arrow" marker-end="url(#arrow)"/>
+
+<!-- Model System -->
+<rect x="20" y="180" width="170" height="75" rx="6" class="system-box"/>
+<text x="40" y="205" class="label">LLM System</text>
+<text x="40" y="225" class="desc">Processes user prompt</text>
+<text x="40" y="243" class="desc">+ system instructions</text>
+
+<!-- Arrow down -->
+<path d="M 105 255 L 105 295" class="arrow" marker-end="url(#arrow)"/>
+
+<!-- Output -->
+<rect x="20" y="295" width="170" height="75" rx="6" class="system-box"/>
+<text x="40" y="320" class="label">Output</text>
+<text x="40" y="340" class="desc">Model may follow</text>
+<text x="40" y="358" class="desc">injected instructions</text>
+
+<!-- Right Section: Indirect Injection -->
+<text x="450" y="30" class="heading">Indirect Injection</text>
+<text x="450" y="50" class="desc">Attacker hides instructions in content the system reads</text>
+
+<!-- Attacker -->
+<rect x="410" y="65" width="170" height="75" rx="6" class="attack-box"/>
+<text x="430" y="90" class="label">Attacker</text>
+<text x="430" y="110" class="desc">Embeds malicious</text>
+<text x="430" y="128" class="desc">instructions in content</text>
+
+<!-- Arrow down -->
+<path d="M 495 140 L 495 180" class="arrow" marker-end="url(#arrow)"/>
+
+<!-- External Content -->
+<rect x="410" y="180" width="170" height="75" rx="6" class="system-box"/>
+<text x="430" y="205" class="label">External Content</text>
+<text x="430" y="225" class="desc">Email, document,</text>
+<text x="430" y="243" class="desc">or webpage</text>
+
+<!-- Arrow down -->
+<path d="M 495 255 L 495 295" class="arrow" marker-end="url(#arrow)"/>
+
+<!-- Model Reads It -->
+<rect x="410" y="295" width="170" height="75" rx="6" class="system-box"/>
+<text x="430" y="320" class="label">LLM Ingests</text>
+<text x="430" y="340" class="desc">Model reads content</text>
+<text x="430" y="358" class="desc">and hidden instructions</text>
+
+<!-- Bottom note -->
+<text x="50" y="410" class="desc">Key difference: Direct = attacker types into system | Indirect = attacker hides instructions in content the system reads</text>
+<text x="50" y="430" class="desc">Indirect is harder to detect because the attacker never directly interacts with the AI system.</text>
+</svg>

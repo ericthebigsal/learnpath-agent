@@ -1,0 +1,90 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .box {
+      fill: var(--taken-tint);
+      stroke: var(--taken-border);
+      stroke-width: 2;
+    }
+    .center-circle {
+      fill: var(--signal-tint);
+      stroke: var(--signal);
+      stroke-width: 2;
+    }
+    .label {
+      font-size: 14px;
+      font-weight: 600;
+      fill: var(--ink);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-family: var(--font-display, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+    }
+    .label-small {
+      font-size: 11px;
+      font-weight: 400;
+      fill: var(--ink);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-family: var(--font-body, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+    }
+    .arrow {
+      stroke: var(--taken-border);
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+    #arrowhead {
+      fill: var(--taken-border);
+    }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" />
+    </marker>
+  </defs>
+
+  <title>NIST AI RMF Cycle with MITRE ATLAS Tactics</title>
+
+  <!-- Govern (top-left) -->
+  <rect class="box" x="50" y="50" width="120" height="80" rx="8" />
+  <text class="label" x="110" y="80">Govern</text>
+  <text class="label-small" x="110" y="105">Policies &amp;</text>
+  <text class="label-small" x="110" y="118">Accountability</text>
+
+  <!-- Map (top-right) -->
+  <rect class="box" x="330" y="50" width="120" height="80" rx="8" />
+  <text class="label" x="390" y="80">Map</text>
+  <text class="label-small" x="390" y="105">Identify</text>
+  <text class="label-small" x="390" y="118">Risks</text>
+
+  <!-- Measure (bottom-right) -->
+  <rect class="box" x="330" y="370" width="120" height="80" rx="8" />
+  <text class="label" x="390" y="400">Measure</text>
+  <text class="label-small" x="390" y="425">Track with</text>
+  <text class="label-small" x="390" y="438">Metrics</text>
+
+  <!-- Manage (bottom-left) -->
+  <rect class="box" x="50" y="370" width="120" height="80" rx="8" />
+  <text class="label" x="110" y="400">Manage</text>
+  <text class="label-small" x="110" y="425">Prioritize &amp;</text>
+  <text class="label-small" x="110" y="438">Act</text>
+
+  <!-- Center circle: MITRE ATLAS -->
+  <circle class="center-circle" cx="250" cy="250" r="60" />
+  <text class="label" x="250" y="240">MITRE</text>
+  <text class="label" x="250" y="255">ATLAS</text>
+  <text class="label-small" x="250" y="273">Real Tactics</text>
+
+  <!-- Arrows showing the cycle (clockwise) -->
+  <!-- Govern to Map -->
+  <path class="arrow" d="M 170 90 L 330 90" />
+
+  <!-- Map to Measure -->
+  <path class="arrow" d="M 390 130 L 390 370" />
+
+  <!-- Measure to Manage -->
+  <path class="arrow" d="M 330 410 L 170 410" />
+
+  <!-- Manage to Govern -->
+  <path class="arrow" d="M 110 370 L 110 130" />
+</svg>

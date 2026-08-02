@@ -1,0 +1,6 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <title>Hallucination Mitigation</title>
+  <line x1="50" y1="50" x2="150" y2="50" stroke="#333" stroke-width="2" />
+  <rect x="40" y="30" width="20" height="40" fill="#ddd" />
+  <rect x="140" y="30" width="20" height="40" fill="#ddd" />
+</svg>

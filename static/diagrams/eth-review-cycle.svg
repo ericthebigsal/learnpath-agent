@@ -1,0 +1,86 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text {
+      font-family: var(--font-body);
+      font-size: 13px;
+      fill: var(--ink);
+      text-anchor: middle;
+    }
+
+    text.label {
+      font-size: 11px;
+      fill: var(--ink-muted);
+    }
+
+    rect {
+      stroke-width: 2;
+      fill: var(--surface);
+    }
+
+    .audit {
+      fill: var(--considered-tint);
+      stroke: var(--considered-border);
+    }
+
+    .ship {
+      fill: var(--taken-tint);
+      stroke: var(--taken-border);
+    }
+
+    line {
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="var(--border)" />
+    </marker>
+  </defs>
+
+  <title>Complete Ethics Review Cycle</title>
+
+  <!-- Pre-Release Audit (top left) -->
+  <rect class="audit" x="60" y="60" width="140" height="90" rx="3"/>
+  <text x="130" y="95">Pre-Release</text>
+  <text x="130" y="113">Audit</text>
+  <text class="label" x="130" y="135">(Checklist &amp;</text>
+  <text class="label" x="130" y="147">incident review)</text>
+
+  <!-- Arrow to Ship -->
+  <line x1="200" y1="105" x2="280" y2="105" marker-end="url(#arrowhead)"/>
+
+  <!-- Ship Feature (top right) -->
+  <rect class="ship" x="280" y="60" width="140" height="90" rx="3"/>
+  <text x="350" y="95">Ship</text>
+  <text x="350" y="113">Feature</text>
+  <text class="label" x="350" y="135">(with documented</text>
+  <text class="label" x="350" y="147">mitigations)</text>
+
+  <!-- Arrow down -->
+  <line x1="350" y1="150" x2="350" y2="220" marker-end="url(#arrowhead)"/>
+
+  <!-- Post-Deployment (bottom right) -->
+  <rect class="audit" x="280" y="220" width="140" height="90" rx="3"/>
+  <text x="350" y="255">Post-Deployment</text>
+  <text x="350" y="273">Monitor</text>
+  <text class="label" x="350" y="295">(Real-world data,</text>
+  <text class="label" x="350" y="307">feedback, harms)</text>
+
+  <!-- Arrow left -->
+  <line x1="280" y1="265" x2="200" y2="265" marker-end="url(#arrowhead)"/>
+
+  <!-- Feedback Loop (bottom left) -->
+  <rect class="audit" x="60" y="220" width="140" height="90" rx="3"/>
+  <text x="130" y="255">Feedback</text>
+  <text x="130" y="273">Loop</text>
+  <text class="label" x="130" y="295">(Update checklist</text>
+  <text class="label" x="130" y="307">for next review)</text>
+
+  <!-- Curved arrow from Feedback back up to Pre-Release -->
+  <path d="M 60 265 Q 20 180 60 105" stroke="var(--border)" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+
+  <!-- Legend note -->
+  <text x="400" y="400" class="label">Cycle repeats: insights from deployment improve next audit</text>
+</svg>

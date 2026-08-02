@@ -1,0 +1,137 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      :root {
+        --taken: #4ade80;
+        --taken-tint: #86efac;
+        --taken-border: #16a34a;
+        --signal: #ef4444;
+        --signal-tint: #fca5a5;
+        --signal-border: #dc2626;
+        --considered: #facc15;
+        --considered-tint: #fef08a;
+        --considered-border: #eab308;
+        --ink: #1f2937;
+        --ink-muted: #6b7280;
+        --surface: #ffffff;
+        --border: #e5e7eb;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --ink: #f3f4f6;
+          --ink-muted: #d1d5db;
+          --surface: #111827;
+          --border: #374151;
+        }
+      }
+
+      text {
+        font-family: system-ui, -apple-system, sans-serif;
+        fill: var(--ink);
+      }
+
+      .title {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .label {
+        font-size: 13px;
+      }
+
+      .small {
+        font-size: 11px;
+      }
+
+      .box-neutral {
+        fill: var(--surface);
+        stroke: var(--border);
+        stroke-width: 2;
+      }
+
+      .box-safe {
+        fill: var(--taken-tint);
+        stroke: var(--taken-border);
+        stroke-width: 2;
+      }
+
+      .box-danger {
+        fill: var(--signal-tint);
+        stroke: var(--signal-border);
+        stroke-width: 2;
+      }
+
+      .box-process {
+        fill: var(--considered-tint);
+        stroke: var(--considered-border);
+        stroke-width: 2;
+      }
+
+      .arrow-safe {
+        stroke: var(--taken);
+        stroke-width: 2.5;
+        fill: none;
+      }
+
+      .arrow-danger {
+        stroke: var(--signal);
+        stroke-width: 2.5;
+        fill: none;
+      }
+    </style>
+  </defs>
+
+  <title>Two Paths for LLM Output: Unsafe vs. Safe Handling</title>
+
+  <!-- Source -->
+  <rect x="300" y="20" width="200" height="60" class="box-neutral" rx="8" />
+  <text x="400" y="48" text-anchor="middle" class="title">LLM Output</text>
+  <text x="400" y="65" text-anchor="middle" class="label">(Untrusted)</text>
+
+  <!-- Path split -->
+  <path d="M 350 80 L 200 150" class="arrow-danger" marker-end="url(#arrowDanger)" />
+  <path d="M 450 80 L 600 150" class="arrow-safe" marker-end="url(#arrowSafe)" />
+
+  <!-- UNSAFE PATH (LEFT) -->
+  <rect x="50" y="150" width="300" height="50" class="box-danger" rx="8" />
+  <text x="200" y="180" text-anchor="middle" class="label">❌ Skip Validation</text>
+
+  <path d="M 200 200 L 200 250" class="arrow-danger" marker-end="url(#arrowDanger)" />
+
+  <rect x="50" y="250" width="300" height="50" class="box-danger" rx="8" />
+  <text x="200" y="280" text-anchor="middle" class="label">Direct Execution</text>
+
+  <path d="M 200 300 L 200 350" class="arrow-danger" marker-end="url(#arrowDanger)" />
+
+  <rect x="20" y="350" width="360" height="70" class="box-danger" rx="8" />
+  <text x="200" y="370" text-anchor="middle" class="title">Vulnerabilities</text>
+  <text x="200" y="390" text-anchor="middle" class="small">SQL injection, code execution,</text>
+  <text x="200" y="405" text-anchor="middle" class="small">XSS, data exfiltration</text>
+
+  <!-- SAFE PATH (RIGHT) -->
+  <rect x="450" y="150" width="300" height="50" class="box-process" rx="8" />
+  <text x="600" y="180" text-anchor="middle" class="label">⚙ Validation &amp; Sanitization</text>
+
+  <path d="M 600 200 L 600 250" class="arrow-safe" marker-end="url(#arrowSafe)" />
+
+  <rect x="450" y="250" width="300" height="50" class="box-safe" rx="8" />
+  <text x="600" y="280" text-anchor="middle" class="label">Secure Execution</text>
+
+  <path d="M 600 300 L 600 350" class="arrow-safe" marker-end="url(#arrowSafe)" />
+
+  <rect x="420" y="350" width="360" height="70" class="box-safe" rx="8" />
+  <text x="600" y="370" text-anchor="middle" class="title">Protected System</text>
+  <text x="600" y="390" text-anchor="middle" class="small">Parameterized queries, sandboxed</text>
+  <text x="600" y="405" text-anchor="middle" class="small">code, encoded output</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowDanger" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="var(--signal)" />
+    </marker>
+    <marker id="arrowSafe" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="var(--taken)" />
+    </marker>
+  </defs>
+</svg>

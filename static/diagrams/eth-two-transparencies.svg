@@ -1,0 +1,119 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <title>Two Forms of Transparency: Technical Explainability vs Organizational Openness</title>
+  <defs>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      .title-text {
+        font-family: var(--font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: 28px;
+        font-weight: 600;
+        fill: var(--ink);
+      }
+      .heading-text {
+        font-family: var(--font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: 18px;
+        font-weight: 600;
+        fill: var(--ink);
+      }
+      .body-text {
+        font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: 14px;
+        fill: var(--ink);
+        line-height: 1.5;
+      }
+      .label-text {
+        font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: 13px;
+        fill: var(--ink-muted);
+      }
+      .column-bg {
+        fill: var(--surface);
+        stroke: var(--border);
+        stroke-width: 2;
+      }
+      .column-header {
+        fill: var(--taken-tint);
+      }
+      .column-header-text {
+        fill: var(--taken-border);
+      }
+      .bullet-point {
+        font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+        font-size: 13px;
+        fill: var(--ink);
+      }
+      .icon-circle {
+        fill: var(--taken);
+        opacity: 0.8;
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="var(--surface)"/>
+
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" class="title-text">Two Forms of Transparency</text>
+
+  <!-- Left Column: Technical Explainability -->
+  <rect x="40" y="70" width="330" height="400" rx="8" class="column-bg"/>
+
+  <!-- Left Column Header -->
+  <rect x="40" y="70" width="330" height="50" rx="8" class="column-header"/>
+  <text x="205" y="102" text-anchor="middle" class="heading-text" style="fill: var(--taken-border);">Technical Explainability</text>
+
+  <!-- Left Column Content -->
+  <g>
+    <circle cx="65" cy="145" r="4" class="icon-circle"/>
+    <text x="80" y="150" class="bullet-point">Mechanistic interpretability</text>
+
+    <circle cx="65" cy="185" r="4" class="icon-circle"/>
+    <text x="80" y="190" class="bullet-point">Understanding model internals</text>
+
+    <circle cx="65" cy="225" r="4" class="icon-circle"/>
+    <text x="80" y="230" class="bullet-point">Why did the model output X?</text>
+
+    <circle cx="65" cy="265" r="4" class="icon-circle"/>
+    <text x="80" y="270" class="bullet-point">Research challenge</text>
+
+    <circle cx="65" cy="305" r="4" class="icon-circle"/>
+    <text x="80" y="310" class="bullet-point">Tools: attention visualization,</text>
+    <text x="100" y="327" class="bullet-point">layer-wise relevance</text>
+
+    <rect x="50" y="360" width="310" height="95" rx="4" fill="var(--taken-tint)" stroke="var(--taken-border)" stroke-width="1"/>
+    <text x="60" y="380" class="label-text" style="font-weight: 600;">Focus:</text>
+    <text x="60" y="400" class="body-text" style="font-size: 12px;">How does the model work? What processes happen inside the neural network?</text>
+  </g>
+
+  <!-- Right Column: Organizational Openness -->
+  <rect x="430" y="70" width="330" height="400" rx="8" class="column-bg"/>
+
+  <!-- Right Column Header -->
+  <rect x="430" y="70" width="330" height="50" rx="8" fill="var(--considered-tint)"/>
+  <text x="595" y="102" text-anchor="middle" class="heading-text" style="fill: var(--considered-border);">Organizational Openness</text>
+
+  <!-- Right Column Content -->
+  <g>
+    <circle cx="455" cy="145" r="4" fill="var(--considered)" opacity="0.8"/>
+    <text x="470" y="150" class="bullet-point">Disclosing capabilities</text>
+
+    <circle cx="455" cy="185" r="4" fill="var(--considered)" opacity="0.8"/>
+    <text x="470" y="190" class="bullet-point">Admitting limitations</text>
+
+    <circle cx="455" cy="225" r="4" fill="var(--considered)" opacity="0.8"/>
+    <text x="470" y="230" class="bullet-point">What can/can't it do?</text>
+
+    <circle cx="455" cy="265" r="4" fill="var(--considered)" opacity="0.8"/>
+    <text x="470" y="270" class="bullet-point">Product practice</text>
+
+    <circle cx="455" cy="305" r="4" fill="var(--considered)" opacity="0.8"/>
+    <text x="470" y="310" class="bullet-point">Tools: model cards,</text>
+    <text x="490" y="327" class="bullet-point">documentation, risk disclosure</text>
+
+    <rect x="440" y="360" width="310" height="95" rx="4" fill="var(--considered-tint)" stroke="var(--considered-border)" stroke-width="1"/>
+    <text x="450" y="380" class="label-text" style="font-weight: 600;">Focus:</text>
+    <text x="450" y="400" class="body-text" style="font-size: 12px;">What does the user need to know? Are we honest about what the system can and cannot do?</text>
+  </g>
+</svg>

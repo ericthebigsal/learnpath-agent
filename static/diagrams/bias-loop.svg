@@ -1,0 +1,17 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <title>Bias Amplification Loop</title>
+  <style>
+    .loop { fill: none; stroke: #333; stroke-width: 2; marker-end: url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+  <circle cx="50" cy="50" r="20" fill="#f0f0f0" />
+  <circle cx="150" cy="50" r="20" fill="#f0f0f0" />
+  <text x="50" y="55" text-anchor="middle" font-size="10">Data</text>
+  <text x="150" y="55" text-anchor="middle" font-size="10">Model</text>
+  <path class="loop" d="M70,40 Q100,20 130,40" />
+  <path class="loop" d="M130,60 Q100,80 70,60" />
+</svg>

@@ -1,0 +1,5 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+  <title>Privacy by Design</title>
+  <circle cx="100" cy="50" r="40" fill="#fff" stroke="#333" stroke-width="4" stroke-dasharray="4 4" />
+  <text x="100" y="55" text-anchor="middle" font-size="12">Anonymization</text>
+</svg>

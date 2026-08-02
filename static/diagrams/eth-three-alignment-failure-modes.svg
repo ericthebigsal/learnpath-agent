@@ -1,0 +1,99 @@
+<svg viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg">
+  <title>Three Alignment Failure Modes: Reward Hacking, Proxy Gaming, and Goal Misgeneralization</title>
+  <style>
+    .heading {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: bold;
+      fill: var(--ink);
+    }
+
+    .box-intent {
+      fill: var(--signal-tint);
+      stroke: var(--signal);
+      stroke-width: 2;
+    }
+
+    .box-failure {
+      fill: var(--taken-tint);
+      stroke: var(--taken);
+      stroke-width: 2;
+    }
+
+    .label {
+      font-family: var(--font-body);
+      font-size: 12px;
+      fill: var(--ink);
+    }
+
+    .label-small {
+      font-family: var(--font-body);
+      font-size: 10px;
+      fill: var(--ink-muted);
+    }
+
+    .arrow {
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+  </style>
+
+  <!-- Column 1: Reward Hacking -->
+  <g>
+    <text x="150" y="20" class="heading" text-anchor="middle">Reward Hacking</text>
+
+    <rect x="65" y="35" width="170" height="65" rx="4" class="box-intent"/>
+    <text x="150" y="57" class="label" text-anchor="middle">Intent: Clean</text>
+    <text x="150" y="72" class="label" text-anchor="middle">the room</text>
+
+    <line x1="150" y1="105" x2="150" y2="120" class="arrow"/>
+    <polygon points="150,128 145,118 155,118" fill="var(--border)"/>
+
+    <rect x="65" y="128" width="170" height="65" rx="4" class="box-failure"/>
+    <text x="150" y="150" class="label" text-anchor="middle">Model optimizes:</text>
+    <text x="150" y="165" class="label" text-anchor="middle">Literal reward</text>
+    <text x="150" y="180" class="label" text-anchor="middle">(camera on wall)</text>
+
+    <text x="150" y="225" class="label-small" text-anchor="middle">Specification problem</text>
+  </g>
+
+  <!-- Column 2: Proxy Gaming -->
+  <g>
+    <text x="500" y="20" class="heading" text-anchor="middle">Proxy Gaming</text>
+
+    <rect x="415" y="35" width="170" height="65" rx="4" class="box-intent"/>
+    <text x="500" y="57" class="label" text-anchor="middle">Intent: User</text>
+    <text x="500" y="72" class="label" text-anchor="middle">satisfaction</text>
+
+    <line x1="500" y1="105" x2="500" y2="120" class="arrow"/>
+    <polygon points="500,128 495,118 505,118" fill="var(--border)"/>
+
+    <rect x="415" y="128" width="170" height="65" rx="4" class="box-failure"/>
+    <text x="500" y="150" class="label" text-anchor="middle">Model optimizes:</text>
+    <text x="500" y="165" class="label" text-anchor="middle">Engagement proxy</text>
+    <text x="500" y="180" class="label" text-anchor="middle">(rage-bait)</text>
+
+    <text x="500" y="225" class="label-small" text-anchor="middle">Proxy diverges from goal</text>
+  </g>
+
+  <!-- Column 3: Goal Misgeneralization -->
+  <g>
+    <text x="850" y="20" class="heading" text-anchor="middle">Misgeneralization</text>
+
+    <rect x="765" y="35" width="170" height="65" rx="4" class="box-intent"/>
+    <text x="850" y="57" class="label" text-anchor="middle">Training goal:</text>
+    <text x="850" y="72" class="label" text-anchor="middle">Maximize score</text>
+
+    <line x1="850" y1="105" x2="850" y2="120" class="arrow"/>
+    <polygon points="850,128 845,118 855,118" fill="var(--border)"/>
+
+    <rect x="765" y="128" width="170" height="65" rx="4" class="box-failure"/>
+    <text x="850" y="150" class="label" text-anchor="middle">New context:</text>
+    <text x="850" y="165" class="label" text-anchor="middle">Same strategy fails</text>
+    <text x="850" y="180" class="label" text-anchor="middle">(distribution shift)</text>
+
+    <text x="850" y="225" class="label-small" text-anchor="middle">Context dependency</text>
+  </g>
+
+  <text x="500" y="260" class="label-small" text-anchor="middle">Each requires different detection strategies and mitigations</text>
+</svg>

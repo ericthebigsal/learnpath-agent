@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1100 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { font-size: 18px; font-weight: 700; fill: var(--ink); }
+      .label { font-size: 13px; font-weight: 600; fill: var(--ink); }
+      .small { font-size: 11px; fill: var(--ink-muted); }
+
+      .artifact-box {
+        fill: var(--taken-tint);
+        stroke: var(--taken-border);
+        stroke-width: 2;
+      }
+
+      .risk-box {
+        fill: var(--considered-tint);
+        stroke: var(--considered-border);
+        stroke-width: 1.5;
+      }
+
+      .deployed-box {
+        fill: var(--signal-tint);
+        stroke: var(--signal);
+        stroke-width: 2;
+      }
+
+      .arrow {
+        stroke: var(--ink-muted);
+        stroke-width: 2;
+        fill: none;
+        marker-end: url(#arrowhead);
+      }
+    </style>
+
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="var(--ink-muted)" />
+    </marker>
+  </defs>
+
+  <title>AI Supply Chain Pipeline with Risk Points</title>
+
+  <!-- Title -->
+  <text x="550" y="35" text-anchor="middle" class="title">AI Supply Chain Pipeline: Artifacts and Risk Points</text>
+
+  <!-- Stage 1: Pretrained Model -->
+  <rect x="30" y="80" width="140" height="80" rx="6" class="artifact-box" />
+  <text x="100" y="110" text-anchor="middle" class="label">Pretrained</text>
+  <text x="100" y="128" text-anchor="middle" class="label">Model</text>
+  <text x="100" y="150" text-anchor="middle" class="small">(OpenAI, Meta)</text>
+
+  <rect x="30" y="170" width="140" height="60" rx="4" class="risk-box" />
+  <text x="100" y="187" text-anchor="middle" class="small">Provenance?</text>
+  <text x="100" y="202" text-anchor="middle" class="small">Maintained?</text>
+
+  <!-- Arrow 1 -->
+  <path d="M 170 120 L 230 120" class="arrow" />
+
+  <!-- Stage 2: Training/Fine-tuning Data -->
+  <rect x="230" y="80" width="140" height="80" rx="6" class="artifact-box" />
+  <text x="300" y="105" text-anchor="middle" class="label">Training &amp;</text>
+  <text x="300" y="123" text-anchor="middle" class="label">Fine-tuning</text>
+  <text x="300" y="140" text-anchor="middle" class="label">Dataset</text>
+
+  <rect x="230" y="170" width="140" height="60" rx="4" class="risk-box" />
+  <text x="300" y="187" text-anchor="middle" class="small">Source clean?</text>
+  <text x="300" y="202" text-anchor="middle" class="small">Versioned?</text>
+
+  <!-- Arrow 2 -->
+  <path d="M 370 120 L 430 120" class="arrow" />
+
+  <!-- Stage 3: Plugins &amp; Tools -->
+  <rect x="430" y="80" width="140" height="80" rx="6" class="artifact-box" />
+  <text x="500" y="105" text-anchor="middle" class="label">Plugins &amp;</text>
+  <text x="500" y="123" text-anchor="middle" class="label">Extensions</text>
+  <text x="500" y="140" text-anchor="middle" class="label">(Tools)</text>
+
+  <rect x="430" y="170" width="140" height="60" rx="4" class="risk-box" />
+  <text x="500" y="187" text-anchor="middle" class="small">Active dev?</text>
+  <text x="500" y="202" text-anchor="middle" class="small">Responsive?</text>
+
+  <!-- Arrow 3 -->
+  <path d="M 570 120 L 630 120" class="arrow" />
+
+  <!-- Stage 4: Deployed System -->
+  <rect x="630" y="80" width="140" height="150" rx="6" class="deployed-box" />
+  <text x="700" y="115" text-anchor="middle" class="label">Your AI</text>
+  <text x="700" y="135" text-anchor="middle" class="label">System</text>
+  <text x="700" y="160" text-anchor="middle" class="small">(Integrated &amp;</text>
+  <text x="700" y="175" text-anchor="middle" class="small">deployed with</text>
+  <text x="700" y="190" text-anchor="middle" class="small">verified artifacts)</text>
+
+  <!-- Documentation Box -->
+  <g>
+    <text x="30" y="290" class="label">Each artifact requires evaluation:</text>
+
+    <text x="50" y="320" class="small">• Provenance: Where did it come from? Can you verify the source?</text>
+    <text x="50" y="340" class="small">• Maintenance: Is it actively maintained? Does the creator respond to issues?</text>
+    <text x="50" y="360" class="small">• Documentation: Model card, dataset info, dependency declarations available?</text>
+    <text x="50" y="380" class="small">• Dependency Risk: What is the impact if this artifact is compromised or out of date?</text>
+  </g>
+</svg>
