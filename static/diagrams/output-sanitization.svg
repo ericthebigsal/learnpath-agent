@@ -1,5 +1,0 @@
-<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-  <title>Secure Output Handling</title>
-  <rect x="30" y="20" width="140" height="60" fill="#e0ffe0" stroke="#0f0" />
-  <text x="100" y="55" text-anchor="middle" font-size="12">Sandboxing</text>
-</svg>

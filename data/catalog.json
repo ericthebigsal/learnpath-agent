@@ -3541,62 +3541,62 @@
     "level": "beginner",
     "track": "Responsible AI",
     "duration_minutes": 15,
-    "content": "How historical and systemic bias enters training data, why it survives even after protected attributes are removed, and what engineering teams can do to catch it before it reaches production.",
+    "content": "How historical and systemic bias enters training data, why it survives even after protected attributes are removed, and the concrete audit practices -- grounded in NIST's disaggregated evaluation methodology -- that catch it before production.",
     "sections": [
       {
         "heading": "The Feedback Loop",
-        "body": "Models trained on biased historical decisions -- who got hired, who got a loan, who got flagged as high-risk -- learn to reproduce those decisions. If the model's own outputs are then folded back into future training data (a resume screener's past picks becoming next year's 'ground truth'), the bias doesn't just persist, it compounds each cycle. Catching this requires monitoring output distributions over time, not just auditing the original training set once.",
-        "diagram": "bias-loop"
+        "body": "Models trained on biased historical decisions -- who got hired, who got a loan, who got flagged as high-risk -- learn to reproduce those decisions. The dangerous part is what happens next: if a model's own outputs get folded back into the next round of 'ground truth' (a resume screener's past picks becoming next year's training labels, a fraud model's flags becoming the definition of fraud), the bias doesn't stay constant -- it compounds, narrowing further toward whatever the last model already believed.\n\nNIST's AI Risk Management Framework has a specific practice for catching this before it compounds: under its Map function, teams are asked to engage stakeholders on four concrete questions -- who could be harmed, what could be harmed, when the harm arises, and how the harm actually occurs. Answering these once at launch isn't enough, because a feedback loop is a property of the system over time, not a property of any single model snapshot.\n\nIn practice, breaking the loop means two things: never treat a production model's own historical decisions as unquestioned ground truth for the next retraining pass, and monitor output distributions across demographic slices continuously, since a feedback loop shows up as drift in those distributions long before it shows up as a drop in overall accuracy.",
+        "diagram": "eth-bias-amplification"
       },
       {
         "heading": "Latent Proxies",
-        "body": "Removing a protected attribute like race or gender from the input doesn't remove its signal. A credit model can learn that zip code, alma mater, or shopping history correlates with the attribute it was never given directly, and reconstruct the same discriminatory pattern under a technically 'neutral' feature set. Finding these requires correlation analysis between input features and the protected attributes you removed, not just checking that the column is absent.",
+        "body": "Removing a protected attribute like race or gender from the input doesn't remove its signal. A credit model can learn that zip code, alma mater, or shopping history correlates with the attribute it was never given directly, and reconstruct the same discriminatory pattern under a technically 'neutral' feature set -- this is sometimes called 'fairness through unawareness,' and it doesn't hold up under testing.\n\nNIST's AI RMF names this directly in its Measure function, under fairness and bias evaluation: teams are asked to identify features serving as demographic proxies or creating emergent bias, and to analyze outcome distribution differences across and within groups, not just between the obvious top-level categories. This matters because bias frequently hides inside intersecting subgroups -- a model can look fair when you check 'women' and 'men' separately, and still fail badly for a specific intersection like 'women over 50 in a specific region,' which is exactly the kind of gap a single aggregate accuracy number will never reveal.\n\nFinding these proxies requires two levels of testing that go beyond checking whether a column exists in the schema: statistical correlation analysis between each input feature and the protected attributes you removed, and outcome-level testing that holds a candidate's qualifications constant while varying only the proxy-correlated feature, to see whether the model's decision changes when nothing relevant actually did.",
         "diagram": ""
       },
       {
         "heading": "Mitigation Approaches",
-        "body": "No single fix closes this gap. Practical mitigation combines diversifying and rebalancing training data, re-weighting the loss function to reduce the influence of overrepresented groups, and adversarial debiasing -- training a second model to try to predict the protected attribute from the primary model's internal representations, then penalizing the primary model when it succeeds.",
+        "body": "No single fix closes the proxy gap, so real mitigation has to work across three distinct phases, a structure NIST's Measure function names explicitly: pre-processing, in-processing, and post-processing transformations, each intervening at a different point in the pipeline. Pre-processing works on the data itself -- diversifying and rebalancing the training set so historical exclusion isn't treated as a pattern worth learning. In-processing works on the objective function during training -- re-weighting the loss so the model isn't simply optimizing for whichever group is overrepresented in the data.\n\nPost-processing works on the model's decisions after training is already complete -- adjusting decision thresholds per group to correct a measured disparity without retraining the underlying model, which is often the fastest lever available when a fairness gap is discovered in an already-deployed system. A more aggressive in-processing technique, adversarial debiasing, trains a second model to try to predict the protected attribute purely from the primary model's internal embeddings, then penalizes the primary model whenever that second model succeeds -- forcing the internal representation itself to stop encoding the proxy signal, not just adjusting the final decision layer on top of it.\n\nNo team should pick just one of these three phases and call the problem solved. A production fairness program typically runs at least one intervention per phase, because a gap that survives pre-processing can still emerge during training, and a gap that survives training can still emerge in how thresholds get applied at decision time.",
         "diagram": ""
       },
       {
         "heading": "Datasheets for Datasets",
-        "body": "Gebru et al.'s 'Datasheets for Datasets' proposal (2018) argues every dataset should ship with documentation covering who collected it, how it was sampled, what populations it underrepresents, and what it should explicitly not be used for -- the same discipline hardware ships with a datasheet, data should too. Without this, bias audits start from a blank slate every time.",
+        "body": "Gebru et al.'s 'Datasheets for Datasets' proposal (2018) argues every dataset should ship with documentation answering a specific set of questions: who collected it and how, what populations it underrepresents, what preprocessing already happened to it, and what it should explicitly not be used for -- the same discipline hardware ships with a datasheet, data should too.\n\nNIST's AI RMF converges on the identical practice from the regulatory side: its Measure function explicitly calls out leveraging 'existing industry best practices for transparency and documentation of all possible aspects of measurements,' naming datasheets for datasets and model cards as the concrete examples teams should adopt, not just aspire to. That convergence between an academic proposal and a federal risk framework is a strong signal this isn't a nice-to-have -- it's becoming the baseline expectation for any team that gets audited.\n\nIn practice this means a dataset can't enter a training pipeline without an accompanying document any engineer can read in five minutes to know its blind spots. Without it, every bias audit starts from a blank slate, re-discovering the same gaps a previous team already found and never wrote down -- and worse, a team facing an external audit has no artifact to produce showing the gaps were even considered in the first place.",
         "diagram": ""
       },
       {
         "heading": "Algorithmic Impact Assessments",
-        "body": "An algorithmic impact assessment is a pre-deployment review documenting who a system could harm and how, modeled on the same idea as an environmental impact assessment. It's the concrete artifact that NIST's AI Risk Management Framework calls for in its 'Map' function: identifying and characterizing risk before a system ships, not after a complaint arrives.",
+        "body": "An algorithmic impact assessment is a pre-deployment review documenting who a system could harm and how, modeled on the same idea as an environmental impact assessment before construction begins. It's the concrete artifact NIST's Map function calls for -- identifying and characterizing risk before a system ships, not after a complaint arrives -- built around the same four questions used for feedback-loop analysis: who, what, when, and how.\n\nA real assessment names the specific populations at risk, the specific failure mode (denial of service, a quality-of-service gap for one group, reputational harm, a specific regulatory exposure), and the specific mitigation already in place for each -- cross-referenced, where possible, against NIST's Measure function guidance on quantifying harms using fairness metrics developed together with the affected communities themselves, not metrics chosen unilaterally by the engineering team.\n\nA generic 'we take fairness seriously' paragraph does not count as an impact assessment, and neither does a single overall accuracy number. The test for whether an assessment is real: could an external auditor reconstruct, from the document alone, exactly which groups were considered, what evidence was gathered about them, and what specific decision was made as a result -- without needing to interview anyone on the team who wrote it.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "A hiring model has protected attributes removed from its inputs, but still scores candidates from one demographic lower on average. What's the most likely explanation?",
+        "question": "A hiring model has protected attributes removed from its inputs, but still scores candidates from one demographic lower on average. What's the most likely explanation, and how would you confirm it?",
         "options": [
-          "This is impossible if the attribute is truly removed",
-          "The model learned latent proxies (like zip code or school) that correlate with the removed attribute",
-          "The model is intentionally discriminating",
+          "This is impossible if the attribute is truly removed from the schema",
+          "The model likely learned latent proxies (zip code, school, etc.) correlated with the removed attribute; confirm with correlation analysis and outcome testing that holds qualifications constant",
+          "The model is intentionally discriminating and cannot be corrected",
           "This only happens with image models, not text or tabular models"
         ],
         "correct_index": 1
       },
       {
-        "question": "Why can a feedback loop make bias worse over time rather than staying constant?",
+        "question": "Why does NIST's AI RMF specifically call for disaggregated evaluation across intersecting subgroups, rather than just top-level demographic categories?",
         "options": [
-          "It doesn't -- bias in ML systems is always static",
-          "Because the model's own biased outputs get folded back in as training data for the next version, reinforcing the pattern each cycle",
-          "Because models retrain themselves without new data",
-          "Because more data always reduces bias regardless of its source"
+          "It doesn't -- top-level category checks are considered sufficient",
+          "Because a model can appear fair when checking broad categories separately while still failing badly for a specific intersection (e.g. a subgroup within one region and age range), a gap an aggregate number would hide",
+          "Because intersecting subgroups are always larger than top-level categories",
+          "Because disaggregated evaluation is only relevant for image classification tasks"
         ],
         "correct_index": 1
       },
       {
-        "question": "What is a 'Datasheet for Datasets' meant to solve?",
+        "question": "Why should a fairness mitigation program include interventions across pre-processing, in-processing, AND post-processing, rather than picking just one?",
         "options": [
-          "It speeds up model training",
-          "It documents a dataset's provenance, sampling method, and known limitations so bias audits don't start from zero",
-          "It replaces the need for any fairness testing",
-          "It's a legal contract between data vendors"
+          "It shouldn't -- one well-chosen intervention phase is always sufficient",
+          "Because a bias gap that survives one phase can still emerge in the next -- a gap surviving data rebalancing can still emerge during training, and a gap surviving training can still emerge in how decision thresholds get applied",
+          "Because regulations require exactly three interventions regardless of the actual risk",
+          "Because post-processing alone always fully corrects any upstream bias"
         ],
         "correct_index": 1
       }
@@ -3609,31 +3609,31 @@
     "level": "beginner",
     "track": "Responsible AI",
     "duration_minutes": 15,
-    "content": "Fairness is not one metric -- it's a family of mathematically conflicting definitions. This lesson covers the Impossibility Theorem, the real trade-offs between fairness definitions, and the COMPAS case that made the conflict public.",
+    "content": "Fairness is not one metric -- it's a family of mathematically conflicting definitions. This lesson covers the Impossibility Theorem, NIST's named taxonomy of fairness harms, and the COMPAS case that made the mathematical conflict public.",
     "sections": [
       {
         "heading": "The Core Mathematical Conflict",
-        "body": "Three common fairness definitions are used in models for hiring, credit, and risk assessment: Demographic Parity (equal positive-outcome rates across groups), Equalized Odds (equal false-positive and false-negative rates across groups), and Predictive Parity (a given score means the same real-world probability regardless of group). Each is a reasonable definition of 'fair' on its own -- the problem is they don't agree with each other.",
-        "diagram": "fairness-metrics"
+        "body": "Three fairness definitions dominate models used for hiring, credit, and risk assessment. Demographic Parity requires equal positive-outcome rates across groups -- the same percentage of each group gets approved. Equalized Odds requires equal false-positive and false-negative rates across groups -- errors land on each group at the same rate. Predictive Parity requires equal calibration -- a score of 80 means the same real-world probability of the outcome regardless of group.\n\nEach is a defensible definition of 'fair' in isolation. The problem engineering teams actually face is that when groups have different historical base rates -- which is nearly always true given prior discrimination or sampling differences -- these three definitions become mutually exclusive, not just hard to satisfy simultaneously. NIST's Measure function pushes teams past this abstract conflict toward a concrete taxonomy of harm types worth naming explicitly: allocational harm (who gets the resource), representational harm (how a group is portrayed or characterized), quality-of-service harm (a system working worse for one group), stereotyping, and erasure (a group's absence from the system's model of the world entirely).\n\nMost fairness conversations only ever talk about allocational harm -- who got the loan. The other four harm types are just as real, frequently show up in generative and recommendation systems even when there's no 'decision' being allocated at all, and are exactly the kind of thing an impact assessment focused only on approval rates will completely miss.",
+        "diagram": "fairness-tradeoffs"
       },
       {
         "heading": "Demographic Parity vs. Equalized Odds",
-        "body": "If groups have different historical base rates -- which they almost always do, due to prior discrimination or sampling -- enforcing Demographic Parity requires lowering the decision threshold for the group with the lower base rate. That inevitably raises the false-positive rate for that group, which violates Equalized Odds. You cannot satisfy both at once when base rates differ; the choice of which to satisfy is a product decision, not a math problem with one right answer.",
+        "body": "Here's the trade-off in concrete terms: if you enforce Demographic Parity by lowering the approval threshold for the group with the lower historical base rate, you inevitably increase that group's false-positive rate -- which violates Equalized Odds. If instead you hold the threshold identical across groups to preserve Predictive Parity, the group with the lower base rate receives proportionally fewer approvals -- which violates Demographic Parity.\n\nThere is no threshold-setting strategy that escapes this once base rates differ, and this is precisely why NIST's Measure function asks teams to 'define acceptable performance difference levels' and 'define actions when disparity exceeds acceptable levels' as an explicit, documented governance step -- not something left to whichever engineer happens to be tuning the threshold that sprint. Those two decisions (what's an acceptable gap, and what happens when it's exceeded) are product and legal decisions dressed up as a modeling parameter.\n\nThis is why 'just make the model fair' is not an actionable engineering ticket -- the actionable ticket is 'which specific definition of fair, for this specific use case, with what disparity tolerance, and who signed off on that choice.'",
         "diagram": ""
       },
       {
         "heading": "The Impossibility Theorem",
-        "body": "The Impossibility Theorem of Fairness formalizes this: except in trivial cases, no model can simultaneously satisfy Demographic Parity, Equalized Odds, and Predictive Parity when the underlying groups have different base rates. This isn't an engineering failure to be fixed with a better model -- it's a mathematical constraint. Teams must explicitly choose which definition matters most for their use case.",
+        "body": "The Impossibility Theorem of Fairness formalizes this: except in trivial cases, no model can simultaneously satisfy Demographic Parity, Equalized Odds, and Predictive Parity when the underlying groups have different base rates. This isn't a bug waiting for a better model architecture to fix -- it's a mathematical constraint on what any classifier can do, proven independent of the specific algorithm used.\n\nTeams that don't know this theorem exists tend to treat every fairness complaint as evidence of a coding error to patch, sending engineers on a fruitless search for the specific bug that's making the model 'unfair.' Teams that do know it treat every fairness complaint as evidence of a trade-off decision that was made implicitly and needs to be made explicitly instead -- a fundamentally different, and more honest, conversation to have with stakeholders, because it reframes the question from 'how do we fix this' to 'which of these three definitions did we actually choose, and does the current threshold reflect that choice on purpose.'",
         "diagram": ""
       },
       {
         "heading": "COMPAS: A Real Case Study",
-        "body": "ProPublica's 2016 investigation of the COMPAS recidivism-risk tool found its false-positive rate for Black defendants was roughly twice that for white defendants -- a violation of Equalized Odds. Northpointe, COMPAS's maker, countered that a given risk score meant the same likelihood of reoffending regardless of race -- satisfying Predictive Parity. Both claims were mathematically correct. The dispute was philosophical: which definition of fairness should govern a criminal-justice tool.",
+        "body": "ProPublica's 2016 investigation of the COMPAS recidivism-risk tool found its false-positive rate for Black defendants was roughly twice that for white defendants -- a clear violation of Equalized Odds. Northpointe, COMPAS's maker, countered that a given risk score meant the same likelihood of reoffending regardless of race -- satisfying Predictive Parity.\n\nIndependent analyses later confirmed both claims were mathematically correct simultaneously, which is exactly what the Impossibility Theorem predicts given the different base rates between groups in the underlying arrest data. The public dispute wasn't a factual disagreement about the numbers -- it was an unresolved, undocumented disagreement about which fairness definition a criminal-justice tool should be held to, playing out for the first time in front of journalists and the public instead of inside a design review where it belonged.\n\nThe practical lesson isn't 'COMPAS was broken.' It's that neither party had documented, in advance, which fairness definition the tool was supposed to satisfy -- which meant the conflict got adjudicated after the fact, in public, by whoever had the more persuasive statistic that week, rather than resolved in advance by whoever actually had to live with the consequences of the system's decisions.",
         "diagram": ""
       },
       {
         "heading": "Choosing a Definition for Your Context",
-        "body": "There's no universal answer, but there are patterns: resource-allocation and equity use cases (hiring, admissions, grants) often prioritize Demographic Parity to counter historical exclusion. High-stakes decision support (medical diagnosis, criminal justice) often prioritizes Equalized Odds so no group bears a disproportionate share of errors. Risk assessment and underwriting often prioritize Predictive Parity so a score means the same thing for everyone. Whichever you pick, document it and get explicit sign-off from legal and product stakeholders before deployment -- don't let the model's default optimization target decide silently.",
+        "body": "There's no universal answer, but there are defensible patterns by use case. Resource-allocation and equity contexts (hiring, admissions, grants) often prioritize Demographic Parity to actively counter historical exclusion. High-stakes decision support (medical diagnosis, criminal justice) often prioritizes Equalized Odds so no group absorbs a disproportionate share of the system's errors. Risk assessment and underwriting often prioritize Predictive Parity so a score carries the same meaning for every applicant.\n\nWhichever definition you pick, NIST's framework gives a concrete next step beyond just picking one: quantify harms using fairness metrics developed together with the affected communities, evaluate whether the disparity is contextually significant (not just statistically nonzero), and document who has the authority to accept a residual disparity that mitigation can't fully close. That authority almost never sits with the engineer who trained the model.\n\nThe choice needs to be written down, tied to the specific product context, and signed off by legal and product stakeholders before launch -- not left as the model's silent default optimization target, and not re-litigated informally every time a new stakeholder notices a number they don't like.",
         "diagram": ""
       }
     ],
@@ -3641,30 +3641,30 @@
       {
         "question": "According to the Impossibility Theorem of Fairness, what happens when you try to satisfy Demographic Parity, Equalized Odds, and Predictive Parity at once?",
         "options": [
-          "It's always achievable with enough training data",
-          "It's mathematically impossible in non-trivial cases when groups have different base rates",
-          "It's only a concern for deep learning models",
-          "Any one of the three implies the other two"
+          "It's always achievable with enough training data and compute",
+          "It's mathematically impossible in non-trivial cases once groups have different base rates -- this is a constraint on any classifier, not a specific model's flaw",
+          "It's only a theoretical concern that never appears in real systems",
+          "Satisfying any one of the three automatically implies the other two"
         ],
         "correct_index": 1
       },
       {
-        "question": "In the COMPAS controversy, ProPublica and Northpointe both made claims that turned out to be mathematically true. What does that tell you?",
+        "question": "Beyond allocational harm (who gets a resource), what other harm types does NIST's fairness taxonomy name that a pure approval-rate analysis would miss?",
         "options": [
-          "One of them made an error somewhere",
-          "They were measuring different, mutually incompatible fairness definitions -- Equalized Odds vs. Predictive Parity",
-          "Fairness metrics are meaningless in practice",
-          "The disagreement was purely about data quality"
+          "There are no other recognized harm types beyond allocation",
+          "Representational harm, quality-of-service harm, stereotyping, and erasure -- all real and common in generative and recommendation systems even without an explicit 'decision' being allocated",
+          "Only financial harm is recognized as a distinct category",
+          "Harm types are only relevant to hiring and credit models"
         ],
         "correct_index": 1
       },
       {
-        "question": "A team building a university admissions model wants to counter historical underrepresentation. Which fairness definition does that goal most directly point to?",
+        "question": "In the COMPAS controversy, ProPublica and Northpointe both made claims later confirmed to be mathematically true at the same time. What was actually missing that let the conflict play out publicly instead of being resolved in advance?",
         "options": [
-          "Predictive Parity",
-          "Demographic Parity",
-          "Model Theft prevention",
-          "There is no relevant definition for this use case"
+          "Nothing was missing -- one party's analysis simply contained an error",
+          "A documented, advance decision about which specific fairness definition the tool was supposed to satisfy, made by someone with the authority to accept the resulting trade-off",
+          "COMPAS should have used a more accurate machine learning algorithm",
+          "The disagreement was purely a data-quality issue unrelated to fairness definitions"
         ],
         "correct_index": 1
       }
@@ -3677,62 +3677,62 @@
     "level": "intermediate",
     "track": "Responsible AI",
     "duration_minutes": 20,
-    "content": "Privacy protections built into the AI lifecycle from the start, not bolted on before a launch review -- grounded in Microsoft's Responsible AI Standard and NIST's AI Risk Management Framework.",
+    "content": "Privacy protections built into the AI lifecycle from the start, not bolted on before a launch review -- grounded in Microsoft's Responsible AI Standard, OWASP's Sensitive Information Disclosure risk category, and NIST's specific privacy-metric guidance.",
     "sections": [
       {
         "heading": "Privacy as a Structural Requirement",
-        "body": "Microsoft's Responsible AI Standard names Privacy and Security as one of six core principles for shipping AI products, alongside Fairness, Reliability and Safety, Transparency, Accountability, and Inclusiveness -- it isn't a compliance checkbox added at the end. NIST's AI Risk Management Framework backs this with process: its 'Map' function is specifically where teams are meant to identify privacy risk before a system is built, not after an incident.",
-        "diagram": "privacy-design"
+        "body": "Microsoft's Responsible AI Standard names Privacy and Security as one of six core principles for shipping AI products, alongside Fairness, Reliability and Safety, Transparency, Accountability, and Inclusiveness -- positioned as a design constraint from day one, not a compliance checkbox added before launch.\n\nOWASP's Top 10 for LLM Applications backs this with a named risk category, Sensitive Information Disclosure, covering a wider surface than most teams initially assume: personally identifiable information, financial data, health records, confidential business information, security credentials, legal documents, and -- specific to LLM products -- proprietary details about the model itself, including its training methods and any embedded source code, all of which can leak through ordinary-looking outputs rather than an obvious breach.\n\nIn practice, this means privacy review happens at the design-doc stage with the same weight as a scalability review, covering not just user data but the model's own operational details, not as a final sign-off gate bolted on once the feature is basically done.",
+        "diagram": "eth-two-transparencies"
       },
       {
         "heading": "Differential Privacy",
-        "body": "Differential privacy adds carefully calibrated statistical noise to training data, query results, or model outputs, bounded by a parameter (epsilon) that quantifies exactly how much any individual record could have affected the result. Done right, an attacker can't determine whether a specific person's data was in the training set at all -- it's the same technique the U.S. Census Bureau uses to publish statistics without exposing individual respondents.",
+        "body": "Differential privacy adds carefully calibrated statistical noise to training data, query results, or model outputs, bounded by a parameter (epsilon) that quantifies exactly how much any individual record could have affected the result. A smaller epsilon means more noise and stronger guarantees; a larger epsilon means less noise and a weaker guarantee -- it's a tunable trade-off between privacy strength and model utility, not an on/off switch.\n\nNIST's Measure function gives teams two additional, more specific privacy metrics worth knowing alongside differential privacy's epsilon: k-anonymity (ensuring any individual record is indistinguishable from at least k-1 others in the dataset) and l-diversity plus t-closeness (ensuring that even within an anonymized group, the sensitive attribute itself isn't dangerously uniform or skewed in a way that still leaks information). These aren't competing techniques -- k-anonymity, l-diversity, and t-closeness are typically applied to structured/tabular data releases, while differential privacy is the more general tool for training pipelines and query interfaces.\n\nDone right, an attacker running membership-inference queries against the model can't determine whether a specific person's record was in the training set at all. This is the same technique the U.S. Census Bureau uses to publish detailed statistics without exposing individual respondents, and it's directly applicable to any pipeline fine-tuning on user data.",
         "diagram": ""
       },
       {
         "heading": "Data Minimization",
-        "body": "Data minimization means collecting only what a feature actually needs to function, not everything that might someday be useful. Every field you don't collect is a field that can't leak in a breach, can't be subpoenaed, and doesn't need a retention policy. This is also a legal requirement, not just good hygiene -- GDPR's Article 5 and similar regulations explicitly require it.",
+        "body": "Data minimization means collecting only the fields a feature actually needs to function, not everything that might someday be useful for an unspecified future feature. This isn't just good hygiene -- GDPR's Article 5 explicitly requires it, and CCPA imposes similar constraints.\n\nOWASP's mitigation guidance for Sensitive Information Disclosure gives this a concrete technical form beyond just 'collect less': apply strict input validation and sanitization to detect and filter potentially sensitive inputs before they ever reach a model, and where sensitive fields must exist somewhere in the pipeline, apply homomorphic encryption or tokenization so the model can still be useful without ever processing the real underlying value.\n\nThe engineering payoff is concrete: every field you don't collect, or don't pass to the model unmasked, is a field that can't leak in a breach, can't be subpoenaed, doesn't need a retention or deletion policy, and doesn't need to be threat-modeled at all. Teams should treat 'do we actually need this field, in this form, at this stage of the pipeline' as a required design-review question, not an afterthought raised during a privacy audit after the schema already shipped.",
         "diagram": ""
       },
       {
         "heading": "User Control & Consent",
-        "body": "Regulations like GDPR and CCPA require giving users granular, understandable consent choices -- not a single all-or-nothing toggle -- plus real mechanisms to view, export, and delete their data. For AI products specifically, this extends to whether a user's conversations or content are used for future model training, which needs its own explicit, separate consent.",
+        "body": "Regulations like GDPR and CCPA require granular, understandable consent choices -- not a single all-or-nothing toggle -- plus working mechanisms for users to view, export, and delete their data. For AI products specifically, this needs its own explicit layer: whether a user's conversations or uploaded content get used for future model training is a separate consent decision from whether the product can process that content at all to serve the current request.\n\nOWASP's guidance names this exact gap under 'user education': provide clear guidance on data retention, usage, and deletion policies, and explicitly allow training opt-outs as a first-class, discoverable setting rather than a buried preference. Conflating training consent with general terms-of-service acceptance -- burying a training-data opt-in inside a broad agreement a user clicks through once -- is a pattern regulators have already flagged as inadequate consent, not a gray area still open for debate.\n\nThe practical bar: a user should be able to find and change their training-data preference in under a minute, without needing to read a privacy policy first to even know the setting exists.",
         "diagram": ""
       },
       {
         "heading": "Transparency & Explainability",
-        "body": "Transparency here means telling users, in plain language, what data was used, what the system infers about them, and where its outputs come from. Microsoft's Transparency principle and its Human-AI Experience (HAX) guidance both push toward the same practical rule: never let a user discover after the fact that an AI system made an inference about them they didn't know it was making.",
+        "body": "Transparency means telling users, in plain language, what data was used, what the system inferred about them, and where an output's claims originated. Microsoft's Transparency principle and its Human-AI Experience (HAX) guidance converge on the same practical rule: a user should never discover after the fact that an AI system made an inference about them it never disclosed making.\n\nThis splits into two genuinely different engineering problems that get too easily conflated. Technical explainability -- can we actually trace why the model produced this specific output -- is a real, hard research problem; NIST's Measure function points teams toward inherently explainable model classes (decision trees, generalized linear models, rule-based systems) precisely because post-hoc explanation of a large opaque model is often unreliable, and a simpler, explainable model is sometimes the better engineering choice specifically because it can be audited.\n\nOrganizational openness -- have we disclosed, in the product itself, what the system can and can't do -- is a completely different, solvable product-design problem with no legitimate excuse to skip it. Teams that conflate the two often use 'explainability is a hard research problem' as cover for also skipping the second, easy one.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "Where does Privacy and Security sit in Microsoft's Responsible AI Standard?",
+        "question": "According to OWASP's Sensitive Information Disclosure risk category, what's at risk in an LLM product beyond user-submitted personal data?",
         "options": [
-          "It isn't part of the standard -- privacy is handled separately by legal",
-          "It's one of six core principles the standard is built around, alongside Fairness, Transparency, and Accountability",
-          "It only applies to consumer products, not enterprise AI",
-          "It's an optional add-on for regulated industries"
+          "Nothing else -- the risk is limited strictly to user-submitted PII",
+          "Proprietary details about the model itself, including its training methods and any embedded source code, which can leak through ordinary-looking outputs",
+          "Only financial data specifically, not health or legal information",
+          "This risk category only applies to open-weight models"
         ],
         "correct_index": 1
       },
       {
-        "question": "What does differential privacy actually guarantee?",
+        "question": "How do k-anonymity/l-diversity/t-closeness relate to differential privacy?",
         "options": [
-          "That the model will never make mistakes",
-          "That an attacker can't determine whether any specific individual's data was in the training set, within a bounded margin",
-          "That all data is encrypted at rest",
-          "That the model runs faster"
+          "They are the exact same technique with different names",
+          "They are complementary metrics typically applied to structured/tabular data releases, while differential privacy is the more general tool for training pipelines and query interfaces",
+          "They replace the need for differential privacy entirely in all contexts",
+          "They only apply to image data, never to tabular or text data"
         ],
         "correct_index": 1
       },
       {
-        "question": "Why does 'not collecting a field' matter more than 'securing a field' in some cases?",
+        "question": "Why is 'explainability is a hard research problem' sometimes used as an invalid excuse, according to the distinction drawn between technical explainability and organizational openness?",
         "options": [
-          "It doesn't -- security controls are always sufficient",
-          "Data you never collect can't leak in a breach, can't be subpoenaed, and needs no retention policy at all",
-          "Because unencrypted data is inherently more useful",
-          "Because minimization is only a UX preference, not a legal one"
+          "It isn't an invalid excuse -- both problems are equally difficult research challenges",
+          "Because organizational openness (disclosing what a system can/can't do in the product itself) is a solvable product-design problem, and teams sometimes use the genuinely hard research problem as cover to skip the easy one too",
+          "Because technical explainability was fully solved by 2020",
+          "Because organizational openness is legally optional in every jurisdiction"
         ],
         "correct_index": 1
       }
@@ -3745,62 +3745,62 @@
     "level": "intermediate",
     "track": "Responsible AI",
     "duration_minutes": 20,
-    "content": "Why hallucinations are a structural property of how LLMs generate text, not a rare bug -- and the concrete mitigation layers (grounding, fact-checking, calibration, human review) that reduce their real-world cost.",
+    "content": "OWASP names this risk category Misinformation. This lesson covers why hallucinations are a structural property of how LLMs generate text, and the concrete mitigation stack -- grounding, fact-checking, calibration, human review -- anchored in a documented real-world incident and named NIST evaluation practices.",
     "sections": [
       {
         "heading": "Why Hallucinations Aren't Just Bugs",
-        "body": "An LLM generates the most statistically plausible next token, not the verified-true one -- fluency and correctness are different properties that happen to correlate most of the time. The AI Incident Database documents what happens when they don't: in one filed lawsuit, a user alleged ChatGPT gave confidently wrong medical reassurance about symptoms of a pulmonary embolism, discouraging him from seeking timely care. That's the real-world cost of treating a hallucination as a rare edge case instead of an expected failure mode to design around.",
-        "diagram": "hallucination-mitigation"
+        "body": "OWASP's Top 10 for LLM Applications names this LLM09:2025 Misinformation, and frames it as a core vulnerability for any application relying on an LLM's output being taken at face value -- not an occasional embarrassing glitch, but a structural risk category on the same tier as prompt injection or supply chain compromise.\n\nAn LLM generates the most statistically plausible next token, not the verified-true one -- fluency and correctness are different properties that happen to correlate most of the time, which is precisely what makes the failures dangerous: they read exactly as confidently as the correct answers. The AI Incident Database documents what happens when that correlation breaks in a high-stakes context: a filed lawsuit alleged ChatGPT gave confidently wrong medical reassurance about symptoms of a pulmonary embolism, discouraging the user from seeking timely care.\n\nTreating this as a rare edge case to patch later is the wrong mental model -- it's an expected failure mode of the underlying generation process, and it needs to be designed around from the first version of a high-stakes feature, not added after an incident forces the question.",
+        "diagram": "hallucination-pipeline"
       },
       {
         "heading": "RAG as Grounding, Not a Cure",
-        "body": "Retrieval-Augmented Generation grounds responses in retrieved documents instead of relying purely on parametric memory, which meaningfully reduces fabrication. It does not eliminate it -- a model can still misread, misquote, or contradict the very passage it retrieved. RAG lowers the hallucination rate; it doesn't make output trustworthy by default, especially in high-stakes domains.",
+        "body": "Retrieval-Augmented Generation grounds responses in retrieved documents instead of relying purely on parametric memory, which meaningfully reduces fabrication rates -- this is real and measurable, and OWASP's own mitigation guidance for data and model poisoning explicitly recommends integrating 'RAG and grounding techniques during inference to reduce hallucinations' as a named, specific defense, not just a nice architectural pattern.\n\nIt does not eliminate hallucination: a model can still misread a retrieved passage, quote it out of context, blend it with an unrelated fact from training, or contradict the very source it just retrieved. Treat RAG as lowering the base rate of a known failure mode, not as a trust boundary -- a RAG-backed answer still needs the same downstream verification a non-RAG answer would need in a high-stakes domain, just against a lower baseline error rate.\n\nOne concrete OWASP-documented failure mode worth designing against directly: LLM code-generation assistants can hallucinate non-existent package names with enough plausibility that a developer downloads and installs a malicious package published under that exact hallucinated name -- a real, named attack pattern (sometimes called slopsquatting) that turns a hallucination in one domain into a supply-chain compromise in another.",
         "diagram": ""
       },
       {
         "heading": "Fact-Checking Flows",
-        "body": "For high-stakes domains -- health, legal, financial advice -- add an explicit verification layer between generation and the user: automated citation checking against retrieved sources at minimum, human editorial review where the cost of being wrong is high. Treat this the way you'd treat any other untrusted output that could cause real harm before it's validated.",
+        "body": "For high-stakes domains -- health, legal, financial advice -- add an explicit verification layer between generation and the user, and calibrate its strictness to the cost of being wrong. At minimum: automated citation checking that confirms a cited claim actually appears in the retrieved source, not just that a source was retrieved.\n\nAbove that: a structured extraction step that flags any claim in the output not traceable to a specific retrieved passage. NIST's Measure function backs this with a specific evaluation practice under model explainability: testing explanations for fidelity (does the stated justification match what the model actually did), consistency, and robustness -- the same discipline applied to a fact-checking layer's own outputs, so the fact-checker itself doesn't become a second source of false confidence.\n\nAt the top tier for the highest-stakes claims: mandatory human editorial review before the response reaches the user. Which tier applies to a given feature should be an explicit design decision made before launch, not discovered during an incident review.",
         "diagram": ""
       },
       {
         "heading": "Confidence Calibration",
-        "body": "A model's raw output confidence (or token probability) is not a reliable measure of whether a claim is true -- LLMs are frequently overconfident on fabricated content. Calibration means building a separate signal for 'how sure should the user be about this,' distinct from how fluent or assertive the generated text sounds.",
+        "body": "A model's raw output confidence, or its token-level probability, is not a reliable measure of whether a claim is actually true -- LLMs are frequently overconfident on fabricated content, generating a fabricated citation with the exact same fluent certainty as a real one.\n\nCalibration means building a separate, purpose-built signal for 'how sure should the user be about this claim,' distinct from how assertive the generated text happens to sound. NIST's Measure function frames this precisely under production monitoring: warn users when outputs may be unreliable based on independent distribution-monitoring signals, and track human-review outcomes on unexpected data as a feedback loop into the calibration signal itself, rather than relying on a static, one-time-trained confidence estimator.\n\nIn practice this often means a secondary classifier or retrieval-consistency check that estimates groundedness independently of the generation model's own stated confidence, since the generation model scoring its own homework is exactly the failure mode you're trying to catch.",
         "diagram": ""
       },
       {
         "heading": "Human-in-the-Loop Reviews",
-        "body": "For the highest-stakes outputs, require a human sign-off before an AI-generated claim reaches an end user -- this is the practical form of NIST AI RMF's 'Manage' function, where identified risks get an actual control applied rather than just documented. The bar for what counts as 'high-stakes enough to require review' should be set explicitly, not left to individual engineer judgment.",
+        "body": "For the highest-stakes outputs, require a human sign-off before an AI-generated claim reaches an end user -- this is the practical, concrete form of NIST AI RMF's Manage function, where an identified risk gets an actual applied control rather than just a paragraph in a risk register.\n\nThe bar for 'high-stakes enough to require review' needs to be set explicitly by product and legal stakeholders in advance, with concrete criteria (domain, potential harm, regulatory exposure) -- not left to individual engineer judgment at ship time, which is exactly how the medical-misguidance incident above went to production in the first place. NIST's Manage function adds a specific downstream discipline once review exists: maintain an actual error/incident database recording date, count, impact assessment, and response for every case a human reviewer catches, not just the ones that escape review and become visible externally.\n\nThat internal database is what turns human review from a one-off safety net into a continuously improving calibration signal -- every caught error is data about exactly where the automated layers above it are still failing.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "Why are hallucinations described as a structural property of LLMs rather than a rare bug?",
+        "question": "What does OWASP's Top 10 for LLM Applications call the hallucination/misinformation risk category, and how is it framed?",
         "options": [
-          "Because LLMs are poorly trained and this will disappear with more parameters",
-          "Because the model generates the most statistically plausible completion, and plausibility doesn't guarantee factual accuracy",
-          "Because hallucinations only happen with small, outdated models",
-          "Because they only occur when the temperature setting is misconfigured"
+          "It isn't a named category -- OWASP treats it as out of scope for security guidance",
+          "LLM09:2025 Misinformation -- framed as a core vulnerability for any application relying on LLM output, on the same tier as prompt injection or supply chain risk",
+          "It's grouped entirely under Excessive Agency",
+          "It's only covered as a subset of Sensitive Information Disclosure"
         ],
         "correct_index": 1
       },
       {
-        "question": "Does using RAG (Retrieval-Augmented Generation) eliminate hallucination risk?",
+        "question": "What is 'slopsquatting,' as a concrete example of hallucination becoming a security incident?",
         "options": [
-          "Yes, grounding in retrieved documents guarantees factual output",
-          "No -- it reduces fabrication by grounding responses in retrieved text, but the model can still misread or contradict the source it retrieved",
-          "No, RAG has no effect on hallucination rates at all",
-          "Only if the retrieved documents are encrypted"
+          "A technique for detecting hallucinations automatically",
+          "An LLM code assistant hallucinating a plausible but non-existent package name, which a developer then installs, allowing an attacker to publish malware under that exact hallucinated name",
+          "A method for fine-tuning models to reduce hallucination rates",
+          "A NIST-defined metric for measuring model calibration"
         ],
         "correct_index": 1
       },
       {
-        "question": "A documented lawsuit alleged an AI chatbot gave dangerously wrong medical reassurance. What does this illustrate for engineering teams?",
+        "question": "Why does NIST's Manage function call for maintaining an internal error/incident database specifically for cases a human reviewer catches, not just externally visible failures?",
         "options": [
-          "That AI should never be used in any customer-facing product",
-          "That hallucination in high-stakes domains needs real mitigation layers (grounding, fact-checking, human review), not just a disclaimer",
-          "That this is an isolated incident with no design implications",
-          "That the fix is always to retrain the base model"
+          "It doesn't -- only externally visible incidents need to be tracked",
+          "Because every internally caught error is data about exactly where the automated mitigation layers are still failing, turning human review into a continuously improving signal rather than a one-off safety net",
+          "Because regulations require logging only for compliance audits, with no engineering value",
+          "Because caught errors are legally required to be disclosed publicly regardless of severity"
         ],
         "correct_index": 1
       }
@@ -3813,62 +3813,62 @@
     "level": "advanced",
     "track": "Responsible AI",
     "duration_minutes": 25,
-    "content": "Navigating overlapping AI regulation and building the internal governance structures -- grounded in the NIST AI Risk Management Framework and real organizational models like Microsoft's Office of Responsible AI -- that turn policy into engineering practice.",
+    "content": "Navigating overlapping AI regulation and building the internal governance structures -- grounded in NIST's full four-function AI Risk Management Framework, UNESCO's Recommendation on the Ethics of AI, and real organizational models like Microsoft's Office of Responsible AI -- that turn policy into repeatable engineering practice.",
     "sections": [
       {
         "heading": "Compliance Is Not a Single Law",
-        "body": "There is no single 'AI law' to comply with. Teams operate under a stack of overlapping obligations: the EU AI Act's risk-tiered rules, UNESCO's Recommendation on the Ethics of AI as a global soft-law baseline, and existing sector-specific rules (health, credit, employment law) that already apply the moment an AI system makes a decision in those domains. Governance work starts with mapping which of these actually apply to a given feature.",
-        "diagram": "governance-compliance"
+        "body": "There is no single 'AI law' to comply with. Teams operate under a stack of overlapping obligations that apply simultaneously: the EU AI Act's risk-tiered rules for any product touching EU users, UNESCO's Recommendation on the Ethics of AI as a global soft-law baseline, and existing sector-specific rules -- HIPAA for health data, FCRA for credit decisions, employment law for hiring -- that already apply the moment an AI system makes a decision in those domains, regardless of whether an 'AI-specific' law exists yet.\n\nUNESCO's Recommendation is worth knowing in specific detail, not just as a name to cite: it's built on four core values -- human dignity and rights, just and interconnected societies, diversity and inclusion, and environmental protection -- operationalized through ten named principles, including proportionality and do-no-harm, safety and security, privacy and data protection, multi-stakeholder governance, responsibility and accountability, transparency and explainability, human oversight, sustainability, awareness and literacy, and fairness and non-discrimination.\n\nGovernance work starts with an explicit mapping exercise against all of these: which specific obligations actually apply to a given feature, done before the feature ships, not discovered by an auditor or a journalist after.",
+        "diagram": "eth-review-cycle"
       },
       {
         "heading": "Regulatory Landscapes",
-        "body": "The EU AI Act sorts systems into risk tiers -- unacceptable (banned outright), high-risk (subject to conformity assessment, documentation, and human oversight requirements), limited-risk (transparency obligations, like disclosing AI-generated content), and minimal-risk (largely unregulated). Knowing which tier a feature falls into determines what documentation and controls are legally required before launch, not just what's good practice.",
+        "body": "The EU AI Act sorts systems into four risk tiers with different obligations at each: unacceptable risk (banned outright, e.g. social scoring), high-risk (subject to conformity assessment, technical documentation, and mandatory human oversight before deployment), limited-risk (transparency obligations only, such as disclosing that content is AI-generated), and minimal-risk (largely unregulated).\n\nWhich tier a feature falls into determines the concrete documentation and control requirements before launch -- a chatbot answering FAQs and a model screening loan applications are not remotely comparable under this framework, even though both are 'AI features' in casual conversation. UNESCO's principle of proportionality and do-no-harm reinforces the same idea from the ethics side rather than the legal side: AI use 'must not go beyond what is necessary to achieve a legitimate aim,' which in practice means the depth of governance review should scale with the tier of risk, not be applied uniformly regardless of stakes.\n\nA team that runs the same lightweight review for a FAQ bot and a credit-underwriting model is either wasting effort on the former or under-governing the latter -- usually the latter, since that's the failure mode that generates incidents.",
         "diagram": ""
       },
       {
         "heading": "Internal Controls",
-        "body": "NIST's AI Risk Management Framework gives teams an operational skeleton for internal governance: Govern (establish oversight and accountability), Map (identify and characterize risks for a specific system), Measure (assess those risks with concrete metrics), and Manage (apply mitigations and monitor over time). It's voluntary guidance, not a mandated standard, but it's become the de facto shared vocabulary between engineering, legal, and compliance teams.",
+        "body": "NIST's AI Risk Management Framework gives teams an operational skeleton for internal governance, organized around four functions, each with real, specific sub-practices rather than a one-line summary. Govern includes concrete requirements like maintaining an AI system inventory (Govern 1.6) and an actual decommissioning policy addressing data retention, business continuity, and forensic preservation (Govern 1.7) -- not just 'establish oversight' in the abstract.\n\nMap includes defining risk tolerances and explicitly reviewing 'off-label' uses in high-risk settings (Map 1.5), and reviewing third-party audit reports, licenses, and contracts as part of technology risk mapping (Map 4.1). Measure includes defining acceptable performance-disparity levels and the specific actions to take when disparity exceeds them (Measure 2.11), and instrumenting systems with audit logs for tracking human overrides and error complaints (Measure 2.8).\n\nManage includes maintaining an actual error/incident database with date, count, impact assessment, and response for every case (Manage 4.3), and establishing pre-defined criteria for redeploying a system after it's been bypassed or deactivated (Manage 2.4). It's voluntary guidance rather than a mandated standard, but it's become the de facto shared vocabulary connecting engineering, legal, and compliance teams who otherwise use entirely different terms for the same underlying risk.",
         "diagram": ""
       },
       {
         "heading": "Accountability Structures",
-        "body": "Microsoft's Office of Responsible AI is one real-world model for accountability: a standing, cross-functional body -- not one engineer's judgment call at ship time -- responsible for reviewing AI features against the company's Responsible AI Standard before release. The specific org chart varies, but the pattern holds: accountability needs a named owner and a repeatable process, not an ad hoc conversation.",
+        "body": "Microsoft's Office of Responsible AI is one real-world model for accountability: a standing, cross-functional body -- not one engineer's judgment call at ship time -- responsible for reviewing AI features against the company's Responsible AI Standard before release, backed by tooling like the Responsible AI Dashboard for ongoing monitoring.\n\nNIST's Govern function names the same pattern with more granularity than most teams expect: it explicitly calls for separating AI system development from testing functions so course-correction stays independent (Govern 2.1), and for establishing board-level committees with actual AI risk oversight authority, not just an engineering lead with an extra responsibility bolted onto their existing role (Govern 2.3).\n\nThe specific org chart varies by company size, but the underlying pattern is what matters: accountability needs a named, standing owner with real authority to block a launch, and a repeatable review process -- not an ad hoc Slack thread the week before ship, run by whoever happened to notice the feature was close to done.",
         "diagram": ""
       },
       {
         "heading": "Ethical AI Review Boards",
-        "body": "A real pre-release ethics review evaluates a feature against a named risk taxonomy (bias, privacy, harmful content, transparency), checks it against documented incidents involving similar features (the AI Incident Database is a practical reference for this), and records the review's findings and sign-off before the feature ships -- not a five-minute sanity check by whoever wrote the code.",
+        "body": "A real pre-release ethics review evaluates a feature against a named risk taxonomy (bias, privacy, harmful content, transparency), cross-checks it against documented incidents involving similar features -- the AI Incident Database is a practical, searchable reference for this step -- and records the review's specific findings and sign-off before the feature ships.\n\nNIST's Manage function adds a specific discipline that separates a real review from a rubber stamp: document residual risks explicitly within the risk-response plan itself (Manage 1.4), and establish a concrete procedure for disclosing those residual risks to downstream actors -- including safe-operation requirements, known limitations, and warning labels, not a vague 'use responsibly' disclaimer buried in terms of service.\n\nContrast this with a token gesture: one engineer spending five minutes eyeballing the output before merging. The difference isn't the amount of time spent; it's whether there's a named taxonomy, an external evidence check, a documented residual-risk disclosure, and a specific person accountable for the sign-off.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "Why is 'we comply with the AI law' a misleading statement for most teams?",
+        "question": "What are UNESCO's four core values underlying its Recommendation on the Ethics of AI?",
         "options": [
-          "Because there is no AI regulation anywhere in the world yet",
-          "Because teams typically operate under multiple overlapping obligations at once -- risk-tiered rules like the EU AI Act, global soft-law guidance, and existing sector-specific law",
-          "Because AI systems are exempt from all existing regulation",
-          "Because only US companies need to worry about AI regulation"
+          "Profitability, efficiency, scalability, and innovation",
+          "Human dignity and rights, just and interconnected societies, diversity and inclusion, and environmental protection",
+          "Speed, accuracy, cost-reduction, and automation",
+          "Only privacy and security are named as core values"
         ],
         "correct_index": 1
       },
       {
-        "question": "What do the four functions of the NIST AI Risk Management Framework (Govern, Map, Measure, Manage) provide?",
+        "question": "Under the EU AI Act's risk tiers, why is it a governance failure to apply the same lightweight review to a FAQ chatbot and a credit-underwriting model?",
         "options": [
-          "A mandatory certification process enforced by the US government",
-          "A voluntary operational skeleton teams can use to structure internal AI risk governance, from oversight through ongoing mitigation",
-          "A specific set of unit tests every AI model must pass",
-          "A pricing model for compliance software"
+          "It isn't a failure -- uniform review depth is the recommended approach for all AI features",
+          "Because the tier of risk should determine the depth of review, per both the EU AI Act's tiered obligations and UNESCO's proportionality principle -- under-governing the higher-risk feature is the failure mode that actually produces incidents",
+          "Because FAQ chatbots always require more governance than underwriting models",
+          "Because the EU AI Act does not distinguish between different types of AI systems"
         ],
         "correct_index": 1
       },
       {
-        "question": "What distinguishes a real pre-release ethics review from a token gesture?",
+        "question": "According to NIST's Manage function, what specifically distinguishes a real pre-release ethics review from a rubber-stamp gesture?",
         "options": [
-          "Whether it happens before or after the marketing launch",
-          "Evaluating the feature against a named risk taxonomy, checking it against documented real-world incidents, and recording sign-off -- not just a quick individual check",
-          "Whether legal is copied on the email",
-          "Whether it uses the word 'ethics' in the meeting title"
+          "Only the amount of time spent reviewing the feature",
+          "A named risk taxonomy, an external evidence check against documented incidents, explicit documentation of residual risk, and a specific accountable person signing off -- not just time spent looking at the output",
+          "Whether the review happens before or after the marketing launch date",
+          "Whether the word 'ethics' appears in the meeting title"
         ],
         "correct_index": 1
       }
@@ -3881,31 +3881,31 @@
     "level": "beginner",
     "track": "AI Security & Risk",
     "duration_minutes": 15,
-    "content": "Why AI systems need their own threat-modeling approach beyond classic AppSec, and how NIST's AI Risk Management Framework and MITRE ATLAS give teams a structured way to find and prioritize AI-specific attack surfaces.",
+    "content": "Why AI systems need their own threat-modeling approach beyond classic AppSec, and how NIST's AI Risk Management Framework and MITRE ATLAS give teams a structured, repeatable way to find and prioritize AI-specific attack surfaces before launch.",
     "sections": [
       {
         "heading": "Why AI Systems Need Their Own Threat Model",
-        "body": "Classic application threat modeling asks about network boundaries, auth, and injection points -- it doesn't have a category for 'an attacker hides instructions inside a document your agent reads.' NIST's AI Risk Management Framework addresses this gap directly: its 'Map' function is the dedicated step for identifying and characterizing AI-specific risks before a system ships, treating the model, its training data, and its tool access as attack surface in their own right.",
-        "diagram": "threat-modeling"
+        "body": "Classic application threat modeling asks about network boundaries, authentication, and injection points in a database query -- it has no built-in category for 'an attacker hides instructions inside a document your agent reads as part of a routine task.' NIST's AI Risk Management Framework addresses this gap directly through its Map function, which is the dedicated step for identifying and characterizing AI-specific risks before a system ships.\n\nMap's sub-practices get concrete fast: reviewing third-party audit reports, product roadmaps, warranties, licenses, and contracts as part of technology risk mapping (Map 4.1), and explicitly reviewing 'off-label' uses in high-risk settings (Map 1.5) -- a category with no real analogue in traditional AppSec threat modeling, since traditional software doesn't get repurposed for an unintended task just by being prompted differently.\n\nThe model itself, its training data, and its tool-execution access all count as attack surface in their own right under this framework, not as an extension of the API layer a traditional threat model already covers.",
+        "diagram": "sec-appspec-vs-llm-threats"
       },
       {
         "heading": "Attack Surface Mapping",
-        "body": "AI-specific attack surface includes the training pipeline (poisoning), the prompt and context window (injection), any documents or data the model retrieves or reads (indirect injection), tool and plugin calls the model can trigger (excessive agency), and the model weights themselves (theft, extraction). Map all of these explicitly -- a threat model that only covers the API surface misses most of what's actually attackable.",
-        "diagram": ""
+        "body": "AI-specific attack surface splits cleanly into two phases with different attackers, different windows of opportunity, and different defenses. Training-time surface maps to OWASP's LLM04:2025 Data and Model Poisoning: the training pipeline and any data sources feeding it, vulnerable to poisoning where a small number of corrupted examples can skew model behavior in ways that are hard to detect after the fact -- including 'sleeper agent' backdoors that stay completely dormant until a specific trigger input activates them.\n\nInference-time surface splits further across several named OWASP categories: LLM01:2025 Prompt Injection (the prompt and context window, plus any retrieved documents), LLM06:2025 Excessive Agency (tool and plugin calls the model can trigger), LLM07:2025 System Prompt Leakage (the system prompt itself being extracted), and LLM10:2025 Unbounded Consumption (the model weights and inference endpoint being abused via unrestricted querying, whether for extraction or simple resource exhaustion).\n\nMap both phases explicitly and separately, using the specific named category each surface maps to -- a threat model that only covers one phase, or that lumps every AI-specific risk into a single generic 'model risk' bucket, misses the distinct defenses each named category actually requires.",
+        "diagram": "sec-training-vs-inference-attacks"
       },
       {
         "heading": "Risk Assessment",
-        "body": "Rank risks by likelihood times impact, and ground the likelihood estimate in real precedent where you can -- the AI Incident Database catalogs documented cases of AI systems causing real-world harm, which is a better calibration source than pure hypotheticals. A risk that's already happened to someone else's product deserves more weight than a theoretical worst case.",
+        "body": "Rank risks by likelihood times impact, and ground the likelihood estimate in real precedent wherever you can -- the AI Incident Database catalogs documented cases of AI systems causing real-world harm, which is a far better calibration source than pure hypotheticals invented in a conference room.\n\nNIST's Map function names a specific structured process for this rather than leaving it to intuition: engage stakeholders and impacted communities directly on who could be harmed, what could be harmed, when the harm arises, and how it occurs (Map 3.2), then implement procedures for regularly re-evaluating the qualitative and quantitative cost of that failure -- not a one-time estimate frozen at design time.\n\nA risk that has already happened to someone else's shipped product deserves materially more weight in your prioritization than a theoretical worst case your team came up with independently, precisely because it proves the attack is not just possible but practical for a real adversary to execute against a real system similar to yours.",
         "diagram": ""
       },
       {
         "heading": "Asset Identification",
-        "body": "Name what's actually worth protecting before you can protect it: model weights (intellectual property and a target for extraction), training and fine-tuning data (often contains sensitive or regulated information), and the integrity of the reasoning and tool-execution path itself (an attacker who can steer what actions an agent takes doesn't need to steal anything -- they can just make the agent act for them).",
+        "body": "Name what's actually worth protecting before you can protect it, and be specific rather than generic. Model weights: both intellectual property and, separately, a target for the extraction attacks OWASP now names explicitly under LLM10:2025 Unbounded Consumption -- an attacker reconstructing your model's behavior via repeated, unrestricted queries.\n\nTraining and fine-tuning data: often contains sensitive or regulated information that a breach would expose independent of the model itself, mapping directly to LLM04's poisoning surface if an attacker can influence it, and to LLM02:2025 Sensitive Information Disclosure if it leaks back out through the model's outputs.\n\nThe integrity of the reasoning and tool-execution path: an attacker who can steer what actions an autonomous agent takes doesn't need to steal any of the above -- they can simply make the agent act on their behalf, which OWASP's LLM06:2025 Excessive Agency category identifies as frequently the more damaging outcome of the two, since it converts a data-exposure risk into a direct-action risk.",
         "diagram": ""
       },
       {
         "heading": "Adversary Profiling",
-        "body": "MITRE ATLAS organizes real, observed adversary behavior against AI systems into a tactics-and-techniques structure, modeled on its sibling framework MITRE ATT&CK for traditional IT. Instead of inventing attack categories from scratch, teams can describe an incident in ATLAS's shared vocabulary -- which stage of an attack a given technique falls into -- making it easier to compare notes across the industry and to check defenses against known, cataloged behavior rather than guesswork.",
+        "body": "MITRE ATLAS organizes real, observed adversary behavior against AI systems into a tactics-and-techniques structure, modeled on its sibling framework MITRE ATT&CK. Instead of every team independently inventing its own name for 'the thing where an attacker steals a model via repeated queries,' ATLAS gives the industry a shared, case-study-backed vocabulary -- which matters operationally, not just semantically, because it lets a security team describe an incident to an outside auditor, a vendor, or a new hire without first having to explain a homegrown taxonomy from scratch.\n\nThis staged structure lets a team place a specific incident at a specific point in an attack's lifecycle -- reconnaissance, gaining access to the model, staging an attack, exfiltration -- instead of describing every incident in flat, ad hoc terms that don't compose across different attacks or communicate severity and stage to a responder unfamiliar with the specifics.\n\nCross-referencing ATLAS's tactic stages against OWASP's named risk categories gives a threat model two complementary views of the same system: OWASP tells you what kind of vulnerability exists, ATLAS tells you what stage of a real attack it corresponds to -- together they're closer to a complete picture than either used alone.",
         "diagram": ""
       }
     ],
@@ -3913,30 +3913,30 @@
       {
         "question": "Why doesn't a standard AppSec threat model fully cover an AI feature?",
         "options": [
-          "It does -- AI systems have no unique attack surface",
-          "Because it has no built-in category for AI-specific surfaces like training data poisoning, prompt injection through retrieved content, or model weight theft",
-          "Because AppSec threat models are outdated for all software",
-          "Because AI systems can't be attacked over a network"
+          "It does -- AI systems introduce no attack surface beyond a standard API layer",
+          "Because it has no built-in category for AI-specific surfaces like training-data poisoning, prompt injection through retrieved content, or model weight extraction -- and no analogue for a system being repurposed via 'off-label' use just by being prompted differently",
+          "Because AppSec threat models are considered outdated for all modern software",
+          "Because AI systems cannot be reached over a network"
         ],
         "correct_index": 1
       },
       {
-        "question": "What is the practical value of grounding a risk assessment in the AI Incident Database rather than pure hypotheticals?",
+        "question": "How do OWASP's named risk categories and MITRE ATLAS's tactic structure complement each other in a threat model?",
         "options": [
-          "It removes the need for any risk assessment at all",
-          "It calibrates likelihood estimates against real, documented cases of AI systems causing harm, instead of guessing",
-          "It's a legal requirement in every jurisdiction",
-          "It only matters for consumer-facing products"
+          "They're redundant and only one framework should be used",
+          "OWASP identifies what kind of vulnerability exists (e.g. Excessive Agency, Unbounded Consumption), while ATLAS identifies what stage of a real attack lifecycle a given technique corresponds to -- together giving a more complete picture",
+          "OWASP only applies to training-time risk and ATLAS only applies to inference-time risk",
+          "ATLAS replaces the need for asset identification entirely"
         ],
         "correct_index": 1
       },
       {
-        "question": "What does MITRE ATLAS provide that an ad hoc list of 'things attackers might do' doesn't?",
+        "question": "Why might an attacker steering an autonomous agent's actions (Excessive Agency) be more damaging than a pure data-exfiltration attack?",
         "options": [
-          "A guaranteed way to prevent every attack",
-          "A shared, case-study-backed vocabulary of tactics and techniques -- modeled on MITRE ATT&CK -- for describing how a real attacker actually moves through an AI system",
-          "A certification exam for security engineers",
-          "A replacement for the NIST AI RMF"
+          "It isn't more damaging -- data exfiltration is always the higher-severity outcome",
+          "Because it converts a data-exposure risk into a direct-action risk -- the attacker doesn't need to steal anything if they can simply make the agent act on their behalf",
+          "Because agent-based systems are inherently less secure than any other software architecture",
+          "Because Excessive Agency only affects read-only systems with no write access"
         ],
         "correct_index": 1
       }
@@ -3949,62 +3949,62 @@
     "level": "beginner",
     "track": "AI Security & Risk",
     "duration_minutes": 15,
-    "content": "OWASP ranks prompt injection as the #1 risk for LLM applications. This lesson covers why the model can't structurally tell trusted instructions from untrusted input, the direct vs. indirect distinction, and concrete defenses.",
+    "content": "OWASP ranks prompt injection as LLM01:2025, its #1 risk for LLM applications. This lesson covers why the model can't structurally tell trusted instructions from untrusted input, real documented attack patterns including multimodal and adversarial-suffix injection, and the concrete, layered defenses OWASP names.",
     "sections": [
       {
-        "heading": "LLM01: Prompt Injection",
-        "body": "OWASP's Top 10 for LLM Applications lists prompt injection as risk #1: manipulating an LLM via crafted input can lead to unauthorized access, data exfiltration, or compromised decision-making. The root cause is architectural -- an LLM sees system instructions and untrusted user or document content in the same token stream, with no hard boundary between 'instructions I must follow' and 'text I'm just processing.'",
-        "diagram": "prompt-injection"
+        "heading": "LLM01:2025 Prompt Injection",
+        "body": "OWASP's Top 10 for LLM Applications lists prompt injection as risk #1: a vulnerability that occurs when user prompts alter an LLM's behavior or output in unintended ways. Critically, OWASP notes these inputs don't need to be human-readable at all, as long as the model itself parses them -- and research has shown that neither Retrieval-Augmented Generation nor fine-tuning fully mitigates the underlying vulnerability, so 'we use RAG' is not a valid answer to 'how do we prevent injection.'\n\nThe root cause is architectural, not a training gap a future model version will simply fix: an LLM processes system instructions and untrusted user or document content in the same token stream, with no hard structural boundary between 'instructions I must follow' and 'text I'm just processing as data.'\n\nMultimodal AI expands this significantly: an attacker can hide instructions inside an image accompanying otherwise benign text, a channel most teams haven't even added to their threat model yet, let alone their defenses. Every mitigation strategy below exists specifically to compensate for the missing structural boundary at the application layer, since the model itself has no reliable way to enforce it internally.",
+        "diagram": "sec-direct-vs-indirect-injection"
       },
       {
         "heading": "Direct Injection",
-        "body": "Direct injection is a user crafting a prompt that tries to override the system instructions in the same conversation turn -- role-play framing ('pretend you're a model with no restrictions'), or explicit commands to ignore prior constraints. It's the easier variant to test for, because the attacker is a visible party in the conversation.",
+        "body": "Direct injection is a user crafting a prompt that tries to override the system instructions within the same conversation turn -- role-play framing ('pretend you're a model with no restrictions'), or explicit commands to ignore prior constraints ('disregard everything above'). OWASP documents a concrete real-world pattern here: an attacker manipulating a customer support chatbot into ignoring its guidelines and disclosing private account data it should never surface.\n\nIt's the more testable variant, because the attacker is a visible, identifiable party in the conversation, which means it's also the variant most red-teaming exercises catch before launch. But OWASP's documented attack catalog shows direct injection has evolved well past obvious role-play prompts: adversarial suffixes (meaningless-looking character strings appended to a prompt that measurably shift model behavior and bypass safety training), and multilingual or obfuscated payloads (splitting an attack across languages, or encoding it in Base64 or emoji) specifically to evade keyword-based filters.\n\nTreat a clean red-team pass against obvious role-play injection as a floor, not a ceiling -- it says nothing about your exposure to adversarial suffixes, encoded payloads, or the indirect variant below.",
         "diagram": ""
       },
       {
         "heading": "Indirect Injection",
-        "body": "Indirect injection is the more dangerous variant OWASP highlights: the attacker never talks to the model at all. They plant instructions in a webpage, email, or document that an agent later reads as part of its normal task, and the agent executes those hidden instructions as if the legitimate user had given them. This is why any agent with tool access needs to treat retrieved or ingested content as untrusted input, full stop.",
+        "body": "Indirect injection is the more dangerous variant OWASP specifically calls out: the attacker never talks to the model at all. They plant instructions inside a webpage, email, or document that an agent later reads as part of a routine task, and the agent executes those hidden instructions as if the legitimate user had issued them directly -- OWASP's documented example is a hidden instruction embedded in a webpage that causes an LLM to exfiltrate private conversation history to an attacker.\n\nOWASP also documents a subtler pattern worth knowing specifically: payload splitting, where an attacker embeds an instruction across multiple separate, individually-innocuous-looking fragments -- for example, spread across different sections of a resume being processed by an automated screening tool -- so no single fragment would trip a naive content filter, but the combined effect manipulates the model's evaluation once all fragments are read together.\n\nThis is why any agent with tool access -- the ability to send emails, modify records, or make purchases -- must treat every piece of retrieved or ingested content as untrusted input by default, with no implicit trust extended just because the content arrived through a 'normal' data-retrieval step rather than the chat box, and no assumption that a content filter checking any single fragment in isolation is sufficient.",
         "diagram": ""
       },
       {
         "heading": "Prompt Shielding",
-        "body": "Defense in depth here means structurally separating system instructions from user/document content -- clear delimiters, explicit instruction-confinement language, and privilege separation so the model is told which content is authoritative and which is just data to reason over. No single technique fully closes this; the goal is raising the cost of a successful attack.",
+        "body": "OWASP names seven concrete, complementary prevention strategies rather than one silver-bullet fix. Constrain model behavior with explicit instructions about role, capabilities, and limitations in the system prompt, enforcing strict context adherence. Define output formats precisely and validate adherence with deterministic code, not just a visual check. Implement semantic and string-checking filters, evaluating responses against what OWASP calls the RAG Triad -- checking context relevance, groundedness, and answer relevance as three separate, independently-testable properties.\n\nEnforce privilege control by restricting the model's own API access to the minimum necessary, and require human approval specifically for high-risk operations rather than routing every action through the same approval gate. Segregate external, untrusted content with clear delimiters so the model is told, as unambiguously as the interface allows, which content is authoritative and which is just data to reason over -- and system-prompt leakage (OWASP's LLM07:2025 category) is a closely related failure worth defending against in the same pass, since a leaked system prompt hands an attacker the exact wording your other defenses are built around.\n\nNo single technique fully closes the underlying architectural gap; the realistic goal is layering several of these seven together, since each closes a different partial gap rather than the whole one.",
         "diagram": ""
       },
       {
         "heading": "Structural Validation",
-        "body": "Where possible, don't let free-form text reach the model unconstrained -- parse untrusted input into a defined schema first, and validate any tool-call arguments the model produces against that schema before execution. This mirrors OWASP's general mitigation guidance: treat both the model's input and its output as untrusted, the same way you'd treat any external data source.",
+        "body": "Where possible, don't let free-form text reach the model unconstrained, and don't let the model's free-form output drive an action unconstrained either. Parse untrusted input into a defined schema before the model sees it, and validate any tool-call arguments the model produces against that same schema before execution -- reject or flag anything that doesn't fit the expected shape.\n\nOWASP's final named prevention strategy is conducting regular adversarial testing -- penetration testing and breach simulations specifically targeting injection, not just standard AppSec penetration testing that was never designed to probe this class of vulnerability. A pen test built for traditional web applications will not naturally attempt payload splitting across a resume's sections or an adversarial suffix appended to a support ticket, because those techniques don't exist in that testing tradition yet.\n\nThis mirrors OWASP's general mitigation guidance directly: treat both the model's input and its output as untrusted, exactly the way you'd treat any external data source you don't control, rather than granting either one implicit trust because an LLM produced it.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "Why is prompt injection ranked as OWASP's #1 risk for LLM applications, and what's the root architectural cause?",
+        "question": "According to OWASP, does using RAG (Retrieval-Augmented Generation) or fine-tuning fully mitigate prompt injection?",
         "options": [
-          "It's rare but catastrophic when it happens",
-          "The model sees system instructions and untrusted content in the same token stream, with no hard structural boundary between the two",
-          "It only affects models running on outdated infrastructure",
-          "It's caused by insufficient GPU memory"
+          "Yes, RAG fully closes the underlying vulnerability",
+          "No -- OWASP explicitly notes that research shows neither RAG nor fine-tuning fully mitigates the underlying architectural vulnerability",
+          "Yes, but only fine-tuning works, not RAG",
+          "Prompt injection was fully solved by RAG as of the 2025 OWASP revision"
         ],
         "correct_index": 1
       },
       {
-        "question": "What makes indirect prompt injection more dangerous than direct injection in agentic systems?",
+        "question": "What is 'payload splitting,' as a documented indirect injection technique?",
         "options": [
-          "It requires the attacker to have valid login credentials",
-          "The attacker never interacts with the model directly -- they plant instructions in content the agent later reads and executes as if legitimate",
-          "It only works against image-generation models",
-          "It's actually less dangerous since it requires more setup"
+          "Splitting a single API request across multiple servers for load balancing",
+          "Embedding an instruction across multiple separate, individually-innocuous-looking fragments (e.g. spread across a resume's sections) so no single fragment trips a naive content filter, but the combined effect manipulates the model",
+          "A technique for compressing prompts to fit within a smaller context window",
+          "A defense mechanism that blocks all multi-part user inputs"
         ],
         "correct_index": 1
       },
       {
-        "question": "What is the core idea behind 'structural validation' as a prompt injection defense?",
+        "question": "What is the OWASP 'RAG Triad,' and what does it evaluate?",
         "options": [
-          "Trusting all model output by default since the model is well-trained",
-          "Parsing untrusted input into a defined schema and validating tool-call arguments before execution, rather than letting free-form text drive actions directly",
-          "Increasing the model's context window size",
-          "Disabling all tool use permanently"
+          "Three separate RAG models that vote on the final answer",
+          "Three independently-testable properties of a response -- context relevance, groundedness, and answer relevance -- used as part of semantic filtering to catch injection-influenced outputs",
+          "A three-step process for building a RAG pipeline from scratch",
+          "A rate-limiting technique for retrieval API calls"
         ],
         "correct_index": 1
       }
@@ -4017,62 +4017,62 @@
     "level": "intermediate",
     "track": "AI Security & Risk",
     "duration_minutes": 20,
-    "content": "OWASP's #2 LLM risk is insecure output handling -- treating model output as trusted, executable, or safe to render directly. This lesson covers sandboxing, encoding, filtering, and masking as the concrete controls.",
+    "content": "OWASP's LLM05:2025 risk is Improper Output Handling -- treating model output as trusted, directly executable, or safe to render. This lesson covers sandboxing, encoding, filtering, and masking as the concrete, layered controls, grounded in OWASP's documented real attack scenarios.",
     "sections": [
       {
-        "heading": "LLM02: Insecure Output Handling",
-        "body": "OWASP's Top 10 for LLM Applications names this risk #2: failing to validate and sanitize LLM output before it's used downstream can lead to classic exploits -- XSS, SSRF, remote code execution -- except the untrusted input is generated by the model itself instead of a user form field. If your code would never eval() raw user input, it shouldn't eval() raw model output either.",
-        "diagram": "output-sanitization"
+        "heading": "LLM05:2025 Improper Output Handling",
+        "body": "OWASP's Top 10 for LLM Applications names this risk LLM05:2025: insufficient validation, sanitization, and handling of LLM-generated outputs before they're passed downstream to other components and systems. OWASP is specific about what distinguishes this from a broader 'the model might be wrong' concern (which it categorizes separately, under Overreliance/Misinformation): this risk is about what happens mechanically once a given output reaches a downstream system, regardless of whether the content itself was factually correct.\n\nBecause LLM output can be steered through prompt input, granting an application's output implicit trust functions similarly to granting users indirect access to whatever capability that output triggers downstream. OWASP names the aggravating factors precisely: the LLM having privileges exceeding the end user's own permissions, vulnerability to indirect prompt injection, inadequate validation by third-party extensions, and missing context-aware output encoding.\n\nThe practical rule is simple to state and easy to violate under deadline pressure: if your code would never eval() raw user input without validation, it must not eval() raw model output without the exact same validation, regardless of how well-tested or reliable that specific model has seemed in practice so far.",
+        "diagram": "sec-output-validation-gate"
       },
       {
         "heading": "Sandboxing Code",
-        "body": "Generated code should never run with the same privileges as your application. Execute it in an isolated environment with no default filesystem or network access, resource limits, and no ambient credentials -- the same posture you'd apply to any untrusted third-party code, because that's exactly what it is.",
+        "body": "Generated code should never run with the same privileges as the application that requested it. Execute it in an isolated environment with no default filesystem access, no default network access, hard resource and time limits, and no ambient credentials available to inherit -- the identical posture you'd apply to any untrusted third-party code, because from a security-boundary perspective, that's precisely what it is.\n\nOWASP documents a real scenario showing exactly what happens without this: an LLM chatbot extension lacking output validation allowed a general-purpose response to trigger administrative functions in a privileged extension, causing an unintended system shutdown -- the model wasn't 'hacked' in any conventional sense, the application simply trusted its output to route into a privileged path with no gate in between.\n\nThe fact that your own product's model generated the code doesn't change its trust level; a compromised or manipulated prompt upstream -- via the exact indirect injection techniques covered in the prompt injection lesson -- can produce destructive code just as easily as a malicious human contributor could, and often with less obvious intent visible in the code itself.",
         "diagram": ""
       },
       {
         "heading": "Input/Output Encoding",
-        "body": "Model output that gets rendered into HTML, injected into a shell command, or interpolated into a SQL query needs the same context-aware encoding or parameterization any other untrusted string would need. The output being 'from the AI' doesn't change the downstream context it's landing in.",
+        "body": "Model output that gets rendered into HTML, injected into a shell command, or interpolated into a SQL query needs the exact same context-aware encoding or parameterization any other untrusted string would require in that same downstream context. OWASP documents two scenarios that show how directly this maps to classic web vulnerabilities: a chat interface allowing users to craft SQL queries through the LLM, where an unvalidated malicious query deletes entire database tables; and an app generating content from user prompts without sanitization, allowing injected JavaScript payloads to execute in a victim's browser when the output is rendered -- textbook SQL injection and XSS, just reached through a model instead of a form field.\n\nOWASP also documents an email-specific variant worth knowing: LLM-generated email templates lacking sanitization, enabling injected malicious JavaScript to execute in vulnerable email clients that render HTML content -- a context many teams don't initially think to threat-model at all, since 'email' doesn't intuitively read as a code-execution surface the way a web page does.\n\nThe output being 'from the AI' doesn't change what sink it's landing in -- a string headed for a SQL query needs parameterized queries, a string headed for a DOM needs HTML-escaping, and a string headed for a shell needs argument-array execution rather than string concatenation, regardless of which system produced the string in the first place.",
         "diagram": ""
       },
       {
         "heading": "Content Filtering",
-        "body": "Filter generated content against your policy before it reaches a user -- for toxicity, for policy-violating instructions, and for content that could itself be a secondary injection payload if it's later re-consumed by another system or agent downstream.",
+        "body": "Filter generated content against your policy before it reaches a user -- for toxicity and policy-violating instructions, obviously, but also for content that could function as a secondary injection payload if it's later re-consumed by another system, another agent, or the same agent in a future turn.\n\nOWASP documents a scenario that shows exactly this compounding risk: LLM code generation can hallucinate non-existent package names with enough plausibility that a developer downloads and installs a malicious package published under that hallucinated name -- a single ungrounded claim from the model becoming an actual supply-chain compromise once a human trusts it and acts on it. A response that's merely embarrassing if a human reads it can become a genuine security incident if it's fed back into an automated pipeline that trusts its own prior output implicitly, which is an increasingly common pattern in multi-step agent workflows.\n\nOWASP's Content Security Policy recommendation applies here directly: a strict CSP substantially reduces the blast radius of any XSS payload that slips past earlier filtering layers, functioning as a last line of defense rather than the primary control.",
         "diagram": ""
       },
       {
         "heading": "Data Masking",
-        "body": "Avoid round-tripping sensitive data through a model unmasked. If PII or secrets pass through a prompt for context, mask or tokenize them beforehand and only re-insert the real values in a trusted layer after the model responds, so a leaked completion doesn't leak the underlying sensitive data with it.",
+        "body": "Avoid round-tripping sensitive data through a model unmasked whenever the model doesn't strictly need the real values to do its job. If PII or credentials pass through a prompt purely for context, mask or tokenize them beforehand and only re-insert the real values in a trusted layer after the model responds -- a token like CUSTOMER_NAME_1 carries the same contextual signal the model needs without the underlying real value ever entering the completion.\n\nOWASP's Sensitive Information Disclosure guidance names the same technique from the privacy side, alongside two additional options worth having in the toolkit for higher-sensitivity cases: homomorphic encryption (letting computation happen on encrypted data without ever decrypting it) and federated learning (training across decentralized data sources so raw sensitive data never needs to be centralized for a model to learn from it at all).\n\nThis way, a leaked, logged, or misrouted completion doesn't leak the underlying sensitive data along with it, even in a worst-case failure elsewhere in the pipeline -- the masking layer is what keeps a pipeline failure from automatically becoming a data breach.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "What is OWASP's LLM02 risk category and its root cause?",
+        "question": "How does OWASP distinguish LLM05:2025 Improper Output Handling from the separate Misinformation risk category?",
         "options": [
-          "Model theft, caused by weak API authentication",
-          "Insecure output handling -- treating LLM-generated output as safe to execute or render without the same validation any untrusted input would get",
-          "Training data poisoning, caused by weak dataset curation",
-          "Denial of service, caused by unbounded token generation"
+          "They aren't distinguished -- they're the same risk under two different names",
+          "Improper Output Handling concerns what happens mechanically once output reaches a downstream system (regardless of factual correctness), while Misinformation concerns whether the content itself is true",
+          "Improper Output Handling only applies to code generation, never to text generation",
+          "Misinformation is a subset of Improper Output Handling with no independent existence"
         ],
         "correct_index": 1
       },
       {
-        "question": "A CI pipeline pipes LLM-generated shell commands directly into execution. What's the correct fix?",
+        "question": "In OWASP's documented email-template scenario, why is 'email' a code-execution surface many teams don't initially threat-model?",
         "options": [
-          "Nothing -- generated code from a well-trained model can be trusted",
-          "Run it in a sandboxed environment with no default filesystem/network access and no ambient credentials, same as any untrusted third-party code",
-          "Just increase logging so you can see what went wrong after the fact",
-          "Switch to a larger model, which eliminates this risk"
+          "Email is never rendered as HTML by any client, so this scenario is not realistic",
+          "Because LLM-generated email templates without sanitization can allow injected JavaScript to execute in email clients that render HTML content, a context many teams don't intuitively treat as a code-execution risk the way a web page is",
+          "Because email servers automatically sanitize all LLM-generated content",
+          "Because this only applies to email clients running deprecated software"
         ],
         "correct_index": 1
       },
       {
-        "question": "Why might you mask PII before it enters a prompt, even for an authorized internal use case?",
+        "question": "Besides tokenizing/masking PII, what two additional privacy-preserving techniques does OWASP name for higher-sensitivity cases?",
         "options": [
-          "Masking is only needed for external, public-facing products",
-          "So that a leaked or logged completion doesn't expose the real sensitive values along with it",
-          "Because models can't process PII in any form",
-          "Masking has no security benefit, only compliance value"
+          "Simply deleting all logs after 24 hours",
+          "Homomorphic encryption (computing on encrypted data without decrypting it) and federated learning (training across decentralized sources without centralizing raw sensitive data)",
+          "Increasing the model's context window and adding more training data",
+          "Switching to a smaller, less capable model"
         ],
         "correct_index": 1
       }
@@ -4085,62 +4085,62 @@
     "level": "intermediate",
     "track": "AI Security & Risk",
     "duration_minutes": 20,
-    "content": "The AI supply chain extends the classic software supply chain to pretrained models, training data, and plugins. This lesson covers OWASP's supply-chain and model-theft risk categories and what to check before adopting a third-party model.",
+    "content": "OWASP's LLM03:2025 Supply Chain risk, backed by real named incidents -- PoisonGPT, a fake backdoored WizardLM release, and a GPU memory-leak CVE -- shows the AI supply chain extends far beyond classic code dependencies. This lesson covers what to actually check before adopting a third-party model.",
     "sections": [
       {
-        "heading": "LLM05: Supply Chain Vulnerabilities",
-        "body": "OWASP's Top 10 for LLM Applications flags this as risk #5: depending on compromised third-party models, datasets, or plugins undermines system integrity the same way a compromised npm package would, except the payload can be baked into model weights rather than source code, making it far harder to spot with a code review.",
-        "diagram": "supply-chain"
+        "heading": "LLM03:2025 Supply Chain Vulnerabilities",
+        "body": "OWASP's Top 10 for LLM Applications names this LLM03:2025: LLM supply chains face vulnerabilities affecting training data, models, and deployment integrity, extending well past traditional third-party package risk to include tampered pre-trained models and poisoned datasets -- and modern fine-tuning techniques like LoRA and PEFT, especially on collaborative platforms like Hugging Face, introduce entirely new risk surfaces that didn't exist in a pre-LLM supply chain.\n\nOWASP's documented case studies make this concrete rather than hypothetical. PoisonGPT demonstrated bypassing Hugging Face's own safety scanning by directly editing model parameters to spread targeted misinformation, with the tampering invisible to standard benchmark evaluation. A fake version of WizardLM, published after the legitimate model's removal, contained embedded malware and backdoors distributed under the trusted original name. CVE-2023-4969 (nicknamed 'LeftoverLocals') showed attackers recovering sensitive data by exploiting leaked GPU memory left behind from a previous inference job on shared infrastructure.\n\nUnlike a source-code dependency, none of these three required a visible code change a reviewer could have caught -- the compromise lived in weights, in a trusted-looking filename, or in hardware-level memory handling, three places traditional code review was never built to look.",
+        "diagram": "sec-ai-supply-chain-artifacts"
       },
       {
         "heading": "Model Provenance",
-        "body": "Before adopting a pretrained model, verify where it actually came from -- who trained it, on what data, and whether the published weights match what the model card claims. Model repositories can host tampered checkpoints under a legitimate-looking name, and unlike a source-code dependency, you generally can't 'read the diff' on a set of weights.",
+        "body": "Before adopting a pretrained model, verify where it actually came from: who trained it, on what data, and whether the published weights actually match what the accompanying model card claims. OWASP documents that model-merge services -- convenient tools for combining or converting model formats -- have themselves been exploited to inject malware into otherwise-legitimate public models, and that 116 Google Play apps were found shipping tampered on-device models that silently redirected users to scam sites once swapped in for the legitimate version.\n\nModel repositories can host tampered checkpoints under a legitimate-looking name and a plausible-sounding description -- exactly the WizardLM pattern -- and unlike a source-code dependency, you generally can't 'read the diff' on a set of weights to spot the tampering directly. OWASP's concrete mitigation: use third-party integrity checks, code signing, and file hashes to verify a model matches its claimed provenance before it ever enters your pipeline, not just once at initial adoption but on every subsequent version pull.\n\nProvenance has to be established through the publisher's reputation, cryptographic verification where available, and independent behavioral testing against known benchmarks -- not through inspection of the artifact itself, since PoisonGPT proved that benchmark performance alone doesn't detect targeted tampering.",
         "diagram": ""
       },
       {
         "heading": "Dependency Scanning",
-        "body": "Extend your existing software composition analysis to ML-specific formats -- pickled model files in particular are a known code-execution vector, since unpickling can run arbitrary code by design. Scan for unsafe serialization formats the same way you'd scan for known-vulnerable package versions.",
+        "body": "Extend your existing software composition analysis tooling to cover ML-specific formats, not just traditional package manifests. Pickled model files in particular are a well-known code-execution vector, since Python's unpickling process can run arbitrary code by design as part of deserialization -- a malicious pickle file doesn't need any additional vulnerability to compromise a host, the format itself is the vulnerability.\n\nOWASP's mitigation guidance for the related Data and Model Poisoning risk names a specific complementary tool worth adopting alongside format scanning: data version control (DVC), which lets a team detect unexpected dataset manipulation between training runs, the same way source control detects unexpected code changes between commits -- catching a poisoning attempt at the data layer even if it slips past model-level scanning entirely.\n\nScan explicitly for unsafe serialization formats and prefer safer alternatives (like safetensors) the same deliberate way you'd scan for known-vulnerable package versions in a traditional dependency audit, and treat a 'we don't scan model files because they're not code' policy as the exact gap PoisonGPT and the WizardLM incident both exploited.",
         "diagram": ""
       },
       {
         "heading": "Software Bill of Materials (SBOM) for AI",
-        "body": "An AI-aware SBOM extends the traditional code SBOM with model-specific fields: training data sources, fine-tuning lineage, and every upstream model a given checkpoint was derived from. Without this, you can't answer 'which of our products are affected' when a vulnerability or licensing issue surfaces in a widely-used base model.",
+        "body": "An AI-aware SBOM extends the traditional code SBOM with model-specific fields: the training data sources behind a given checkpoint, its fine-tuning lineage, and every upstream base model it was derived from, several layers deep if necessary. OWASP names a specific existing standard worth adopting rather than inventing one from scratch: CycloneDX, which already supports tracking AI/ML components alongside traditional software dependencies in a single machine-readable format.\n\nWithout this, when a vulnerability, a licensing issue, or a documented bias problem surfaces in a widely-used base model months after you adopted it, there's no fast way to answer 'which of our shipped products actually depend on this' -- the question that determines your actual incident-response scope, versus one you're left answering by manually re-tracing every model adoption decision your team has made, the same slow reconstruction the LeftoverLocals and WizardLM incidents both would have demanded without one.\n\nOWASP also flags licensing risk as its own line item within supply chain: diverse software and dataset licenses across a multi-model pipeline create real legal compliance exposure that a code-only SBOM would never surface at all.",
         "diagram": ""
       },
       {
         "heading": "Third-Party Risk Management",
-        "body": "This connects directly to OWASP's LLM10 risk, Model Theft: unauthorized access to your own proprietary models is a real threat, and any third party you grant API or weight access to expands that exposure. Vet a vendor's access controls and data-handling practices with the same rigor you'd apply to any other third party holding your IP.",
+        "body": "This connects directly to OWASP's LLM10:2025 risk, Unbounded Consumption, which reframes what used to be called 'model theft' as part of a broader resource-abuse category: unrestricted querying against your model can be used both to extract its behavior for a competing product and to simply exhaust compute resources at your expense, and every third party you grant API access, fine-tuning access, or weight access to expands that exposure by one more party that could leak, be breached, or misuse it.\n\nOWASP's supply-chain mitigation guidance is specific about the vetting process rather than leaving it vague: review a supplier's terms and conditions and privacy policy on a recurring basis, not just once at signing, since OWASP documents a real pattern where a vendor's T&Cs quietly changed after adoption to permit training on previously-protected customer data. Conduct AI red-teaming against third-party models using established benchmarks like Decoding Trust before adoption, the same way you'd pen-test any other vendor integration before it touches production traffic.\n\nA model's weights are IP in exactly the same sense your source code is, and should be governed by the same vendor-risk process, not a lighter one just because the artifact is unfamiliar to whoever runs your existing vendor-security review.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "How does OWASP's LLM05 (Supply Chain Vulnerabilities) extend the classic software supply-chain risk?",
+        "question": "What did the PoisonGPT case study demonstrate about supply-chain compromise in AI models?",
         "options": [
-          "It doesn't -- AI models have no supply chain risk",
-          "It adds pretrained models, training datasets, and plugins as new dependency types, where a compromise can be baked into model weights instead of visible source code",
-          "It only concerns open-source models, not commercial ones",
-          "It's identical to traditional dependency risk with no new considerations"
+          "That model tampering always shows up as a visible source-code change a reviewer could catch",
+          "That an attacker could bypass Hugging Face's safety scanning by directly editing model parameters to spread targeted misinformation, with the tampering invisible to standard benchmark evaluation",
+          "That Hugging Face's platform has no known supply-chain vulnerabilities",
+          "That model poisoning can only occur during the initial training phase, never after publication"
         ],
         "correct_index": 1
       },
       {
-        "question": "Why is verifying model provenance harder than reviewing a source-code dependency?",
+        "question": "Why can't 'reading the diff' on a set of model weights catch the kind of tampering seen in the WizardLM incident?",
         "options": [
-          "It isn't harder, the process is identical",
-          "You generally can't 'read the diff' on a set of model weights the way you can review a code change",
-          "Model provenance doesn't matter for security",
-          "Because model files are always open-source"
+          "It can -- weight diffs are just as reviewable as code diffs",
+          "Because a tampered model can be published under a legitimate-looking name with a plausible description, and unlike source code, weights don't have a human-readable diff a reviewer can meaningfully inspect for malicious changes",
+          "Because WizardLM was never actually compromised in any documented incident",
+          "Because model weights are always cryptographically signed by default"
         ],
         "correct_index": 1
       },
       {
-        "question": "What real risk does OWASP's LLM10 (Model Theft) point to when granting a third party access to your proprietary model?",
+        "question": "How does OWASP's LLM10:2025 Unbounded Consumption reframe what used to be called 'Model Theft'?",
         "options": [
-          "There is no risk once a contract is signed",
-          "Unauthorized access to your proprietary model and its weights, which expands with every third party granted access",
-          "Only the risk of the vendor's own model being stolen, not yours",
-          "It only applies to models trained on public data"
+          "It removes the concept entirely -- model theft is no longer considered a risk",
+          "It broadens it into a resource-abuse category covering both extraction of model behavior via unrestricted querying and simple compute exhaustion at the model owner's expense",
+          "It narrows model theft to only apply to open-weight models",
+          "It merges model theft entirely into the Supply Chain category with no distinct identity"
         ],
         "correct_index": 1
       }
@@ -4153,62 +4153,62 @@
     "level": "advanced",
     "track": "AI Security & Risk",
     "duration_minutes": 25,
-    "content": "MITRE ATLAS gives security teams a shared, case-study-backed vocabulary for adversary behavior against AI systems, mirroring MITRE ATT&CK's structure for traditional IT. This lesson covers how to use it to map, defend against, and respond to real attacks.",
+    "content": "MITRE ATLAS gives security teams a shared, case-study-backed vocabulary for adversary behavior against AI systems, mirroring MITRE ATT&CK's structure for traditional IT. This lesson covers how to use it alongside NIST's named security-evaluation practices to map attack surface, prioritize defenses, and run incident response for AI-specific failures.",
     "sections": [
       {
         "heading": "What Is MITRE ATLAS",
-        "body": "MITRE ATLAS (Adversarial Threat Landscape for AI Systems) is a knowledge base of real, observed adversary tactics and techniques targeting AI systems, structured after its sibling framework MITRE ATT&CK. Instead of every team independently inventing names for 'the thing where an attacker steals a model via repeated queries,' ATLAS gives the industry a shared vocabulary backed by documented case studies.",
-        "diagram": "atlas-framework"
+        "body": "MITRE ATLAS (Adversarial Threat Landscape for AI Systems) is a knowledge base of real, observed adversary tactics and techniques targeting AI systems, structured after its sibling framework MITRE ATT&CK. Instead of every team independently inventing its own name for 'the thing where an attacker steals a model via repeated queries,' ATLAS gives the industry a shared, case-study-backed vocabulary -- which matters operationally, not just semantically, because it lets a security team describe an incident to an outside auditor, a vendor, or a new hire without first having to explain a homegrown taxonomy from scratch.\n\nNIST's AI Risk Management Framework converges on the same need for shared vocabulary from a measurement angle rather than a taxonomy angle: its Measure function explicitly calls for establishing and tracking 'AI system security tests and metrics (e.g., red-teaming activities, frequency and rate of anomalous events, system down-time, incident response times, time-to-bypass, etc.)' -- concrete, comparable numbers that only mean something once a team has already agreed, via something like ATLAS, on what category of attack each metric is actually measuring.\n\nThe two frameworks solve adjacent problems: ATLAS answers 'what happened and at what stage,' NIST's Measure function answers 'how do we quantify whether our defenses against it are actually working.'",
+        "diagram": "sec-nist-rmf-atlas-cycle"
       },
       {
         "heading": "Tactic Matrix",
-        "body": "Like ATT&CK, ATLAS organizes techniques under tactic stages representing an attacker's goal at each point in an operation -- reconnaissance and resource development, gaining initial access, interacting with the ML model itself, executing an attack, and eventually exfiltration or impact. This staged structure lets a team place a specific incident at a specific point in an attack's lifecycle instead of describing it in ad hoc terms.",
+        "body": "Like ATT&CK, ATLAS organizes techniques under tactic stages representing an attacker's goal at each point in an operation: reconnaissance and resource development, gaining initial access, interacting directly with the ML model itself, executing an attack, and eventually exfiltration or impact. This staged structure lets a team place a specific incident at a specific point in an attack's lifecycle -- 'this was a model-access-stage query pattern, not yet exfiltration' -- instead of describing every incident in flat, ad hoc terms.\n\nCross-referencing this against OWASP's named risk categories from earlier in this track sharpens the picture further: a prompt injection (OWASP LLM01) is typically an initial-access or execution-stage technique in ATLAS terms, while a model-extraction attempt via unrestricted querying (OWASP LLM10, Unbounded Consumption) sits at the model-access and exfiltration stages. Neither framework alone tells you both what kind of vulnerability you're facing and where in an attack's progression a specific observed behavior sits -- using them together does.\n\nNIST's Measure function reinforces watermarking specifically as a named countermeasure against the model-access-stage extraction attempts ATLAS catalogs, giving teams a concrete technical control to pair with the tactic-level awareness ATLAS provides.",
         "diagram": ""
       },
       {
         "heading": "Defense Mapping",
-        "body": "The practical value of a tactics framework is mapping each stage to a concrete control: restricting and rate-limiting access to inference endpoints to blunt model-extraction attempts, validating and provenance-checking training data to blunt poisoning, and applying least-privilege plus human-in-the-loop review to blunt an agent being hijacked into taking destructive actions.",
+        "body": "The practical value of a tactics framework is mapping each stage directly to a concrete, implementable control, not just a category label. Restrict and rate-limit access to inference endpoints to blunt model-extraction attempts at the model-access stage, and pair that restriction with the watermarking techniques NIST's Measure function names explicitly as a countermeasure against data and model extraction attacks.\n\nValidate and provenance-check training data to blunt poisoning at the resource-development stage, using the data version control practices covered in the supply-chain lesson. Apply least-privilege access plus mandatory human-in-the-loop review to blunt an agent being hijacked into taking destructive actions at the execution stage -- directly mitigating OWASP's Excessive Agency risk at exactly the ATLAS-defined stage where it manifests.\n\nEach ATLAS tactic should map to a named owner and a specific control in your system's actual defenses, not remain a purely descriptive label used only after an incident already happened -- a mapping exercise NIST's Measure function backs with a concrete deliverable: 'establish and track AI system security tests and metrics' per control, so each mapped defense has a number attached proving it's actually being exercised, not just documented once and forgotten.",
         "diagram": ""
       },
       {
         "heading": "Incident Response for AI",
-        "body": "Standard incident-response playbooks assume you can patch code and redeploy. AI incidents often require additional steps: rolling back to a known-good model checkpoint, tracing which training data a poisoning attack touched, and re-evaluating whether other models trained on the same pipeline are also affected -- data lineage tracing that a typical IR runbook doesn't cover.",
-        "diagram": ""
+        "body": "Standard incident-response playbooks assume you can patch the vulnerable code and redeploy, which resolves most traditional software incidents. AI incidents often require additional steps a typical IR runbook doesn't cover: rolling back to a known-good model checkpoint rather than a known-good code commit, tracing which specific training data or pipeline run a poisoning attack actually touched, and re-evaluating whether other models trained on that same upstream pipeline are also compromised.\n\nNIST's Manage function names the specific downstream discipline that makes this last step tractable rather than a scramble: maintain both an error/incident database (date, count, impact assessment, response) and a separate system change database (reasons, testing, deployment details, version history) as standing artifacts, not something assembled for the first time during the incident itself. Without the AI-aware SBOM and DVC lineage tracking covered in the supply-chain lesson, most teams discover during their first real AI incident that they can't actually answer 'what else does this affect' quickly, because the lineage tracking was never built before it was needed.\n\nNIST's Manage function also calls for sharing error, near-miss, and attack-pattern information with external incident databases -- treating a single team's incident as data other organizations should be able to learn from, the same collaborative instinct that built the AI Incident Database and MITRE ATLAS's case-study catalog in the first place.",
+        "diagram": "sec-incident-response-pipeline"
       },
       {
         "heading": "Continuous Monitoring",
-        "body": "This is where ATLAS connects back to NIST's AI Risk Management Framework: identifying risk once at design time isn't enough, because new adversarial techniques against AI systems are documented constantly. NIST's 'Manage' function -- ongoing monitoring and mitigation after deployment -- is the operational answer to a threat landscape that keeps moving after launch.",
+        "body": "This is where ATLAS connects directly back to NIST's AI Risk Management Framework: identifying risk once at design time isn't sufficient, because new adversarial techniques against AI systems get documented and published constantly, often faster than internal review cycles can absorb them. NIST's Manage function frames ongoing monitoring and mitigation as continuing after deployment, not a one-time pre-launch checklist -- naming specific recurring practices like red-teaming exercises 'at prescribed intervals' and tracking dataset modifications over time, not just at initial launch.\n\nIn practice this means a recurring, scheduled review of new ATLAS-cataloged techniques against your own deployed systems, cross-checked against the specific security metrics NIST's Measure function calls for tracking (time-to-bypass, incident response times, rate of anomalous events) -- not a threat model that gets revisited only when something has already gone wrong.\n\nThe teams that get caught flat-footed by a new attack technique are rarely the ones whose original threat model was incomplete -- they're the ones whose threat model was never revisited after the day it was first written, while the ATLAS catalog and OWASP's own risk list kept moving underneath them.",
         "diagram": ""
       }
     ],
     "quiz": [
       {
-        "question": "What does MITRE ATLAS provide, and what framework is it modeled after?",
+        "question": "How do MITRE ATLAS and NIST's AI RMF Measure function address complementary parts of the same problem?",
         "options": [
-          "A certification program, modeled after ISO 27001",
-          "A knowledge base of real adversary tactics and techniques against AI systems, structured after MITRE ATT&CK",
-          "A programming language for writing secure ML pipelines",
-          "A vulnerability scanner for cloud infrastructure"
+          "They don't -- the two frameworks are unrelated and cover entirely separate domains",
+          "ATLAS provides a shared vocabulary for what happened and at what attack stage, while NIST's Measure function provides concrete metrics (time-to-bypass, anomaly rates) for quantifying whether defenses against those stages are actually working",
+          "ATLAS only covers pre-deployment risk, while NIST only covers post-deployment risk",
+          "NIST's Measure function replaces the need for a tactics framework like ATLAS entirely"
         ],
         "correct_index": 1
       },
       {
-        "question": "Why does AI incident response often need more than a standard patch-and-redeploy playbook?",
+        "question": "Why do AI incidents often require rolling back to a known-good model checkpoint and tracing training-data lineage, beyond a standard patch-and-redeploy playbook?",
         "options": [
-          "It doesn't -- AI incidents are handled identically to any software bug",
-          "It may require rolling back to a known-good model checkpoint and tracing which training data or pipeline a poisoning attack touched",
-          "Because AI systems can never be patched once deployed",
-          "Because AI incidents are always low-severity"
+          "They don't -- AI incidents are resolved identically to any code-level software bug",
+          "Because the vulnerability may live in the model weights or training data rather than in application code, requiring checkpoint rollback and lineage tracing to determine which other models trained on the same pipeline are also affected",
+          "Because AI models can never be rolled back once deployed to production",
+          "Because AI incidents are, by definition, always low-severity and don't require this level of response"
         ],
         "correct_index": 1
       },
       {
-        "question": "How does continuous monitoring for AI systems connect to the NIST AI Risk Management Framework?",
+        "question": "According to the pattern described, what typically causes teams to get caught flat-footed by a new adversarial technique?",
         "options": [
-          "It doesn't -- NIST AI RMF only covers pre-deployment design",
-          "It's the practical form of the framework's 'Manage' function: risk identification at design time isn't sufficient since new adversarial techniques emerge after launch",
-          "NIST AI RMF explicitly prohibits post-deployment monitoring",
-          "Continuous monitoring replaces the need for a threat model entirely"
+          "Their original threat model was fundamentally flawed from the start",
+          "Their threat model was never revisited after it was first written, even as the ATLAS catalog and OWASP's risk list continued to evolve with new documented techniques",
+          "They failed to hire a large enough security team",
+          "They used MITRE ATLAS instead of a custom internal taxonomy"
         ],
         "correct_index": 1
       }

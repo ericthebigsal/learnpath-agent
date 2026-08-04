@@ -28,7 +28,9 @@
     {% if diagram_svg %}
     <figure class="lesson-diagram">{{ diagram_svg | safe }}</figure>
     {% endif %}
-    <p class="content">{{ section.body }}</p>
+    {% for paragraph in section.body.split('\n\n') %}
+    <p class="content">{{ paragraph }}</p>
+    {% endfor %}
 
     <div class="lesson-nav">
       {% if prev_number %}

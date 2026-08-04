@@ -1,0 +1,72 @@
+<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="hallucination-pipeline-title">
+  <title id="hallucination-pipeline-title">Hallucination mitigation pipeline: generation grounded by retrieval, checked by a fact-checking layer, scored by confidence calibration, and gated by human review before reaching the user</title>
+  <style>
+    .hp-stage { fill: var(--surface); stroke: var(--border); stroke-width: 1.75; }
+    .hp-stage-final { fill: var(--taken-tint); stroke: var(--taken-border); stroke-width: 2; }
+    .hp-label { font-family: var(--font-display); font-size: 12.5px; font-weight: 600; fill: var(--ink); }
+    .hp-sub { font-family: var(--font-body); font-size: 9.5px; fill: var(--ink-muted); }
+    .hp-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .hp-risk { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-muted); }
+    .hp-bar-high { fill: var(--signal); }
+    .hp-bar-mid { fill: var(--considered); }
+    .hp-bar-low { fill: var(--taken); }
+  </style>
+
+  <text x="500" y="24" text-anchor="middle" class="hp-label" style="font-size:15px;">Reducing Hallucination Risk Stage by Stage</text>
+
+  <!-- Risk gradient bar -->
+  <rect x="40" y="255" width="150" height="8" rx="4" class="hp-bar-high" />
+  <rect x="230" y="255" width="150" height="8" rx="4" class="hp-bar-high" />
+  <rect x="420" y="255" width="150" height="8" rx="4" class="hp-bar-mid" />
+  <rect x="610" y="255" width="150" height="8" rx="4" class="hp-bar-mid" />
+  <rect x="800" y="255" width="150" height="8" rx="4" class="hp-bar-low" />
+  <text x="500" y="285" text-anchor="middle" class="hp-risk">unmitigated risk -------------------------------------------- reviewed, low risk</text>
+
+  <!-- Stage 1: Generation -->
+  <rect x="40" y="70" width="150" height="90" rx="10" class="hp-stage" />
+  <text x="115" y="105" text-anchor="middle" class="hp-label">Generation</text>
+  <text x="115" y="122" text-anchor="middle" class="hp-sub">parametric memory</text>
+  <text x="115" y="136" text-anchor="middle" class="hp-sub">only, no grounding</text>
+
+  <path class="hp-arrow" d="M190,115 L225,115" marker-end="url(#hpArrow)" />
+
+  <!-- Stage 2: RAG grounding -->
+  <rect x="230" y="70" width="150" height="90" rx="10" class="hp-stage" />
+  <text x="305" y="100" text-anchor="middle" class="hp-label">Retrieval</text>
+  <text x="305" y="116" text-anchor="middle" class="hp-label">Grounding</text>
+  <text x="305" y="134" text-anchor="middle" class="hp-sub">grounds in real docs,</text>
+  <text x="305" y="147" text-anchor="middle" class="hp-sub">doesn't guarantee reading</text>
+
+  <path class="hp-arrow" d="M380,115 L415,115" marker-end="url(#hpArrow)" />
+
+  <!-- Stage 3: Fact-checking -->
+  <rect x="420" y="70" width="150" height="90" rx="10" class="hp-stage" />
+  <text x="495" y="100" text-anchor="middle" class="hp-label">Fact-Checking</text>
+  <text x="495" y="116" text-anchor="middle" class="hp-label">Flow</text>
+  <text x="495" y="134" text-anchor="middle" class="hp-sub">flags claims not traced</text>
+  <text x="495" y="147" text-anchor="middle" class="hp-sub">to a retrieved source</text>
+
+  <path class="hp-arrow" d="M570,115 L605,115" marker-end="url(#hpArrow)" />
+
+  <!-- Stage 4: Calibration -->
+  <rect x="610" y="70" width="150" height="90" rx="10" class="hp-stage" />
+  <text x="685" y="100" text-anchor="middle" class="hp-label">Confidence</text>
+  <text x="685" y="116" text-anchor="middle" class="hp-label">Calibration</text>
+  <text x="685" y="134" text-anchor="middle" class="hp-sub">separate groundedness</text>
+  <text x="685" y="147" text-anchor="middle" class="hp-sub">signal, not self-reported</text>
+
+  <path class="hp-arrow" d="M760,115 L795,115" marker-end="url(#hpArrow)" />
+
+  <!-- Stage 5: Human review -->
+  <rect x="800" y="70" width="150" height="90" rx="10" class="hp-stage-final" />
+  <text x="875" y="100" text-anchor="middle" class="hp-label">Human-in-the-Loop</text>
+  <text x="875" y="116" text-anchor="middle" class="hp-label">Review</text>
+  <text x="875" y="134" text-anchor="middle" class="hp-sub">explicit sign-off gate</text>
+  <text x="875" y="147" text-anchor="middle" class="hp-sub">for high-stakes claims</text>
+
+  <defs>
+    <marker id="hpArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="var(--ink-muted)" />
+    </marker>
+  </defs>
+</svg>

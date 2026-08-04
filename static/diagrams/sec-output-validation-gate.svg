@@ -1,31 +1,6 @@
 <svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      :root {
-        --taken: #4ade80;
-        --taken-tint: #86efac;
-        --taken-border: #16a34a;
-        --signal: #ef4444;
-        --signal-tint: #fca5a5;
-        --signal-border: #dc2626;
-        --considered: #facc15;
-        --considered-tint: #fef08a;
-        --considered-border: #eab308;
-        --ink: #1f2937;
-        --ink-muted: #6b7280;
-        --surface: #ffffff;
-        --border: #e5e7eb;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --ink: #f3f4f6;
-          --ink-muted: #d1d5db;
-          --surface: #111827;
-          --border: #374151;
-        }
-      }
-
       text {
         font-family: system-ui, -apple-system, sans-serif;
         fill: var(--ink);
@@ -58,7 +33,7 @@
 
       .box-danger {
         fill: var(--signal-tint);
-        stroke: var(--signal-border);
+        stroke: var(--signal);
         stroke-width: 2;
       }
 

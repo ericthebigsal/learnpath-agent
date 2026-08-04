@@ -1,5 +1,0 @@
-<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-  <title>Threat Modeling</title>
-  <rect x="50" y="20" width="100" height="60" fill="#ffe0e0" stroke="#f00" />
-  <text x="100" y="55" text-anchor="middle" font-size="12">Attack Surface</text>
-</svg>
