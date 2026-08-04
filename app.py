@@ -19,7 +19,7 @@ from models import Level, PlanResponse, Track
 from starter_paths import STARTER_PATHS, get_starter_path
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = str(BASE_DIR / "learnpath.db")
+DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "learnpath.db"))
 CATALOG = load_catalog()
 
 app = FastAPI()

@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: learnpath-agent
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.12
+      - key: GEMINI_API_KEY
+        sync: false
+      # Free plan has no persistent disk -- learnpath.db resets on every
+      # deploy. To keep data across deploys, upgrade `plan` above to a
+      # paid tier and uncomment the block below, then set DB_PATH to
+      # match the mountPath.
+      # disk:
+      #   name: learnpath-data
+      #   mountPath: /data
+      #   sizeGB: 1
+      - key: DB_PATH
+        value: /opt/render/project/src/learnpath.db
