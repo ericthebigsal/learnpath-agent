@@ -4,6 +4,13 @@
 <p class="eyebrow">Explore</p>
 <h1>Find your next track</h1>
 
+{% if no_match %}
+<p class="explore-no-match-banner">
+  We couldn't confidently match your goal to a specific track, so we didn't guess.
+  Pick a starter path below, or browse the catalog and add courses to your new track directly.
+</p>
+{% endif %}
+
 <h2 id="starter-paths">Starter paths</h2>
 <div class="starter-grid">
   {% for starter in starter_paths %}

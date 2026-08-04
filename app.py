@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -76,6 +77,7 @@ def compute_plan(
         # pass it explicitly so the documented env var actually works.
         client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     except Exception:
+        logging.exception("Failed to construct Gemini client; planning will use the rule-based fallback")
         client = None
     return planner.plan_or_replan(client, CATALOG, learner, progress, previous_item_ids)
 
@@ -216,6 +218,11 @@ def create_track(
     track = db.create_track(current_user["id"], name, goal_text, starting_level.value, DB_PATH)
     db.update_default_starting_level(current_user["id"], starting_level.value, DB_PATH)
 
+    if not planner.match_tracks(goal_text):
+        return RedirectResponse(
+            url=f"/explore?active_track_id={track['id']}&no_match=1", status_code=303
+        )
+
     plan, _used_fallback, candidate_ids = compute_plan(track, [])
     plan_dict = plan.model_dump()
     plan_dict["candidate_ids"] = candidate_ids
@@ -341,6 +348,7 @@ def explore(
     track: str | None = None,
     level: str | None = None,
     active_track_id: int | None = None,
+    no_match: bool = False,
     current_user: dict = Depends(get_current_user),
 ):
     items = CATALOG.items
@@ -372,6 +380,7 @@ def explore(
             "user_tracks": user_tracks,
             "selected_track_id": selected_track_id,
             "starter_paths": STARTER_PATHS,
+            "no_match": no_match,
         },
     )
 

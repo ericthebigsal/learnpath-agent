@@ -821,6 +821,16 @@ button:hover { background: var(--taken); }
 
 .explore-empty-hint { color: var(--ink-muted); font-size: 0.9rem; margin: 0.75rem 0 0; }
 
+.explore-no-match-banner {
+  background: var(--considered-tint);
+  border: 1px solid var(--considered-border);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
 /* ---------- achievements ---------- */
 
 .achievement-strip {
