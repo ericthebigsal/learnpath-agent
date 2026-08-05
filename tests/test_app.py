@@ -400,7 +400,7 @@ def test_submitting_quiz_grades_it_and_shows_diff(client, monkeypatch):
 
     response = client.post(
         "/item/1/rag-fundamentals/submit",
-        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+        data={"answer_0": "2", "answer_1": "0", "answer_2": "3"},
     )
 
     assert response.status_code == 200
@@ -431,7 +431,7 @@ def test_item_view_returns_404_for_nonexistent_item(client):
 def test_submit_quiz_returns_404_for_nonexistent_track(client):
     response = client.post(
         "/item/99999/rag-fundamentals/submit",
-        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+        data={"answer_0": "2", "answer_1": "0", "answer_2": "3"},
     )
     assert response.status_code == 404
 
@@ -456,7 +456,7 @@ def test_history_screen_shows_completed_courses_with_quiz_results(client):
     )
     client.post(
         "/item/1/rag-fundamentals/submit",
-        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+        data={"answer_0": "2", "answer_1": "0", "answer_2": "3"},
     )
 
     response = client.get("/history/1")
@@ -541,7 +541,7 @@ def test_dashboard_shows_earned_badges(client):
     )
     client.post(
         "/item/1/rag-fundamentals/submit",
-        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+        data={"answer_0": "2", "answer_1": "0", "answer_2": "3"},
     )
 
     response = client.get("/")
@@ -560,7 +560,7 @@ def test_dashboard_shows_due_for_review_item(client):
     )
     client.post(
         "/item/1/rag-fundamentals/submit",
-        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+        data={"answer_0": "2", "answer_1": "0", "answer_2": "3"},
     )
     backdated = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
     conn = db._connect(app_module.DB_PATH)
@@ -592,7 +592,7 @@ def test_achievements_page_shows_earned_date_after_completion(client):
     )
     client.post(
         "/item/1/rag-fundamentals/submit",
-        data={"answer_0": "0", "answer_1": "1", "answer_2": "1"},
+        data={"answer_0": "2", "answer_1": "0", "answer_2": "3"},
     )
 
     response = client.get("/achievements")
