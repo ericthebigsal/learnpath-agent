@@ -10,13 +10,13 @@ services:
         value: 3.12.12
       - key: GEMINI_API_KEY
         sync: false
-      # Free plan has no persistent disk -- learnpath.db resets on every
-      # deploy. To keep data across deploys, upgrade `plan` above to a
-      # paid tier and uncomment the block below, then set DB_PATH to
-      # match the mountPath.
-      # disk:
-      #   name: learnpath-data
-      #   mountPath: /data
-      #   sizeGB: 1
+      # Render's free plan has no persistent disk, so a local SQLite file
+      # resets on every deploy. DB_PATH now doubles as a Postgres connection
+      # string: set it in the Render dashboard to your Supabase project's
+      # "Transaction" pooler connection string (Project Settings -> Database
+      # -> Connection string -> Transaction pooler, port 6543 -- required
+      # since this app opens a fresh connection per request rather than
+      # pooling in-process). db.py auto-detects the postgres:// prefix and
+      # switches backends; nothing else needs to change.
       - key: DB_PATH
-        value: /opt/render/project/src/learnpath.db
+        sync: false
