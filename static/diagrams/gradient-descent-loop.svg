@@ -1,0 +1,53 @@
+<svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="gradient-descent-title">
+  <title id="gradient-descent-title">The training loop: predict the next token, compare to the real one, compute an error signal, nudge weights via gradient descent, repeat across trillions of tokens</title>
+  <style>
+    .gd-label { font-family: var(--font-display); font-size: 13px; font-weight: 600; fill: var(--ink); }
+    .gd-sub { font-family: var(--font-body); font-size: 10px; fill: var(--ink-muted); }
+    .gd-node { fill: var(--surface); stroke: var(--border); stroke-width: 1.75; }
+    .gd-node-signal { fill: var(--signal-tint); stroke: var(--signal); stroke-width: 2; }
+    .gd-node-final { fill: var(--taken-tint); stroke: var(--taken-border); stroke-width: 2; }
+    .gd-arrow { stroke: var(--ink-muted); stroke-width: 1.75; fill: none; }
+    .gd-loop { stroke: var(--considered); stroke-width: 1.75; fill: none; stroke-dasharray: 5 4; }
+    .gd-loop-label { font-family: var(--font-mono); font-size: 9.5px; fill: var(--considered); }
+  </style>
+
+  <text x="380" y="24" text-anchor="middle" class="gd-label" style="font-size:15px;">One Training Step, Repeated Trillions of Times</text>
+
+  <rect x="20" y="70" width="150" height="80" rx="10" class="gd-node" />
+  <text x="95" y="100" text-anchor="middle" class="gd-label">Predict</text>
+  <text x="95" y="118" text-anchor="middle" class="gd-sub">model outputs a</text>
+  <text x="95" y="131" text-anchor="middle" class="gd-sub">probability distribution</text>
+
+  <path class="gd-arrow" d="M170,110 L205,110" marker-end="url(#gdArrow)" />
+
+  <rect x="210" y="70" width="150" height="80" rx="10" class="gd-node-signal" />
+  <text x="285" y="100" text-anchor="middle" class="gd-label">Compare</text>
+  <text x="285" y="118" text-anchor="middle" class="gd-sub">vs. the real next</text>
+  <text x="285" y="131" text-anchor="middle" class="gd-sub">token in the text</text>
+
+  <path class="gd-arrow" d="M360,110 L395,110" marker-end="url(#gdArrow)" />
+
+  <rect x="400" y="70" width="150" height="80" rx="10" class="gd-node-signal" />
+  <text x="475" y="100" text-anchor="middle" class="gd-label">Compute Error</text>
+  <text x="475" y="118" text-anchor="middle" class="gd-sub">a single number:</text>
+  <text x="475" y="131" text-anchor="middle" class="gd-sub">how wrong was it</text>
+
+  <path class="gd-arrow" d="M550,110 L585,110" marker-end="url(#gdArrow)" />
+
+  <rect x="590" y="70" width="150" height="80" rx="10" class="gd-node-final" />
+  <text x="665" y="100" text-anchor="middle" class="gd-label">Nudge Weights</text>
+  <text x="665" y="118" text-anchor="middle" class="gd-sub">gradient descent:</text>
+  <text x="665" y="131" text-anchor="middle" class="gd-sub">step to reduce error</text>
+
+  <path class="gd-loop" d="M665,150 L665,200 L95,200 L95,150" marker-end="url(#gdLoopArrow)" />
+  <text x="380" y="218" text-anchor="middle" class="gd-loop-label">repeat on the next token, next example, trillions of times</text>
+
+  <defs>
+    <marker id="gdArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="var(--ink-muted)" />
+    </marker>
+    <marker id="gdLoopArrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="var(--considered)" />
+    </marker>
+  </defs>
+</svg>
