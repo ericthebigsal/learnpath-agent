@@ -47,7 +47,9 @@ python .claude/skills/writing-catalog-courses/validate_catalog.py [item-id ...]
 python -m pytest -q
 ```
 
-The validator checks: pydantic schema load, duplicate ids/headings, dangling `related_item_ids`, missing diagram files, quiz guessability (see #2), and renders every section and quiz page through the actual Jinja templates used in production (`item_section.html`, `item_quiz.html`) — this is what catches the diagram overflow/collision bugs, not eyeballing the SVG source.
+Against this repo's own `data/catalog.json` (the default, no `--file` needed), the validator checks: pydantic schema load, duplicate ids/headings, dangling `related_item_ids`, missing diagram files, quiz guessability (see #2), and renders every section and quiz page through the actual Jinja templates used in production (`item_section.html`, `item_quiz.html`) — this is what catches the diagram overflow/collision bugs, not eyeballing the SVG source.
+
+The validator also works against course content that was never written for this app — `--file path/to/other-catalog.json` (optionally `--diagrams-dir path/to/svgs`) runs the portable checks (duplicate ids/headings, dangling related ids, quiz option/index validity, quiz guessability, diagram existence) without importing this app's own `Track`/`Level` enums or templates, since external content was never written against them. Use this for pilot content, a different tenant's catalog, or anything not destined for this repo's `data/catalog.json`.
 
 If you changed an existing item's quiz and its `correct_index` values shifted, grep the test suite for hardcoded answer submissions against that item's id (`grep -rn "answer_0" tests/`) — a prior pass broke 6 tests this way by rebalancing a quiz without checking who depended on the old indices.
 
