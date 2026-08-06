@@ -84,7 +84,10 @@
 
     <rect x="50" y="360" width="310" height="95" rx="4" fill="var(--taken-tint)" stroke="var(--taken-border)" stroke-width="1"/>
     <text x="60" y="380" class="label-text" style="font-weight: 600;">Focus:</text>
-    <text x="60" y="400" class="body-text" style="font-size: 12px;">How does the model work? What processes happen inside the neural network?</text>
+    <text x="60" y="400" class="body-text" style="font-size: 12px;">
+      <tspan x="60" dy="0">How does the model work? What processes</tspan>
+      <tspan x="60" dy="16">happen inside the neural network?</tspan>
+    </text>
   </g>
 
   <!-- Right Column: Organizational Openness -->
@@ -114,6 +117,10 @@
 
     <rect x="440" y="360" width="310" height="95" rx="4" fill="var(--considered-tint)" stroke="var(--considered-border)" stroke-width="1"/>
     <text x="450" y="380" class="label-text" style="font-weight: 600;">Focus:</text>
-    <text x="450" y="400" class="body-text" style="font-size: 12px;">What does the user need to know? Are we honest about what the system can and cannot do?</text>
+    <text x="450" y="400" class="body-text" style="font-size: 12px;">
+      <tspan x="450" dy="0">What does the user need to know? Are we</tspan>
+      <tspan x="450" dy="16">honest about what the system can and</tspan>
+      <tspan x="450" dy="16">cannot do?</tspan>
+    </text>
   </g>
 </svg>

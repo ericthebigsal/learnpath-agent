@@ -21,8 +21,8 @@
   <rect class="cc-seg-over" x="480" y="30" width="80" height="55"/>
   <rect class="cc-seg-empty" x="560" y="30" width="120" height="55"/>
 
-  <line class="cc-cap-line" x1="480" y1="20" x2="480" y2="95"/>
-  <text class="cc-cap-label" x="480" y="15" text-anchor="middle">HISTORY CAP</text>
+  <line class="cc-cap-line" x1="480" y1="26" x2="480" y2="95"/>
+  <text class="cc-cap-label" x="480" y="24" text-anchor="middle">HISTORY CAP</text>
 
   <line class="cc-tick" x1="100" y1="85" x2="100" y2="97"/>
   <line class="cc-tick" x1="240" y1="85" x2="240" y2="97"/>

@@ -84,8 +84,8 @@
 
   <!-- Feedback loop: curves back down and left -->
   <path d="M 1000 105 Q 1050 250 575 300" class="feedback-line" marker-end="url(#arrowhead-feedback)" />
-  <text x="850" y="280" text-anchor="middle" class="feedback-label">Feeds into threat modeling (MITRE ATLAS, NIST AI RMF)</text>
-  <text x="850" y="300" text-anchor="middle" class="feedback-label">and AI Incident Database for future prevention</text>
+  <text x="850" y="318" text-anchor="middle" class="feedback-label">Feeds into threat modeling (MITRE ATLAS, NIST AI RMF)</text>
+  <text x="850" y="335" text-anchor="middle" class="feedback-label">and AI Incident Database for future prevention</text>
 
   <!-- Details section -->
   <line x1="30" y1="350" x2="1170" y2="350" stroke="var(--border)" stroke-width="1" />
