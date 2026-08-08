@@ -1,0 +1,919 @@
+[
+  {
+    "id": "amp-start-first-data-source",
+    "title": "Adding Your First Data Source",
+    "type": "course",
+    "level": "beginner",
+    "track": "Getting Started with Amperity",
+    "duration_minutes": 20,
+    "content": "A hands-on walkthrough of connecting Amperity to a brand's first data source, covering the shared courier pattern behind Amazon S3, Azure Blob Storage, and SFTP, then contrasting it with Amperity Bridge for Snowflake's bidirectional, zero-copy connection built on Snowflake Secure Data Sharing.",
+    "sections": [
+      {
+        "heading": "Connections and the Quick Start Workflow",
+        "body": "Before Amperity can resolve identities or build customer profiles, it needs a connection to wherever a brand's data actually lives. A connection points Amperity at one external location — an Amazon S3 bucket, an Azure Blob Storage container, a Snowflake warehouse, a Databricks lakehouse, a Google BigQuery dataset, or a standalone SFTP site. Amperity supports all six out of the box, and you set them up from the Identity resolution page inside Quick start, Amperity's guided setup area for connecting sources and preparing them for identity resolution. From there, an Add data source dropdown lists all six types.\n\nSelecting most of these types — Amazon S3, Azure Blob Storage, or SFTP — opens a dialog literally titled Add courier. A courier is Amperity's internal name for one configured pull job: a specific file, or a filename pattern matching a family of files, on a specific external server, checked on whatever schedule you choose. Every S3, Azure Blob, or SFTP source you add is a courier, even though the term rarely shows up outside that dialog title.\n\nSnowflake is the exception. Choosing it opens a different, purpose-built configuration flow instead of the courier dialog, because a Snowflake connection isn't a file pull at all — it's a live data share. That distinction, covered later in this course, is the biggest fork in the setup experience: everything else you add behaves like a courier; Snowflake behaves like a standing bridge between two systems.",
+        "diagram": ""
+      },
+      {
+        "heading": "The Pull Pattern Shared by S3, Azure Blob, and SFTP",
+        "body": "Amazon S3, Azure Blob Storage, and SFTP all funnel through the same five-step courier pattern, just pointed at different protocols. First, credentials: a courier can't be created until a credential for that storage system already exists in Amperity, so you pick one from a dropdown and click Continue. A 'Connection successful' status confirms Amperity can actually reach the location before you go any further.\n\nSecond, you name the source and tell Amperity which file to pull, either by browsing the storage system directly or by supplying a filename pattern for recurring loads whose names vary slightly — a datestamp appended to an otherwise identical filename is the typical case. If this is a brand-new source, whichever file you pick becomes the schema sample: Amperity reads its structure and uses that structure as the expected shape for every future load. If the source already exists, the file you select for this load has to match that previously defined schema, or the load won't proceed cleanly.\n\nThird, encrypted files get a PGP credential field so Amperity can decrypt them before reading. Fourth, you review the file's inferred formatting — delimiter, compression, escape character, quote character, and whether the first row is a header — in table or raw view, and correct anything Amperity guessed wrong. Fifth, you pick a load date that falls after the file landed in storage but before today, and click Run.\n\nSupported formats span CSV, JSON, Parquet, DSV, and others; deeply nested or complex JSON and XML sometimes need a separate 'legacy courier' configuration instead of this flow. One hard limit worth knowing up front: a PGP-encrypted Parquet file has to be under 500 MB to be previewed in the dialog before you run the load — it can still load past that size, you just can't preview it first.",
+        "diagram": ""
+      },
+      {
+        "heading": "Snowflake: A Bidirectional Bridge, Not a File Pull",
+        "body": "Amperity Bridge for Snowflake works on a completely different mechanism than a courier. It relies on Snowflake's own Secure Data Sharing feature — a Snowflake platform capability that lets two Snowflake accounts read the same underlying data through Snowflake's services layer and metadata store, without either side copying files or scheduling an ETL job. Because of that, the integration is explicitly bi-directional: data can move both from Snowflake into Amperity and, unlike a courier, back out again, without a nightly file drop in either direction.\n\nSetting it up starts the same way — Snowflake from the Add data source dropdown — but the dialog that opens asks for organization name, account name, and region instead of a credential dropdown. The region value comes straight from Snowflake's own CURRENT_REGION() function, run in a Snowflake worksheet. Next you supply a secure share identifier to establish the connection itself, then choose any combination of schemas and tables to bring in. Selecting a whole schema pulls in every table currently in it, but a table added to that schema later doesn't appear automatically — you have to add it by hand.\n\nThe last step is mapping each selected table to an Amperity domain table — Amperity's standardized internal shape for a category of data, like transactions or loyalty activity, that every other Amperity feature reads the same way regardless of which source it came from. Mapping in this dialog does not, by itself, assign a primary key or apply semantic tags to the table — those are separate steps (covered in the next course) unless you build a custom domain table, which lets you do primary keys and tags in the same pass. Saving and syncing kicks off the actual data movement from Snowflake into Amperity.\n\nA few constraints are specific to Snowflake: field names have to be entirely uppercase or entirely lowercase — mixed case is flagged as unsupported — and a handful of Snowflake types (FILE, GEOGRAPHY, GEOMETRY, VARIANT, VECTOR) aren't supported at all, while semi-structured ARRAY, OBJECT, and MAP values need a defined, fully structured schema before they can share.",
+        "diagram": ""
+      },
+      {
+        "heading": "SFTP: The Simple, One-Way Counterpart",
+        "body": "Where Snowflake is a live, bidirectional share, SFTP sits at the opposite end of the spectrum: it's explicitly pull-based and unidirectional. Amperity always initiates the connection and retrieves files from the SFTP server; the server has no way to push data to Amperity, and Amperity never writes anything back to it. If Snowflake is a standing bridge, an SFTP courier is closer to a scheduled visit — Amperity shows up, takes what matches the configured file or pattern, and leaves.\n\nThe setup steps are the identical five-step courier pattern from the previous section: select an existing credential and confirm 'Connection successful,' name the source and point it at a file or filename pattern, set a PGP credential if the file is encrypted, review the inferred delimiter/compression/escape/quote/header settings, then pick a load date and click Run. The documentation even uses nearly the same language for the credential requirement as it does for S3 and Azure Blob — 'credentials allow Amperity to connect to SFTP and must exist before a courier can be configured to pull data' — which underscores that this isn't a different mechanism wearing a different name, it's the same courier mechanism pointed at a different transport protocol.\n\nSFTP tends to be the right fit when a partner or vendor already has an automated export landing on a server on their end, and you just need Amperity to come get it on a schedule — no cloud storage account or data warehouse required on either side.",
+        "diagram": ""
+      },
+      {
+        "heading": "Choosing a Connection for Your Situation",
+        "body": "Which connection type to add first comes down to where the data already lives. If a brand's customer data already sits in Snowflake, the Bridge is the natural choice: no load dates to manage, no scheduled pulls, and updates on either side stay in sync through Secure Data Sharing rather than a periodic file drop. If the data instead arrives as files — a vendor's nightly export, an internal analytics bucket, a partner's SFTP drop — Amazon S3, Azure Blob Storage, and SFTP all behave identically once you're inside the Add courier dialog, differing mainly in which protocol they speak to reach the file.\n\nFor a first connection, it's worth prioritizing whichever source holds the most identity-bearing personal information — names, emails, phone numbers, physical addresses — since that's the data identity resolution actually needs to start linking records together. The next course covers how to tell Amperity which fields in that source count as a primary key and which values should be excluded before any of it feeds into identity resolution.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "What makes Amperity's Snowflake integration fundamentally different from its S3 or SFTP connections?",
+        "options": [
+          "It uses Snowflake's Secure Data Sharing to exchange data through Snowflake's own services layer, giving bi-directional access without copying files.",
+          "It uses Snowflake's Secure Data Sharing to exchange data through a scheduled nightly export job, giving one-directional access without copying files.",
+          "It skips the credentials step entirely, connecting directly through a public Snowflake account with no authentication required at all.",
+          "It only supports loading a single named table per connection, unlike S3 or SFTP couriers which can load entire folders unattended."
+        ],
+        "correct_index": 0
+      },
+      {
+        "question": "In the S3, Azure Blob, and SFTP setup flow, what happens to the first file you select for a brand-new data source?",
+        "options": [
+          "It is discarded after the connection test, and a blank schema is created for you to fill in by hand.",
+          "It is converted immediately to Parquet format, regardless of its original file type or encoding.",
+          "It becomes the schema sample that defines the structure future loads for that source must match.",
+          "It is sent to your Amperity account team for manual review before the courier can be activated."
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "Why does SFTP count as a simpler connection than the Snowflake bridge, according to the setup docs?",
+        "options": [
+          "SFTP requires no credentials at all, while Snowflake requires an organization, account, and region to connect.",
+          "SFTP is a pull-based, one-way courier, while Snowflake is a live, bi-directional data share.",
+          "SFTP automatically applies semantic tags on load, while Snowflake requires every tag to be set by hand manually.",
+          "SFTP supports unlimited file sizes for preview, while Snowflake limits every table to 500 MB total in size."
+        ],
+        "correct_index": 1
+      }
+    ]
+  },
+  {
+    "id": "amp-start-primary-keys-exclusions",
+    "title": "Primary Keys, Exclusions, and Clean Input",
+    "type": "course",
+    "level": "beginner",
+    "track": "Getting Started with Amperity",
+    "duration_minutes": 15,
+    "content": "Covers how to choose a stable, unique primary key so Stitch can recognize returning customers instead of creating duplicates, and how to exclude bad values, dates, and rows before they reach identity resolution.",
+    "sections": [
+      {
+        "heading": "What a Primary Key Is and Why Stitch Needs One",
+        "body": "A primary key is a stable, unique identifier for the rows in one source table — the field Amperity uses to recognize that a given row belongs to a specific real person, load after load. It's the anchor that connects source data to Amperity's own concept of identity, called an Amperity ID: the single identifier Amperity assigns once it has determined that records from one or more sources describe the same person. That matching work is performed by Stitch, Amperity's identity-resolution process, which compares records across sources and decides which ones belong together; a primary key is what lets Stitch recognize an incoming record as an update to someone it already knows, rather than mistaking it for a brand-new person.\n\nWithout a reliable primary key, that recognition breaks down in a very concrete way. If a customer updates their phone number or shipping address, Amperity needs to treat that as an edit to an existing profile — not the arrival of a new person who happens to share a first name with someone else. A source table with no stable, unique identifier gives Stitch nothing to anchor that recognition to, and updates risk either fragmenting one person's history across multiple Amperity IDs or, in the worst case, merging two different people's data because a placeholder value briefly looked like a match.",
+        "diagram": ""
+      },
+      {
+        "heading": "Two Qualities of a Good Key: Unique and Stable",
+        "body": "A usable primary key needs exactly two properties: uniqueness, meaning its value distinguishes one row from every other row in the table, and stability, meaning that value doesn't change over time for the same record. Both are required — a field can fail on either one independently. 'first_name' is a poor choice because it isn't unique: plenty of customers share a first name. 'updated_at' is a poor choice for the opposite reason — it's often unique at any given moment, but its value changes every time the record is edited, so it fails stability. A field like 'customer_id' pulled from a point-of-sale system is the strong example: it uniquely identifies a customer and stays fixed no matter how many times their other details change.\n\nThat pairing shows up concretely downstream in the Unified Coalesced table, where every record is identified by combining its source (the datasource) with its primary key value — and each such datasource-plus-key pair links to exactly one Amperity ID. A weak primary key doesn't just cause abstract confusion; it directly produces bad pairings in that table.\n\nYou don't have to pick primary keys by inspecting every column yourself. From the Identity resolution quick-start screen, the AmpAI Assistant — Amperity's built-in AI helper — can automatically recommend a primary key (and applicable semantic tags, covered in the next course) for each table. Alternatively, you can configure both manually if you already know which field qualifies.",
+        "diagram": ""
+      },
+      {
+        "heading": "Excluding Values, Dates, and Whole Rows",
+        "body": "Primary keys control which rows Stitch can reliably track; exclusions control what Stitch is allowed to see in the first place. Amperity supports three kinds of exclusion, all reachable from the Data exclusions card on the Identity resolution page: specific values, which get converted to NULL wherever they appear; specific date values, entered in YYYY-MM-DD format through the NULL date values section; and entire rows, matched against criteria you define in the Row exclusions tab.\n\nConfiguring any of these means choosing 'Manually select' or 'Edit' on that card. Values you exclude are matched case-insensitively, and you add them by typing a value and pressing ENTER or RETURN — there's no separate save step. One formatting quirk worth knowing: special characters like an ampersand have to be wrapped in both parentheses and single quotes, written as '&', for Amperity to treat them as the literal value rather than as syntax.",
+        "diagram": ""
+      },
+      {
+        "heading": "Why Clean Input Matters Before Stitch Runs",
+        "body": "Separate from anything you configure manually, Amperity applies one exclusion-adjacent behavior automatically: every field that has a semantic tag applied gets trimmed of leading and trailing spaces before it's used further. That's not optional and doesn't require a Data exclusions entry — it just happens as part of tagging.\n\nManual exclusions exist for the cases automatic trimming can't catch: placeholder values like 'N/A' or 'unknown' typed into a field, obviously-fake test records, or dates that represent 'no data' rather than a real event. Left in place, those values don't just clutter a profile — they can actively cause false matches, since two unrelated customers who both have 'N/A' sitting in the same field can look, to Stitch, like a shared identifier.\n\nBoth primary key selection and data exclusions happen on the Identity resolution quick-start page, before Stitch ever runs against the data. That ordering matters: they're preparation, not cleanup applied after the fact. A well-chosen primary key tells Stitch which rows to track as the same person over time; a clean set of exclusions makes sure the values Stitch is comparing are real customer data and not placeholders masquerading as it.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "Why is 'updated_at' a poor choice of primary key for a source table, according to Amperity's guidance?",
+        "options": [
+          "It only accepts numeric values, and most Amperity source tables use string identifiers instead.",
+          "It is not present in most source systems at all, so Stitch is never able to read it as a field.",
+          "It uniquely identifies a row but takes up more storage space than a shorter customer_id field.",
+          "Its value changes whenever the record is edited, so it fails the stability a good key needs."
+        ],
+        "correct_index": 3
+      },
+      {
+        "question": "Which of these three types of data exclusion does Amperity's Identity resolution page actually support?",
+        "options": [
+          "Specific values, individual dates in YYYY-MM-DD format, and entire rows matching defined criteria.",
+          "Specific values, entire columns grouped by data type, and any row that contains a null field somewhere.",
+          "Specific tables, individual users identified by Amperity ID, and any column tagged as PII data.",
+          "Specific values, entire schemas grouped by source name, and rows older than a set retention date."
+        ],
+        "correct_index": 0
+      },
+      {
+        "question": "What happens automatically to fields that have a semantic tag applied, without any manual exclusion step?",
+        "options": [
+          "They are converted to uppercase so semantic matching stays case-insensitive across every source.",
+          "They are copied straight into the Merged Customers table, bypassing the Stitch process entirely.",
+          "Leading and trailing spaces are trimmed from the field's values before further processing occurs.",
+          "They are flagged for manual review by the AmpAI Assistant before any load is allowed to complete."
+        ],
+        "correct_index": 2
+      }
+    ]
+  },
+  {
+    "id": "amp-start-semantics-pii",
+    "title": "Tagging Data with Semantics & Finding PII",
+    "type": "course",
+    "level": "beginner",
+    "track": "Getting Started with Amperity",
+    "duration_minutes": 18,
+    "content": "Explains how semantic tags standardize customer-profile fields across differently-named source columns so Stitch can compare them, and how Amperity identifies which tables actually contain personally identifiable information in the first place.",
+    "sections": [
+      {
+        "heading": "What a Semantic Tag Is",
+        "body": "A semantic tag is a label applied to a data field that names what kind of customer-profile information it actually holds — regardless of what the column happens to be called in the source system. A column literally named 'fname' gets tagged given-name; a column called 'lname' gets tagged surname. The documentation is direct about why this matters: 'Semantic tags must be defined for every data source that provides customer profile data to Stitch' — Stitch being Amperity's identity-resolution engine, the process that compares fields across sources to decide which records describe the same person.\n\nThe reason tagging has to happen before Stitch runs is that Stitch has no built-in way to know two differently-named columns mean the same thing. One source might store a phone number in a column called 'phone_number,' another in a column called 'cell' or just 'contact.' Left alone, those look like unrelated fields. Tagging both of them 'phone' tells Amperity they're the same kind of data, so Stitch can actually compare them when deciding whether two records match.",
+        "diagram": ""
+      },
+      {
+        "heading": "Standard Tags and Custom Tags",
+        "body": "Amperity ships with a set of standard semantic tags for the fields identity resolution most commonly needs: given-name, surname, phone, and birthdate are the ones called out explicitly, though the standard set extends beyond just these four. Applying a standard tag is the same action regardless of which one it is — you're telling Amperity 'this field, no matter its original column name, means this.'\n\nBeyond the standard set, you can define custom tags — free-text labels like 'loyalty-id' — for anything specific to your own business that doesn't map to a built-in category. A custom tag behaves identically to a standard one once applied: Stitch treats it as a recognized, comparable field across every source where you've used that same tag.",
+        "diagram": ""
+      },
+      {
+        "heading": "Two Ways to Apply Tags: AmpAI Select vs Manual",
+        "body": "There are two paths to getting tags onto your tables. AmpAI Select — the automated option — determines which tables contain the best data for identity resolution and recommends semantic tags for the fields in them, without you having to inspect each column yourself. It also handles one specific cleanup task on its own: converting non-standard date formats it encounters along the way.\n\nThe manual path, triggered by choosing 'Manually select,' skips the AI recommendation and puts you directly in control: you apply tags — standard or custom — field by field, typing a tag into the Semantic tags column and pressing ENTER to save it. This is also the only path for tags AmpAI wouldn't know to suggest, since custom tags like 'loyalty-id' are specific to your business and not something a general recommendation engine would guess.\n\nNeither choice is permanent. Tables you've already tagged, whether through AmpAI Select or manually, can be reopened later to review or change the tags applied to them.",
+        "diagram": ""
+      },
+      {
+        "heading": "Finding Which Tables Actually Contain PII",
+        "body": "Tagging assumes you already know which tables are worth tagging in the first place — and that's a separate question Amperity also helps answer. Personally identifiable information, in this context, isn't defined as a fixed checklist of field names; the documentation describes it functionally, as whatever data feeds into building accurate customer identity records. In practice that's the same category of field semantic tags target: names, emails, phone numbers, and similar personal details.\n\nAmperity's Stitch technology uses what the documentation calls 'patented algorithms' to analyze customer data and build what it calls an identity graph — a structure that maps every source record found to belong to the same person onto one shared Amperity ID. The documentation is deliberately non-specific about how the algorithms themselves work; what it does specify is the outcome: an identity graph built from 'accurate and actionable customer profiles.'\n\nFinding PII-bearing tables uses the same two-path choice as tagging. Clicking AmpAI select identifies likely tables, proposes primary keys, and applies semantic tags together, in one pass, rather than as three separate decisions. Clicking 'Manually select' instead puts table selection under your control from the start — and even after using AmpAI select, you can go back and review or override whatever it chose.",
+        "diagram": ""
+      },
+      {
+        "heading": "How Tagging and PII Discovery Fit Together",
+        "body": "Selecting PII-bearing tables and tagging their fields aren't really two separate workflows — they're two views into the same screen. AmpAI select can do both in one motion; manual select walks you through both, one after the other. A table selected but never tagged gives Stitch nothing to standardize against other sources; a field tagged on a table that was never identified as holding real customer data tags something that was never going to matter to identity resolution in the first place.\n\nThis also connects directly back to primary keys from the previous course: a table needs both a primary key, so Stitch can track individual rows over time, and semantic tags, so Stitch can compare its fields against equivalent fields elsewhere. A table with one but not the other is only half-ready as input to identity resolution.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "Why does Amperity require semantic tags on every source that feeds customer profile data to Stitch?",
+        "options": [
+          "Tags trigger the nightly load schedule; sources without any tags applied never sync automatically.",
+          "Tags standardize what a field means, like phone, so Stitch can compare fields across sources.",
+          "Tags determine which fields get encrypted at rest; fields left untagged are stored as plain text.",
+          "Tags set the display order of columns in the Customer 360 output table used for reporting on customers."
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "What does AmpAI Select do differently from choosing 'Manually select' on the Identity resolution page?",
+        "options": [
+          "It restricts you to standard tags only, while manual selection is required to add any custom tag.",
+          "It applies tags to every table in the account at once, while manual selection is limited to one table.",
+          "It requires a separate approval step from an Amperity account manager before any tags take effect.",
+          "It automatically finds the best tables for identity resolution and recommends keys and tags for them."
+        ],
+        "correct_index": 3
+      },
+      {
+        "question": "What is the identity graph, as built by Amperity's Stitch process?",
+        "options": [
+          "A structure that maps every source record belonging to the same person onto one shared Amperity ID.",
+          "A structure that maps every semantic tag to the source table where it was first defined and used.",
+          "A visual dashboard showing which tables in the account still lack a configured primary key entirely.",
+          "A structure that maps every excluded value to the row exclusion rule that removed it from view."
+        ],
+        "correct_index": 0
+      }
+    ]
+  },
+  {
+    "id": "amp-start-profile-generation",
+    "title": "From Raw Data to a Unified Profile",
+    "type": "course",
+    "level": "beginner",
+    "track": "Getting Started with Amperity",
+    "duration_minutes": 20,
+    "content": "Walks through the four-stage profile generation workflow, how a merge policy resolves conflicting values across sources for a single customer, and the five standard output tables -- Customer 360, Identity Graph, Merged Customers, Unified Coalesced, and Unified Scores -- that generation produces.",
+    "sections": [
+      {
+        "heading": "What Profile Generation Does and When to Run It",
+        "body": "Connecting a source, assigning it a primary key, excluding bad values, and tagging its fields — everything covered in the first three courses — gets data ready to be used. It doesn't, by itself, produce a customer profile. That's a distinct, explicit step: profile generation, run from the Customer profiles page in Quick start by clicking 'Generate profiles' on the Generate tables card.\n\nProfiles need to be regenerated any time a source table containing personally identifiable information changes — a new load, an edited record, a newly tagged field all mean the profiles built from that data are now out of date until generation runs again. That can happen through a scheduled workflow or by triggering it manually from that same button, and it's the step that turns everything upstream — connected sources, keys, exclusions, tags — into an actual unified customer record.",
+        "diagram": ""
+      },
+      {
+        "heading": "The Four-Stage Generation Workflow",
+        "body": "Generation moves through four stages in order. First, domain table updates: the domain tables — Amperity's standardized shape for a category of source data — refresh with whatever has changed in the underlying source tables since the last run. Second, data quality validation: Amperity checks the refreshed source data for specific, concrete problems — invalid phone numbers, missing item quantities, missing revenue figures, whether order and store IDs are actually present in transactions data, and invalid email addresses. This check exists because feeding malformed data into identity matching doesn't just produce a bad field value, it can produce a wrong match or a missed one.\n\nThird, Stitch executes: the identity-resolution process runs against the validated, primary-keyed, semantically tagged data prepared in earlier courses, comparing records across sources to decide which ones describe the same person. Fourth, profile refresh: the resulting unified customer profiles are written into the database, replacing whatever was there from the previous generation run.\n\nEach stage depends on the one before it — validation only means anything because the domain tables were just refreshed, and Stitch only produces trustworthy matches because validation already screened out the records most likely to cause a bad one.",
+        "diagram": ""
+      },
+      {
+        "heading": "Merge Policy: Choosing the Best Value When Sources Disagree",
+        "body": "Once Stitch has linked records from multiple sources to a single Amperity ID, those sources often disagree — one has an old email, another has the current one, a third is missing the field entirely. A merge policy is the rule set that decides which source wins for a given field when that happens. The result lands in the Merged Customers table, which the documentation describes as collecting PII from all source datasets and consolidating it into 'a single customer's best set of profile data' per Amperity ID.\n\nPriority is configured independently for six profile attribute categories: address (address, city, state, postal code, country), birthdate, email, gender, name (full name, given name, surname), and phone. For each category, you rank the tables that supply it, and higher-ranked tables win by default. The behavior when a top-ranked source comes up empty is a cascade: if Table A is ranked above Table B for email and Table A's email field is blank for a given customer, Amperity falls back to Table B's value — and keeps moving down the ranked list of tables for that attribute until it finds a non-null value.\n\nConfiguration happens in the Profile Builder: arrange tables in priority order for each of the six attribute groups, define source precedence for any additional semantic tags beyond those six, and save. One prerequisite applies before any of this can take effect: at least one domain table with profile semantic tags already applied has to be available to Stitch, or there's nothing for the merge policy to rank in the first place.",
+        "diagram": ""
+      },
+      {
+        "heading": "The Five Standard Output Tables",
+        "body": "Amperity's guided setup always produces five standard output tables, available to the Segment Editor once generation has run. Customer 360 is the unified view across every point of engagement — given name, surname, email, phone, physical address, city, state, postal code, birthdate, and gender, one row per customer. Identity Graph is the structural table underneath it: it compiles the Unified Coalesced table into a graph mapping each data source to an Amperity ID, with three columns — Amperity ID, Datasource, and Customer Key, where Customer Key is the primary key and all customer keys from that data source coalesced into a single value.\n\nMerged Customers, described in the previous section, groups PII across every source with a broader field set than Customer 360 — Address2, company information, country, full name, generational suffix, loyalty ID, and title in addition to the core fields. Unified Coalesced holds all the PII Stitch has processed, with semantic tags themselves as the column headers rather than source-specific names; the combination of primary key and Datasource uniquely identifies each row in it, the same pairing covered in the primary keys course.\n\nUnified Scores is the odd one out: instead of customer data, it documents how Stitch scored and categorized record comparisons — Amperity ID, Source1, Source2, the primary keys being compared, a score, a match category, and a match type. It's the table to check when you need to understand why Stitch decided two particular records did or didn't belong to the same person, rather than what the resulting profile looks like.",
+        "diagram": ""
+      },
+      {
+        "heading": "How the Pipeline Connects End to End",
+        "body": "Every stage in this course consumes something built in an earlier one. A raw source connected as a courier or Snowflake bridge becomes usable only once it has a primary key and a clean set of exclusions; that same table becomes comparable to other sources only once its fields carry semantic tags. Profile generation's data quality validation stage is checking exactly the kind of fields those tags identified as PII. Stitch's matching runs on the primary keys and tagged fields directly. And the merge policy that decides which source wins a conflict only has something to rank because domain tables with applied tags were already available to it.\n\nThe five standard output tables are where all of that becomes visible: primary keys and datasources pair up in Identity Graph and Unified Coalesced exactly as designed in the primary keys course; semantic tags literally become Unified Coalesced's column headers; and Unified Scores exposes the Stitch comparisons that tagging and key selection made possible in the first place. Nothing in profile generation invents new data — it's the step where every earlier setup decision becomes one queryable, unified customer record.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "In the merge policy example where Table A is ranked above Table B for the email attribute, what happens if Table A's email field is empty for a given customer?",
+        "options": [
+          "The customer's email field is left blank in Merged Customers, since only the top-ranked table is ever checked.",
+          "The customer record is flagged as incomplete and excluded from the next profile generation run entirely.",
+          "Amperity falls back to Table B's value, continuing down the ranked list until a non-null value is found.",
+          "The merge policy is automatically disabled for that customer's Amperity ID until an admin resolves it."
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "Which stage of the four-stage profile generation workflow checks source data for problems like invalid email addresses or missing revenue?",
+        "options": [
+          "Profile refresh, which runs last and writes the finished profiles into the customer database.",
+          "Data quality validation, which runs after domain tables update and before Stitch executes.",
+          "Domain table updates, which only refreshes source data without inspecting its contents at all.",
+          "Stitch execution, which matches records but does not evaluate any individual field values."
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "What distinguishes the Unified Scores table from the other four standard output tables?",
+        "options": [
+          "It stores only excluded values and the row-exclusion rules that removed them from other tables.",
+          "It stores the merge policy's source ranking order for each of the six profile attribute categories.",
+          "It stores the raw, untagged source files exactly as they were pulled before any courier ran.",
+          "It documents how pairs of records were scored and categorized when Stitch compared them."
+        ],
+        "correct_index": 3
+      }
+    ]
+  },
+  {
+    "id": "amp-c360-databases-domain-tables-feeds",
+    "title": "Databases, Domain Tables & Feeds",
+    "type": "course",
+    "level": "intermediate",
+    "track": "The Customer 360 Data Model",
+    "duration_minutes": 20,
+    "content": "Every table you eventually query in Amperity's Customer 360 database traces back through a specific pipeline: raw source data is configured as a feed, Amperity turns that feed into a domain table, and domain tables are assembled -- through passthrough, SQL, or SQL-template tables -- into the database you actually query. This course walks that pipeline end to end, grounded in Amperity's own documentation on databases, domain tables, feeds, and datasets, so that primary keys, semantic tags, and Spark SQL table-building read as one connected process rather than four separate glossary entries.",
+    "sections": [
+      {
+        "heading": "A Feed Is a Configuration, Not a File",
+        "body": "A feed is not the data itself -- it's the configuration that tells Amperity how to load a specific piece of source data into a domain table, including which columns are required and which columns carry semantic tags for profile (PII) or transaction data. Every feed needs at least one field marked as its primary key: a column, or combination of columns, that uniquely identifies each row in the resulting table. Amperity uses that primary key during UPSERT operations -- the process of inserting a new row or updating an existing one that shares the same key, rather than creating a duplicate.\n\nBecause the same primary key can show up more than once across multiple loads of a feed, every feed also needs a field that determines which version of a duplicate record wins. This is the last-updated field, and it can be a datetime column, an integer such as a Unix timestamp, or left for Amperity to generate automatically. When it's automatic, the rule is a simple hierarchy: newly ingested data overwrites what's already there, a later-dated file supersedes an earlier one, and within a single file, the last row for a given key wins.\n\nFinally, a feed needs semantic tags applied to its columns -- labels like profile semantics (names, emails, addresses), key semantics (primary keys, foreign keys, blocking keys), product catalog semantics, and transaction semantics. These tags are what let Amperity treat a column called cust_email in one source and email_addr in another as the same kind of thing. The next course in this track covers semantic tags in depth; for now, the important point is that a feed without correctly applied tags is a feed Stitch -- Amperity's identity resolution workflow, which finds the hidden connections between records across a brand's online and offline customer data and assigns each person a stable Amperity ID -- cannot use reliably."
+      },
+      {
+        "heading": "From Feed to Domain Table",
+        "body": "Once a feed is configured and activated, Amperity generates a domain table from it. The Domain Tables section of the Sources page lists every table produced this way, showing its name, record type, and column count. To every domain table, Amperity automatically adds three system-generated columns: _pk, an identifier built from whichever columns were tagged as the primary key; _uuid_pk, a system-generated UUID that helps Amperity distribute work during Stitch processing; and _updated, which carries the last-updated details for that row. These three columns are also available downstream, in passthrough tables inside the customer 360 database.\n\nDomain tables are classified by what kind of records they hold. Customer records are identified by the presence of PII-related semantic tags -- an email list with names and phone numbers is a typical example. Interaction records are identified by transaction, itemized-transaction, product-catalog, or other behavior-related semantic tags, and capture things like purchases, returns, or cart adds. A single domain table may contain both kinds of records; during the Stitch process, customer records and interaction records are split apart into dedicated tables for use inside the customer 360 database.\n\nSometimes a source table's shape doesn't match what semantic tagging or Stitch expects -- a full name that needs splitting into given and surname, or a date that arrives as three separate year/month/day columns. For that, Amperity supports custom domain tables: a domain table reshaped with Spark SQL (Domain SQL) into a new table that itself acts like a feed, in that you can apply semantic tags, identify a primary key, and make it available to Stitch. The documentation is explicit that a custom domain table should be designed to be as static as possible -- because a change in the source data often means rewriting the SQL that defines it, which can force a complete reload of that data source."
+      },
+      {
+        "heading": "From Domain Table to Database: Three Ways to Build a Table",
+        "body": "A domain table isn't yet something you can query for marketing or analytics -- it has to become a table inside a database first, and Amperity supports three ways to do that. The first is a passthrough table, which adds a domain table's data directly into the database with little modification. The table's name defaults to whatever the domain table was called, though it can be renamed. For a passthrough table to be usable in the Segment editor or with campaigns, it must contain an Amperity ID field.\n\nThe second method is a SQL table, built with Spark SQL -- described in the docs as \"a high performance SQL query engine used by Amperity to ingest data, create domain tables, and extend the outcome of the Stitch process\" -- and a SELECT statement that defines the table's schema. This matters most when a table hasn't gone through Stitch and has no Amperity ID of its own: the SQL has to associate the table's existing unique identifier with the Amperity ID some other way. The documentation's own example joins a POS_transactions table to a POS_customers table with a LEFT JOIN, mapping customer_id to amperity_id so the transaction rows can be tied back to a resolved identity.\n\nThe third method is a SQL template table, which is really a shortcut on top of the second: Amperity ships complete, ready-to-use SQL that matches the default use case for a given standard table. Templates exist for tables like Customer 360, Customer Attributes, Merged Customers, Unified Coalesced, Unified Customer, Unified Itemized Transactions, Unified Scores, and Unified Transactions, among others, plus a few composite templates such as Customer 360 joined with Transaction Attributes Extended. Templates are the recommended path for standard tables precisely because they encode Amperity's default logic instead of asking each tenant to reinvent it."
+      },
+      {
+        "heading": "Assembling a Database: Templates and Merge Rules",
+        "body": "A database is the collection of tables built from some combination of stitched output, passthrough domain tables, and custom domain tables. At least one database in a tenant must be designated the Customer 360 database, but there's no upper limit on how many databases a tenant can have. When creating a new one, three database-level templates are available. The Customer 360 template adds standard tables based on which record types are present: if profile semantic tags are in use, it adds Customer 360, Merged Customers, Unified Coalesced, Unified Customer, and Unified Scores; if transaction semantic tags are in use, it also adds Customer Attributes, Transaction Attributes Extended, Unified Itemized Transactions, and Unified Transactions. The Passthrough template instead creates one table for every domain or custom domain table available for pass-through. The Stitch QA template adds tables specific to quality-checking the Stitch process, such as Detailed Examples and Unified Changes Clusters.\n\nA tenant can run more than one database precisely because different teams need different views of the same underlying identity graph, and that's controlled through merge rules. Each database defines its own rules, written in Spark SQL, for how to merge customer profile data field by field. The docs give three concrete examples of why this flexibility matters: an operations team might prioritize the most common values using deterministic matching; an email marketing team might prioritize values sourced from the email platform using probabilistic matching; a paid media team might want all possible values represented, to maximize match rates when uploading audiences to platforms like Google Ads or Facebook.\n\nBecause so much of database assembly runs through hand-written Spark SQL, the SQL editor surfaces validation alerts for patterns that tend to hurt performance -- implicit CROSS JOINs that create unintentional Cartesian products, OVER statements missing a PARTITION BY clause, unescaped backslashes inside regular expressions, and unintentional broadcast joins. Critically, the documentation notes that a validation alert does not mean the SQL is invalid; a query can still be activated despite one, which matters for anyone who has hit a red warning and assumed their table was broken."
+      },
+      {
+        "heading": "Putting the Pipeline Together",
+        "body": "Laid end to end, the pipeline runs: a feed is configured with a primary key, a last-updated field, and semantic tags; Amperity turns that feed into a domain table, adding _pk, _uuid_pk, and _updated, and classifying its rows as customer or interaction records (optionally after reshaping through a custom domain table); that domain table becomes a table in a database through a passthrough, SQL, or SQL-template build; and the database itself is assembled from one of three templates, with per-field merge rules controlling how competing values resolve when more than one source contributes to the same customer.\n\nThe documentation is explicit about sequencing at the top of this chain, too: it states plainly that the processes for adding customer profiles and adding transactions should be completed before creating the customer 360 database. In practice, that means the feeds carrying profile and transaction data need to be configured, tagged, and ready for Stitch before the database template can produce anything meaningful -- the database step assumes the feed and domain-table work is already done, not the other way around.\n\nOnce a database exists, getting data back out runs through Database Exports: each export is given a unique name, a selected list of tables to include, a destination, and an orchestration assignment that controls when it runs. That closes the loop -- a feed's raw rows, several transformation steps later, arrive at a destination as a table a downstream system can actually consume."
+      }
+    ],
+    "quiz": [
+      {
+        "question": "A feed's source data contains two rows with the same primary key, loaded on different days with no explicit last-updated column configured. Which row does Amperity keep?",
+        "options": [
+          "Whichever row was loaded first, since Amperity treats the earliest load as authoritative by default",
+          "The row from the later-dated file, following Amperity's automatic hierarchy for resolving duplicate keys",
+          "Both rows are kept as separate entries, since a domain table cannot deduplicate without an explicit field",
+          "Whichever row has more non-null columns filled in, since Amperity scores rows by completeness"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "Which system-generated column does Amperity add to every domain table specifically to help distribute work during Stitch processing?",
+        "options": [
+          "_pk, an identifier generated from the columns associated with the primary key",
+          "_updated, a field that only records the datetime a row was first ingested",
+          "_uuid_pk, a system-generated UUID used to distribute work during Stitch",
+          "_stitch_id, a cluster identifier assigned once identity resolution completes"
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "Per the documentation, what is required for a passthrough table to be usable in the Segment editor and with campaigns?",
+        "options": [
+          "It must contain an Amperity ID field, since that's what campaigns and the Segment editor key on",
+          "It must be rebuilt as a SQL table, since passthrough tables cannot be used with campaigns at all",
+          "It must exclude every column that carries a PII-related semantic tag before activation",
+          "It must be assigned to the Stitch QA template rather than the Customer 360 template"
+        ],
+        "correct_index": 0
+      }
+    ]
+  },
+  {
+    "id": "amp-c360-tour-standard-output-tables",
+    "title": "A Tour of the Standard Output Tables",
+    "type": "course",
+    "level": "intermediate",
+    "track": "The Customer 360 Data Model",
+    "duration_minutes": 22,
+    "content": "Amperity's Customer 360 database ships with roughly thirty standard output tables, each documented on its own reference page. This course does not attempt to cover all thirty -- instead it takes five of the most conceptually load-bearing tables and organizes them by what they're for: establishing a single customer identity, exposing the mechanics behind that identity resolution, standardizing PII for audience-building, and describing customer behavior through transactions and loyalty. The remaining tables stay available as reference material once the shape of these five makes sense; think of this as the tour that tells you which reference page to reach for later, not a replacement for any of them.",
+    "sections": [
+      {
+        "heading": "Why ~30 Tables, and How to Read Them",
+        "body": "A Customer 360 database's tables fall into three broad groups. Standard tables form the foundation and include names like Customer 360, Merged Customers, Unified Coalesced, Unified Customer, Unified Transactions, Unified Itemized Transactions, and Unified Scores -- these are the tables Amperity ships templates for, and they're the same across most tenants. Source and custom tables make raw source data and custom domain tables available inside the database as passthrough tables; these vary tenant to tenant, since they reflect whatever behavioral, clickstream, or campaign-response data a given brand actually has. QA tables support the Stitch quality-assurance process and mostly matter to the people tuning identity resolution itself, not to everyday querying.\n\nThis course covers five standard tables, chosen because each answers a different question a marketer or analyst actually asks. Customer 360 answers \"who is this person, in one row.\" Unified Coalesced answers \"how did Stitch arrive at that row, and what did it merge together.\" The PII table answers \"how do I get clean, standardized contact fields for an audience upload.\" Unified Transactions and Unified Loyalty answer \"what has this person done, at the level of a single order and at the level of a loyalty relationship.\" Every one of these tables is built using the passthrough, SQL, or SQL-template mechanisms introduced earlier in this track -- Customer 360 itself, for instance, is typically built as a passthrough from the Merged Customers table."
+      },
+      {
+        "heading": "Customer 360 -- the Unified View",
+        "body": "The Customer 360 table is the unified view of a customer across every point of engagement, including attributes that cross systems. Each row represents one complete individual: their Amperity ID, their merged PII, and a set of summary attributes. It does not exist by default -- it has to be created, and the recommended way is applying the Customer 360 template when setting up the database, which builds it as a passthrough from the Merged Customers table.\n\nIts standard columns include Amperity ID (String), Given Name and Surname (String), Email and Phone (String), Address, City, State, and Postal (String), Birthdate (Date), and Gender (String) -- the same profile fields that also show up in Merged Customers, Unified Coalesced, Unified Customer, and Unified Preprocessed Raw. Beyond the base profile fields, typical attributes fall into four groups: profile information (names, addresses, email, phone); interactions by channel (e-commerce, point of sale, loyalty); insights (lifetime value, transaction frequency, recency); and predictions (next best purchase, next best action, churn likelihood).\n\nThe table also supports optional SHA-256 hashed PII columns -- hashed email and hashed phone -- where SHA-256 is a one-way hashing algorithm that turns a value like an email address into a fixed-length string that can be matched against a platform's own hash of the same value without either side ever transmitting the raw address. That's what lets a hashed-email or hashed-phone column from Customer 360 be uploaded directly as a CSV audience file to platforms like Pinterest Ads or Reddit Ads, without exposing the underlying PII in the file itself."
+      },
+      {
+        "heading": "Unified Coalesced -- Where Identity Resolution Shows Its Work",
+        "body": "To understand Unified Coalesced you need Stitch: Amperity's identity resolution workflow, which compares records across every data source a brand provides and decides which ones belong to the same real person, assigning that person a stable Amperity ID. Unified Coalesced is where you can see that process's inputs and intermediate decisions. It consolidates all PII data that passed through Stitch, using semantic tags as its column headers -- and its defining property is that a unique Amperity ID may appear in more than one row. Unlike Customer 360, it doesn't aggregate a person down to a single row; it preserves individual source records, because the whole point of the table is letting you trace how those records were grouped.\n\nThe combination of PK and Datasource columns uniquely identifies a row in Unified Coalesced, and that combination correlates back to a single row in a domain table -- so a specific record here can always be traced to the exact source row it came from. Alongside standard PII columns (Name, Address, Email, Phone, Gender, Birthdate), the table carries columns that exist specifically to expose identity-resolution mechanics: Rep DS and Rep PK identify \"qualified trivial duplications\" -- records with an identity score of 3.0 or greater, representing early, high-confidence groupings Stitch made before the full comparison process ran. Component ID references groupings formed during hierarchical comparison. Is Supersized and Supersized ID flag clusters that grew unusually large, which is often a sign of a data-quality problem rather than a real household or individual. Has BLV and its per-field companions flag values that were removed by the blocklist. CK, a customer-key column, appears only in this table and in Unified Customer.\n\nIn practice, Unified Coalesced gets used for three things: verifying that semantic tags were applied correctly and are visible on the Queries page, investigating why particular records ended up in the same (or different) clusters during identity resolution, and examining which values got blocklisted and why. It shows up in Customer 360 databases, in dedicated Stitch QA databases, and in custom databases where someone specifically needs this level of detail."
+      },
+      {
+        "heading": "The PII Table -- Standardizing Identity for Audiences",
+        "body": "PII -- personally identifiable information, meaning any data field that could identify a specific individual, like a name, email, or phone number -- is scattered across Unified Coalesced in whatever form each source happened to provide it. The PII table exists to fix that: it collects customer profile data from Unified Coalesced and standardizes it into consistent, predictable values, specifically so that it can be queried to build audiences through the Segment Editor.\n\nThe standardization is concrete, not cosmetic. Phone numbers have empty values removed and are reformatted consistently, with a \"+1\" prefix added and non-numeric characters stripped. State values are only accepted if they're exactly two characters; anything longer or abbreviated differently is excluded rather than guessed at. Gender is standardized down to a lowercase \"m\" or \"f,\" with any other value converted to null rather than left ambiguous. The resulting columns include amperity_id, given_name, surname, full_name, generational_suffix, email, phone, address, address_line_2, city, state, postal, birthdate, gender, and company.\n\nThe clearest use case in the documentation is matching: querying the widest possible range of email addresses associated with a person to help identify which specific address they actually use to log into Facebook or Google, since ad platforms match on exact values. From there, the PII table feeds data templates that reshape its output for a specific destination -- Facebook, Google, and Braze are named explicitly -- so the same standardized table can support consistent audience queries across multiple external platforms instead of each destination needing its own bespoke extract."
+      },
+      {
+        "heading": "Unified Transactions and Unified Loyalty -- Behavior at Two Grains",
+        "body": "Unified Transactions holds one row per unique transaction record, with every order ID associated to an Amperity ID. It's mandatory whenever a tenant has transaction and itemized-transaction data available, and it has to be built in a specific order: Unified Itemized Transactions first, then Unified Transactions, then Transaction Attributes Extended -- because Unified Transactions is built by rolling up and aggregating the item-level rows in Unified Itemized Transactions into one row per order. Its roughly thirty columns include Order ID (the primary key), Order Datetime, Order Revenue, Order Quantity, Purchase Channel, Store ID, and Customer ID, which joins to Amperity ID when no foreign key already links the two. A dedicated SQL section called amp_priority handles the edge case where a single order ID ends up associated with more than one Amperity ID, resolving it by update date and Amperity ID order.\n\nFour optional attribute sets can be switched on in the SQL template: fiscal calendars, which align order dates to a brand's accounting periods instead of the calendar year; net order revenue, calculated as revenue across all items including returns and cancellations but excluding discounts; order costs, representing total cost of goods sold minus returns, cancellations, and discounts, which requires cost data tagged in Unified Itemized Transactions; and order discount amounts, totaled either with a MAX() or a SUM() depending on whether the source data records one discount per order or prorates it across items.\n\nUnified Loyalty operates at a different grain: one row per combination of Amperity ID and Loyalty ID, since a single customer can belong to multiple loyalty programs, or hold multiple accounts within one program. It's optional and is typically built as a passthrough table. For a loyalty profile to reach full Amperity ID uniqueness, three semantic-tagging conditions have to hold: the fk-loyalty-id tag matches the loyalty ID field, the loy/email tag is applied to the email field, and the loy/birthdate tag is applied to the birthdate field. Its nineteen columns cover required fields (Loyalty ID, Is Opted-in, Latest Opted-in Datetime), tier information (Current Tier, Spend To Next Tier, Spend To Keep Tier), balance data (Current Balance, Lifetime Balance), and enrollment and activity tracking. The documentation's own examples use it for retention analysis -- comparing churn between loyalty members and non-members by enrollment period -- and value analysis, comparing twelve-month revenue and order frequency across the same groups."
+      }
+    ],
+    "quiz": [
+      {
+        "question": "According to the documentation, what makes Unified Coalesced different from Customer 360?",
+        "options": [
+          "Unified Coalesced aggregates every source record for a customer into a single merged row",
+          "Unified Coalesced excludes all PII and stores only numeric Stitch confidence scores",
+          "Unified Coalesced only contains records that Stitch failed to match to any identity",
+          "Unified Coalesced preserves individual source rows, so one Amperity ID can appear twice"
+        ],
+        "correct_index": 3
+      },
+      {
+        "question": "Per the documentation, what does the PII table do with a phone number field pulled from Unified Coalesced?",
+        "options": [
+          "It discards phone numbers entirely, since phone is not considered PII in this table",
+          "It removes empty values and reformats the number consistently, adding a \"+1\" prefix",
+          "It leaves phone numbers untouched, deferring all formatting to the destination platform",
+          "It converts phone numbers into a SHA-256 hash before they reach the PII table"
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "Why must Unified Itemized Transactions be built before Unified Transactions, per the documentation?",
+        "options": [
+          "Unified Loyalty tier calculations depend on itemized transaction data being present first",
+          "The PII table cannot standardize phone numbers until itemized transactions are loaded",
+          "Amperity IDs are only assigned to customers after itemized transactions finish processing",
+          "Unified Transactions rolls up and aggregates the itemized rows into one row per order"
+        ],
+        "correct_index": 3
+      }
+    ]
+  },
+  {
+    "id": "amp-c360-semantic-tags-data-types",
+    "title": "Semantic Tags & Data Types",
+    "type": "course",
+    "level": "beginner",
+    "track": "The Customer 360 Data Model",
+    "duration_minutes": 15,
+    "content": "Two mechanisms sit underneath everything else in this track: semantic tags, which give Amperity a common vocabulary for the same kind of field even when every source names and shapes it differently, and data types, which define what a field is allowed to hold before that vocabulary can be applied to it. This course, grounded in Amperity's semantic-tag and data-type reference documentation, covers both -- what tags exist, how they're assigned, what types Amperity supports, and the specific rule for handling data that doesn't come in a flat, simple shape.",
+    "sections": [
+      {
+        "heading": "What a Semantic Tag Does",
+        "body": "A semantic tag is a label that standardizes personally identifiable information (PII), transaction data, and other important customer-profile details across every column in every source table a tenant has. The problem it solves is that two data sources describing the same kind of information -- a customer's email address, say -- will almost never use the same column name, the same casing, or the same data quality. A semantic tag gives Amperity a common understanding of what a field means, independent of what it happens to be called.\n\nThat matters because of how it changes the work required to bring new data in. Traditional integration often relies on ETL -- extract, transform, load -- where data is cleaned and reshaped to match a target schema before it's ever loaded into the destination system. Semantic tags let Amperity work the other way around, as ELT: extract, load, transform. Raw data can be handed to Amperity largely as-is, loaded into a domain table, and then tagged -- with the transformation (standardizing formats, splitting names, resolving identity) happening inside Amperity after loading, rather than as an expensive preprocessing step a source system has to perform first.\n\nBecause Stitch, Amperity's identity resolution process, relies on accurate semantic tagging to run its blocking strategies -- the comparison shortcuts it uses to avoid checking every record against every other record -- a mistagged or untagged field doesn't just look wrong in a report. It can directly degrade how well Stitch resolves identity across sources."
+      },
+      {
+        "heading": "The Tag Categories",
+        "body": "Profile and PII tags cover the fields that describe a person: email (with variants like email-primary and email-alternate), phone (phone-home, phone-mobile, phone-work), given-name, surname, full-name, address and its components (address2, city, state, postal), and birthdate. These are the tags that feed the Customer 360 and PII tables covered earlier in this track.\n\nKey tags describe how records relate to each other and to an identity. A primary key (pk) uniquely identifies a row within its own table. A foreign key (fk-[namespace]) points from one table to a customer identity defined elsewhere. A customer key (ck) marks a field specifically used to represent customer identity. A separation key (sk-[semantic]) is used to keep certain records from being merged together during Stitch even if other fields would otherwise suggest they match -- useful for cases like shared family email addresses. A blocking key (bk-[label]) feeds Stitch's blocking strategies directly, grouping records into smaller comparison sets so identity resolution doesn't have to compare every record in a table against every other record.\n\nInteraction tags cover transaction and itemized-transaction data, plus loyalty-specific tags prefixed loy/ for profile-level loyalty fields and loy-event/ for loyalty activity events. Product catalog tags are prefixed pc/ and cover fields like product ID and category. System tags exist too -- update-dt is the one named in the documentation, used to track when a record was most recently updated."
+      },
+      {
+        "heading": "Assigning Tags and Handling Multiple Values",
+        "body": "Tags are applied through the Feed Editor: open a data source's feed, select Edit, and Amperity will have already applied some tags automatically based on column names and content. From there, the person configuring the feed reviews those automatic tags for accuracy and manually applies tags to whatever fields are left, before clicking Activate to make the feed live.\n\nSome tags carry a data-type requirement, which is where this course's second half connects to its first: fields tagged postal or phone must be a String type, and fields tagged birthdate must be a Date type. If a field's actual type doesn't match what its tag requires, Amperity blocks the save with an error rather than silently coercing the value -- which is a deliberate guardrail, since a birthdate stored as a string could sort or compare incorrectly downstream.\n\nWhen a single source has more than one instance of the same kind of field -- two email columns, three phone columns -- the same tag gets applied to each field, and then a suffix distinguishes them. The recommended approach is a namespace, like email-primary and email-alternate, which produces readable column names such as email_primary and email_alternate once the data reaches the Unified Coalesced table. The alternative is an ordinal, like email-1 and email-2, producing columns named email_1 and phone_2. Namespaces are preferred specifically because the resulting column names describe what the field actually is, not just its position in a list."
+      },
+      {
+        "heading": "Data Types: The Simple Types",
+        "body": "Amperity defines seven simple data types, each with a direct equivalent in the major platforms it integrates with. Boolean holds TRUE, FALSE, or NULL. Date holds an ISO-8601 compliant date value, like 2021-11-04. Datetime holds an ISO-8601 compliant date and time value, used for things like transaction timestamps. Decimal holds a fixed-point number with a configurable number of digits before and after the decimal point -- the right choice for prices, where floating-point rounding error is unacceptable. Float holds a floating-point number, appropriate where exact precision matters less than range. Integer holds a whole number of various lengths, explicitly not intended for prices. String holds a sequence of characters -- names, emails, addresses, UUIDs, phone numbers, and free-text descriptions all fall here.\n\nThese line up with familiar equivalents elsewhere: Decimal corresponds to DECIMAL(p,s) in Databricks and BigQuery or NUMBER(p,s) in Snowflake; Integer spans BIGINT, INT, SMALLINT, and TINYINT across those platforms; String matches STRING, VARCHAR, and CHAR. That mapping exists because Amperity ingests data that originated in one of those systems, and getting the type right at the boundary is what makes the postal/phone/birthdate tagging rules from the previous section enforceable in the first place -- a type mismatch there isn't a formatting nuisance, it's a save-blocking error."
+      },
+      {
+        "heading": "Complex Types and the Conversion Rule",
+        "body": "Beyond the simple types, Amperity recognizes three composite data types that source systems sometimes use to nest data inside a single field. An Array stores a sequence of elements, where each element is itself a set of fields and values. A Map stores data as key-value pairs. A Struct groups data as a sequence of fields within one structure -- effectively an object nested inside a column.\n\nAmperity will load a source containing any of these types into a domain table without complaint, but that's as far as they can go unmodified: none of the three can be used directly with Stitch or have semantic tags applied to them as-is. Instead, the fix is the same custom domain table mechanism introduced earlier in this track. A custom domain table, written in Spark SQL, converts every element of the array, map, or struct into its own individual field in the table's output -- at which point semantic tags and keys can be assigned to those individual fields exactly like any other column. Composite types are allowed to appear in a common table expression partway through that SQL, as long as the final query output contains no array, map, or struct fields by the time it's produced.\n\nA small number of source-platform types don't have a path into Amperity at all as semi-structured data: Google BigQuery's RANGE type, and Snowflake's FILE, VARIANT, and VECTOR types among others. These have to be converted to one of the fully structured types -- simple or composite -- before Amperity will accept them, for the same underlying reason arrays and structs need conversion: everything downstream, from semantic tagging to Stitch to the standard output tables covered elsewhere in this track, assumes a flat, typed column to work with."
+      }
+    ],
+    "quiz": [
+      {
+        "question": "Why does Amperity's use of semantic tags support ELT (extract, load, transform) instead of traditional ETL?",
+        "options": [
+          "Tags let raw data load as-is, with reshaping happening afterward instead of before loading",
+          "Tags automatically convert every source column to Amperity's preferred naming scheme on load",
+          "Tags are optional under ETL, but they only become mandatory once a tenant adopts an ELT pipeline",
+          "Tags replace the need for a primary key by inferring row uniqueness from field content alone"
+        ],
+        "correct_index": 0
+      },
+      {
+        "question": "A source table has two phone number columns. What does the documentation recommend for tagging them?",
+        "options": [
+          "Apply the phone tag to one column only, and drop the second column entirely during ingestion",
+          "Merge both phone columns into a single combined string field before any tag is applied",
+          "Apply the phone tag to both fields, then append a namespace like phone-home and phone-mobile",
+          "Leave both phone fields untagged, since Stitch can only compare one phone field per source"
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "Per the documentation, what has to happen before a struct-typed field can be assigned a semantic tag?",
+        "options": [
+          "Nothing -- semantic tags can be applied directly to struct fields without any conversion step",
+          "It must be dropped from the domain table, since Stitch cannot process any composite type",
+          "It must be loaded into Unified Coalesced first, where each struct element becomes its own row",
+          "It must be converted to individual fields in a custom domain table, which can then be tagged"
+        ],
+        "correct_index": 3
+      }
+    ]
+  },
+  {
+    "id": "amp-sc-building-segments",
+    "title": "Building Segments",
+    "type": "course",
+    "level": "beginner",
+    "track": "Segments, Campaigns & Journeys",
+    "duration_minutes": 18,
+    "content": "A segment is the audience-defining building block underneath every campaign and journey in Amperity: an attribute profile built in the Segment Editor whose matching customers become your marketing audience. This course walks through how segments are assembled from tenant data, how AND/OR logic and activation IDs shape which customers qualify, how to read the insights that tell you whether a segment is any good before you send anything, and how AmpAI's Customer Data Assistant can generate a starting segment from a plain-language goal instead of a blank editor.",
+    "sections": [
+      {
+        "heading": "What a Segment Is, and Where You Build It",
+        "body": "A segment defines a specific attribute profile, and the customers who match that profile make up the segment's audience. Everything downstream -- campaigns, journeys, exports -- starts from one or more segments, which is why the Segment Editor is the first tool worth understanding in this track. You reach it two ways: the \"Create Segment\" button on the Segments page opens the full editor with segment insights attached, or the \"Add sub-audience\" link inside a campaign opens a related but reduced tool called Audience Builder, which shares the same condition-building interface but does not show insights and is limited to the database and tables already used to build the campaign's starting audience.\n\nSegments are built against tables in your customer 360 database -- the unified store Amperity maintains after resolving and merging customer records from your source systems. Amperity provides several standard tables that are always available to the Segment Editor: Customer 360 (profile data like names, addresses, emails, and phone numbers, summarized one row per unique customer), Unified Transactions (order-level purchase details), Unified Itemized Transactions (line-item and product catalog details within those orders), and Transaction Attributes Extended (calculated fields built on top of the order- and item-level data, such as recency and monetary scores). Depending on your tenant, Campaign Recipients, Customer Attributes, and -- where predictive modeling is enabled -- Predicted Affinity and Predicted CLV Attributes tables are also available. You can expand any table row in the editor to see its attributes, or open the Data Explorer for detailed attribute descriptions and example values.\n\nOne tenant-level setting changes what a segment actually counts: the activation ID. This is the field a segment resolves its audience against -- commonly a customer-level Amperity ID, but a tenant can configure others, such as an email_id. Switching the Segment Editor's Activation ID dropdown to email_id restricts the available tables and lists to only those containing a matching email_id field, and it changes the editor's own language to match: \"Include customers with ALL of the following\" becomes \"Include email addresses with ALL of the following\" once the plural name for that activation ID is \"email addresses.\" The same customer can appear multiple times in an email_id-activated segment if they have more than one address on file, which is a different shape of audience than a one-row-per-customer segment.",
+        "diagram": ""
+      },
+      {
+        "heading": "Choosing Attributes and Reading Segment Insights",
+        "body": "Once you've picked a table, you build a segment by adding attributes -- individual fields, like Predicted Lifecycle Status or Total Value of Orders -- and configuring how each one should filter the audience. Attributes come from four sources: tables in the customer 360 database (standard or custom), purchase behaviors, custom tables built in the Queries page and made available to the Segment Editor, and files uploaded directly to the editor. Purchase behaviors are a distinct category worth calling out on their own: attributes like First Purchase, Has Purchased, Has Not Purchased, Most Frequent Order, Repeat Purchase, and Total Value of Orders combine a customer's interaction history with your product catalog, and they only work if your tenant uses Amperity's standard field names for that catalog data.\n\nSome attributes take a value immediately -- boolean (true/false) attributes are the common case -- while most string, date, time, amount, and quantity attributes expose additional configuration fields once you've added them, such as an operator and a comparison value. A churn-prevention segment might start with Predicted Lifecycle Status, which has six possible stages, and use the \"is in list\" operator to select \"Active,\" \"Cooling down,\" and \"At risk\" in one condition, then add a second attribute -- Has Purchased, scoped to the previous three months -- to narrow further.\n\nAfter adding an attribute, clicking Refresh recalculates segment insights, which answer four standing questions about whatever audience you've defined so far: Unique Customers (the count by unique Amperity ID), 1-year Active Customers (unique customers who purchased within the past year), 1-year Segment Revenue (total revenue from those active customers over the same window), and Reachable Customers (unique customers with at least one contactable email address, phone number, or physical mailing address). Before you've added any conditions, these numbers represent 100% of your customer base; each attribute you add and refresh narrows them, which is what lets you watch an audience shrink or grow in real time as you build. Reachable does not mean opted in -- a customer can have a contactable email on file without having consented to receive marketing at it, a distinction that matters once you get to campaigns.",
+        "diagram": ""
+      },
+      {
+        "heading": "Combining Conditions: Inclusions, Exclusions, and AND/OR Logic",
+        "body": "Every segment starts from the full customer 360 database and narrows down through inclusions and exclusions. An inclusion is a condition that determines which customers belong in the audience; an exclusion is a condition that determines which customers get removed from it, even if they'd otherwise match. Both inclusions and exclusions can reference customer lists as well as attributes -- a customer list can be a saved query, another existing segment, or a file of customer identifiers uploaded to Amperity, which is how you layer \"everyone who matches these attributes, except anyone already on this suppression list\" into a single segment.\n\nHow multiple conditions combine is controlled by AND and OR, which behave exactly as they do in SQL: AND requires a customer to match every condition it joins, which always produces an audience the same size or smaller than any single condition alone; OR requires a customer to match only one of the conditions it joins, which always produces an audience the same size or larger. A segment built on City = \"Chicago\" alone returns Chicago residents. Add State = \"Illinois\" with AND and you get the same result, since Chicago residents are already Illinois residents -- but change that AND to OR and the audience grows to every Chicago resident plus every Illinois resident statewide, including people in Springfield or Peoria who've never set foot in Chicago. The default connector in the Segment Editor is AND; a slider switches a given connection to OR, and this choice can be set independently within a group of attributes and between separate groups of attributes.\n\nThat distinction matters most when an attribute value isn't unique on its own. \"Madison\" is a city name that exists in more than twenty U.S. states, so a segment filtering City = \"Madison\" without qualification will pull in residents of Madison, Wisconsin and Madison, Indiana and every other Madison indiscriminately. Pairing it with the right state using AND -- City = \"Madison\" AND State = \"Wisconsin\" -- resolves the ambiguity; pairing two such qualified groups with OR, like (Madison AND Wisconsin) OR (Madison AND Indiana), lets you target both specific cities at once without picking up every other Madison in the country.",
+        "diagram": ""
+      },
+      {
+        "heading": "Letting AmpAI Draft a Starting Segment",
+        "body": "Amperity's documentation describes a conversational entry point called the Customer Data Assistant, part of AmpAI, that works from a plain-language description of intent rather than from picklists: \"describe what you want to accomplish and it generates segments or journeys from scratch.\" Instead of opening the Segment Editor and choosing a starting table and attribute yourself, you describe the audience you want -- the documentation's own framing is working \"from intent\" to a concrete output -- and the assistant produces a segment definition as a starting point.\n\nThe documented workflow treats this as a draft, not a finished artifact: \"a typical workflow might start with using the Customer Data Assistant to create a segment and journey, and then using the Manual edit option to open the specialized editors.\" In other words, the assistant's output lands you back in the same Segment Editor covered earlier in this course, with a set of attributes and conditions already populated from your description, ready for you to inspect, adjust, and -- critically -- refresh for segment insights before you'd trust it as an audience for a campaign. The assistant shortens the path to a first draft; it doesn't remove the verification step.\n\nOne documented limitation is worth knowing before you rely on this heavily: a custom prompt \"provides context but the Segment assistant and Journey assistant have their own specialized logic\" that isn't fully overridden by whatever extra instructions you supply. Practically, that means the assistant is best treated as a fast way to get a reasonable starting set of conditions for a stated goal -- not as a tool you can steer arbitrarily through prompt engineering to produce an exact, unusual condition structure. For that, the Segment Editor's own manual controls -- attributes, operators, AND/OR logic -- remain the precise instrument.",
+        "diagram": ""
+      },
+      {
+        "heading": "Naming and Saving Your Segment",
+        "body": "Once a segment's insights look right, Save As opens a naming dialog, and the name you choose matters more than it might seem, because segments get reused and referenced across a tenant by people who weren't the ones who built them -- and, downstream, by teams working in destination platforms like Braze, Klaviyo, or Facebook Ads who never see the Segment Editor at all. An auto-generated name like \"Untitled segment (43) - 2021-08-13-09-34-35\" tells none of those people anything about who's in it or why it exists.\n\nThe documented conventions: describe the audience and purpose directly (\"Dormant Customers,\" \"High_CLV_Historical\"), append qualifiers like \"historical,\" \"daily,\" or \"test\" when a segment is one of several similar variants, and include brand or region names once a tenant manages more than one of either -- \"Birthdays_Under_40_CA\" and \"Birthdays_Under_40_NY\" as separate, unambiguous segments rather than one generically named segment reused for two purposes. If a segment lives in a folder, prefixing its name with the folder name keeps it identifiable even outside that folder's context -- \"Braze_Birthdays_Under_40_CA\" for a segment filed under a \"Braze\" folder. For sequential naming, leading zeros (\"0001,\" \"0002\") keep segments sorted in the intended order both inside Amperity and in whatever downstream platform lists them alphabetically.\n\nAfter saving, the Segment Overview page opens automatically and adds detail beyond the four core insights: historical and predicted revenue, the percentage of customers reachable by email, phone, or Facebook, and customer trends such as purchases by channel and revenue by lifetime spend. It's worth remembering the same caveat from segment insights applies here too -- reachable customers may not have opted into marketing through that channel, so a high reachability percentage describes contact data on file, not consent to use it.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "In the Segment Editor, what changes when a tenant's activation ID is switched from a default customer-level ID to \"email_id\"?",
+        "options": [
+          "Only tables with a matching email_id field remain available, and the editor's language switches from customers to email addresses.",
+          "Only tables with a matching phone number field remain available, and the editor's language switches from customers to phone numbers.",
+          "Segment insights and refresh counts stop displaying until an entirely different customer 360 database is selected for the tenant.",
+          "Every attribute already added to the segment is removed automatically and must be reselected manually under the new activation mapping."
+        ],
+        "correct_index": 0
+      },
+      {
+        "question": "A segment combines two attribute groups: (city OR state) joined by AND to (opted into email OR opted into SMS). Based on how AND/OR logic works in the Segment Editor, what happens to audience size?",
+        "options": [
+          "Both groups shrink individually because OR narrows results within each group, and AND then narrows the audience further between the two groups.",
+          "Each group grows larger on its own because OR broadens matches, but AND between the two groups narrows the result to customers matching both.",
+          "Each group grows larger on its own because OR broadens matches, and AND between the two groups also broadens the combined audience even further.",
+          "Both groups shrink individually because AND applies first within each group, and OR between the two groups then broadens the combined result."
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "According to Amperity's documentation, what is the typical relationship between the Customer Data Assistant and the Segment Editor when building a segment from a plain-language goal?",
+        "options": [
+          "The Customer Data Assistant replaces the Segment Editor entirely once activation IDs are configured correctly for a tenant.",
+          "The Customer Data Assistant only becomes available after a segment has already been built manually inside the Segment Editor.",
+          "A typical workflow starts with the Customer Data Assistant generating a segment from a description, then Manual edit refines it.",
+          "The Customer Data Assistant requires a custom prompt that fully overrides the Segment assistant's own built-in specialized logic."
+        ],
+        "correct_index": 2
+      }
+    ]
+  },
+  {
+    "id": "amp-sc-running-campaigns",
+    "title": "Running Campaigns",
+    "type": "course",
+    "level": "beginner",
+    "track": "Segments, Campaigns & Journeys",
+    "duration_minutes": 20,
+    "content": "A campaign is how a segment's audience actually leaves Amperity and reaches customers: it takes the audience a segment defines, splits it into sub-audiences aligned to marketing strategy, routes each sub-audience to one or more destinations, and schedules when that happens. This course covers building a campaign from a segment, structuring sub-audiences with treatment and control groups, how destination timing and requirements vary by platform, and orchestrations -- the parallel, query-based path for sending data out of Amperity when a campaign's segment-driven structure isn't the right shape for the job.",
+    "sections": [
+      {
+        "heading": "From Segment to Campaign Audience",
+        "body": "A campaign is defined in the documentation as a message or offer sent to a specific group of customers or recipients. Where a segment answers \"who matches this profile,\" a campaign answers \"what do we send this audience, and where.\" Every campaign starts the same way: choose one or more segments from the Include dropdown, and those customers become the campaign's audience. If you started with a single segment, that choice pays off later -- you can reuse that segment's own insights to track the campaign audience's performance over time, rather than recalculating everything from scratch inside the campaign.\n\nExclude works the same way in reverse: choosing one or more segments from the Exclude dropdown removes any customer who matches them, which is how SMS opt-outs or email unsubscribe lists get kept out of a send without rebuilding the include logic to account for them. When multiple exclusion segments are used together, they combine with OR -- a customer is excluded if they match any one of the exclusion segments, not only if they match all of them.\n\nThe activation ID a campaign uses is inherited from whichever segment defines its starting audience, and any additional segments used for inclusion or exclusion must share that same activation ID -- you can't mix an email-activated segment into a campaign whose starting audience is customer-ID activated. As with the Segment Editor, the campaign's own language updates to match -- \"Customers\" becomes \"Email addresses\" where appropriate. Campaign naming carries real downstream weight: the campaign name always appears in the filename sent to every destination, so names like \"Acme_Churn\" or \"Birthdays_Under_40\" that stay consistent across treatment groups and sub-audiences make files identifiable in a destination platform where nobody sees the campaign builder itself.",
+        "diagram": ""
+      },
+      {
+        "heading": "Sub-Audiences, Treatment Groups, and Control Groups",
+        "body": "Not every campaign needs to send one message to one undivided audience. A sub-audience is a list of customers who receive a specific communication within a larger campaign -- split out by brand, product affinity, lifecycle stage, or any other attribute the strategy calls for. You create one by clicking Add Sub-Audience, which opens Audience Builder -- the same condition-building interface as the Segment Editor, minus segment insights, scoped to the database and tables already in use. A documented example builds three sub-audiences off Predicted Lifecycle Status from the Predicted CLV Attributes table: one for \"Active,\" named \"Active_Socks\"; one for \"Cooling down,\" named \"CoolingDown_Socks\"; one for \"At risk,\" named \"AtRisk_Socks.\" A campaign supports up to 60 sub-audiences.\n\nEvery treatment group's name concatenates with the campaign name to form the filename that ultimately reaches a destination: {{ campaign_name }}_{{ recipient_group_name }}. A campaign named \"Churn_HighValue_Early\" with a \"CoolingDown_Socks\" treatment group produces the filename \"Churn_HighValue_Early_CoolingDown_Socks\" -- which is why treatment group names are meant to build on the campaign name rather than duplicate or contradict it.\n\nA treatment group is the percentage of an audience that receives the campaign's communications; a control group is the percentage that deliberately does not, held back as a randomized sample from the original audience so you have a baseline to measure the campaign's actual effect over time. A campaign typically has one control group overall unless sub-audiences are defined, in which case each sub-audience can carry its own. Amperity attempts, but does not guarantee, consistent control group membership across sends of a recurring campaign -- when the audience size holds steady, the same customers tend to stay in the control group; when it changes, IDs are added or removed to match, and individual customers can shift between control and treatment across sends. On a small audience, setting the control group percentage below roughly 10% risks landing at zero control customers by chance, which defeats the point of having a baseline -- the documented fix is simply moving the percentage closer to 10%.",
+        "diagram": ""
+      },
+      {
+        "heading": "Destinations, Timing, and Campaign Types",
+        "body": "A destination is where a sub-audience's list actually lands, and destinations vary in what data they require. Klaviyo requires an email address, plus whatever additional profile data (birthdays, preferences) you choose to attach; Criteo requires only email; TikTok Ads requires both email and phone number, and optionally accepts Apple and Android advertising IDs; Attentive Mobile requires either a phone number or an email address depending on how that instance is configured; Facebook Ads requires strict field mapping and naming conventions. The documentation recommends sourcing customer PII for these sends from the Merged Customers table specifically, describing it as Amperity's most accurate and complete source of customer PII.\n\nHow fast an audience actually shows up at its destination depends on the destination type, not on the campaign. Cloud storage and file-transfer destinations -- Amazon S3, Azure Blob Storage, Google Cloud Storage, SFTP -- typically resolve within about an hour. Email service providers and marketing automation platforms -- ActiveCampaign, Braze, HubSpot, Klaviyo, Salesforce Marketing Cloud -- typically take 12 to 24 hours. Paid media platforms -- Amazon Ads, Google Ads, Meta Ads Manager, The Trade Desk, Reddit Ads, Snapchat, TikTok Ads Manager -- typically take the longest, 24 to 48 hours. A launch date planned around a paid-media deadline needs to account for that lag; the same campaign reaching an S3 bucket has much more slack.\n\nCampaigns come in three documented shapes. One-time campaigns send a specific message exactly once, such as a welcome message for a new loyalty member. Recurring campaigns automatically refresh and resend an audience on a defined cadence -- daily, weekly, monthly, quarterly -- keyed off a state change like a loyalty tier update or a return. Multichannel campaigns blend the same strategy across several channels at once, using sub-audiences to partition the single starting audience by channel, with each sub-audience potentially carrying its own control group. Before any of these actually schedules, the Campaign Test dialog lets you set a sample record count and run a test send that outputs a sample file showing what downstream systems would actually receive.",
+        "diagram": ""
+      },
+      {
+        "heading": "Orchestrations: The Query-Based Path to a Destination",
+        "body": "Not everything that needs to leave Amperity is a segment-driven marketing audience -- sometimes what a destination needs is the result of an arbitrary query, or an entire database export, and that's what an orchestration is for. An orchestration is the configured relationship between a data source -- either an active query written in Presto SQL, or a database export configured on the Customer 360 page -- and a destination, plus how often that relationship runs. Where a campaign always starts from one or more segments, an orchestration starts from a query or an export; the two are separate mechanisms for the same underlying goal of getting data out of Amperity and into a destination.\n\nSetting one up starts on the Destinations page, using the \"Add Orchestration\" button, which opens the New Orchestration dialog. From there: pick an Object Type of either Query or Database Export; pick the specific Object -- the query or export by name, which also becomes the orchestration's own name; pick the Destination the data should land in; and pick a Data Template, which defines how the results get formatted for that destination. A documented example sends query results to Domo using a \"Domo S3\" destination and a \"Domo S3 CSV Files for Dashboards\" template, landing the data in a customer-managed Amazon S3 bucket that Domo then loads as a dataset -- with the template already preconfigured correctly, requiring no further setup in that case.\n\nEvery orchestration also has a run mode -- Manual or Automatic -- and the documentation's recommendation is consistent with the Campaign Test workflow covered above: start with Manual so you can confirm the orchestration actually produces correct output at the destination, then switch it to Automatic once you trust it. An orchestration cannot be created against a query that's still in draft status; the query has to be active first. Because a destination and a data template can each be reused by more than one orchestration, a tenant with several recurring exports typically ends up with a handful of destinations and templates feeding many orchestrations, rather than a unique destination configuration per export.",
+        "diagram": ""
+      },
+      {
+        "heading": "Testing and Monitoring Before You Schedule",
+        "body": "Both paths covered in this course -- campaigns and orchestrations -- share the same underlying discipline: verify before you automate. A campaign's Campaign Test dialog and an orchestration's Manual-first setting exist for the same reason, catching mapping errors, missing fields, or wrong destination configuration before a real audience or a recurring schedule depends on it.\n\nAmperity also monitors already-scheduled work and surfaces problems automatically. Email notifications alert users to campaign delivery issues -- the documentation cites two concrete examples: a Facebook Ads send missing required external identifiers, and a Google Ads destination with two-factor authentication disabled, both of which would silently block delivery if left unaddressed. These notifications describe the problem, outline resolution steps, and link back to the Workflows page, where the underlying send or orchestration run can actually be inspected and corrected.\n\nOnce a campaign is scheduled, clicking the Schedule button in the top right of the Campaigns page is the final step -- everything before it (audience, exclusions, sub-audiences, destinations, timing, launch date, and a passed test) is what makes that click safe to make. The same logic applies to flipping an orchestration from Manual to Automatic: it's the last step, not the first one, in a workflow that starts with proving the output is correct.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "A campaign is configured with a 5% control group on a very small sub-audience. Per Amperity's documentation on control groups, what should a marketer expect and do about it?",
+        "options": [
+          "The control group will always contain at least one customer no matter how small the audience is, so no adjustment is needed.",
+          "Amperity automatically raises the control percentage to 10 percent whenever an audience falls below a set customer threshold.",
+          "Control group membership resets to zero on every send because small audiences cannot support any consistent group membership.",
+          "The control group may end up with zero members at low percentages on small audiences, so the percentage should move closer to 10 percent."
+        ],
+        "correct_index": 3
+      },
+      {
+        "question": "How does sending data through an orchestration differ from sending data through a campaign, based on how each one is set up?",
+        "options": [
+          "An orchestration sends the results of a query or a database export to a destination, while a campaign sends the audience a segment defines.",
+          "An orchestration sends the audience defined by one or more segments, while a campaign sends the results of a Presto SQL query instead.",
+          "An orchestration and a campaign both require a segment as the starting audience, differing only in how sub-audiences get split apart.",
+          "An orchestration only supports paid media destinations, while a campaign only supports email and SMS destinations for its sub-audiences."
+        ],
+        "correct_index": 0
+      },
+      {
+        "question": "A marketer needs an audience to reach a Meta Ads Manager destination as quickly as possible after a campaign is scheduled. Based on typical destination timing described in Amperity's documentation, what should they expect?",
+        "options": [
+          "Cloud storage destinations like Amazon S3 and paid media destinations like Meta Ads Manager both typically resolve within about 1 hour.",
+          "Paid media platforms like Meta Ads Manager typically take about 24-48 hours, longer than cloud storage or ESP destinations.",
+          "Email service providers like Klaviyo typically take longer than paid media platforms like Meta Ads Manager to receive an audience.",
+          "Meta Ads Manager and other paid media platforms typically resolve within 12-24 hours, the same window as most ESPs."
+        ],
+        "correct_index": 1
+      }
+    ]
+  },
+  {
+    "id": "amp-sc-designing-journeys",
+    "title": "Designing Journeys",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Segments, Campaigns & Journeys",
+    "duration_minutes": 20,
+    "content": "A journey is Amperity's automated, multi-step alternative to a campaign: instead of one send to one audience, a journey moves a defined audience through a sequence of decision points and actions -- sends, waits, and branches -- based on behavior and attributes, running on a recurring schedule rather than a single scheduled moment. This course covers how a journey's audience is scoped with inclusion, exclusion, exit, and goal conditions, the node types that make up a journey canvas, how journeys are measured over time, and how AmpAI can generate a working journey draft -- segment and canvas both -- from a plain-language description.",
+    "sections": [
+      {
+        "heading": "What Makes a Journey Different From a Campaign",
+        "body": "The previous course in this track covered campaigns: a defined audience, split into sub-audiences, sent to destinations, on a one-time or periodically-refreshed schedule. A journey looks similar at a glance -- it also starts from a segment-defined audience and sends to destinations -- but its shape is fundamentally different. Amperity's documentation describes a journey as \"an automated sequence for connecting with customers across channels like email, paid media, SMS, and direct mail,\" where each step is either a decision point or an action: send a message, wait for further engagement, or split the audience onto different paths.\n\nThe key distinction is time and structure. A campaign, even a recurring one, is still fundamentally a single send repeated on a cadence -- the same audience definition, refreshed and resent. A journey is a standing sequence: a customer who enters keeps moving through nodes over days, weeks, or months, potentially taking different paths depending on what they do along the way, until they either exit or reach the end of the canvas. Customers move through the sequence \"based on criteria you specify, like customer behavior, attributes, or engagement history,\" and the path itself can branch, so two customers who enter the same journey on the same day can have entirely different experiences by the end of it depending on what they clicked, bought, or ignored.\n\nPut concretely: a campaign answers \"send this offer to this audience now (or on this repeating date).\" A journey answers \"whenever someone matches this profile, walk them through this sequence of messages and waits, adjusting course based on what they do.\" A win-back campaign sends one email to everyone currently dormant; a win-back journey enrolls a customer the moment they become dormant and keeps engaging with them -- an email, then a wait, then a different message depending on whether they opened it -- for as long as they stay in-journey.",
+        "diagram": ""
+      },
+      {
+        "heading": "Setting Up the Audience: Inclusion, Exclusion, Exit, and Goals",
+        "body": "A journey's setup sidebar defines its audience the same way a campaign does, plus two mechanisms campaigns don't have. Inclusion segments determine which customers enter the journey at all -- one or more segments, unioned together. Exclusion segments remove specific customers from eligibility, the same use case as campaign exclusions: SMS opt-outs, email unsubscribes, anyone who shouldn't be enrolled regardless of otherwise matching.\n\nExit conditions are journey-specific: segments that, when a customer matches them, remove that customer from the journey outright, wherever they currently are in it. The documented example is a customer completing a purchase or opting out mid-journey -- someone doesn't need to keep receiving a win-back sequence once they've already come back and bought something. Up to ten exit segments can be configured, and like exclusions, they're unioned together -- a customer needs to match only one to exit.\n\nGoal conditions look similar to exit conditions but behave differently: reaching a goal segment records that the customer hit a milestone, but does not remove them from the journey. Up to five goal segments are supported per journey, and they must be batch or SQL-based segments -- real-time segments aren't supported here. Finally, re-entry settings apply to recurring journeys: a customer who has already exited can re-enter later if they re-qualify against the inclusion criteria, which matters for something like a win-back journey where a customer could plausibly go dormant, come back, and go dormant again months later.",
+        "diagram": ""
+      },
+      {
+        "heading": "Nodes: The Building Blocks of a Journey Canvas",
+        "body": "A journey is built visually on a canvas, starting from a Start node that displays and lets you edit the inclusion, exclusion, and foundational settings covered above. From there, journeys are assembled from a small set of node types that can be combined in any order. An Activate node sends a message to one or more configured destinations -- if different destinations in the same journey need different custom attributes attached, that requires separate Activate nodes rather than one node fanning out to all of them, and every node's name must be unique within its journey.\n\nA Delay node pauses a customer's progression for a specified combination of days, weeks, or months before they move to the next step. The important, easy-to-miss detail here: \"customers do not automatically move forward after the wait period ends. Progression only occurs the next time the journey runs.\" A journey doesn't evaluate delays continuously in real time -- it runs on a schedule (options include once, every 3 or 6 hours, twice daily, daily, weekly, monthly, or quarterly), and a customer whose delay technically elapsed at 2am on a journey scheduled to run daily at 9am simply waits until that 9am run to actually advance. Designing delay durations without accounting for the run cadence can silently add hours or days of unintended lag.\n\nBranching happens through three more node types. A Conditional Split routes customers down different paths based on segment membership -- a matched path and an unmatched path. A Percent Split divides the audience by a randomly assigned percentage rather than by attribute, useful for A/B testing message variants; percentages across all paths from one split, including any control group, must total 100%, and control groups on a percent split default to 10%. An Individual Split creates distinct sub-audiences under custom conditions of their own. After any split, a Merge node -- which only appears as an option once a split exists -- can bring the separated paths back together into one continuing sequence.",
+        "diagram": ""
+      },
+      {
+        "heading": "Measuring a Journey: JTL, Milestones, and Percent-Split Testing",
+        "body": "Because a journey runs continuously rather than firing once, measuring it requires more than a single send report. The Journey Travel Log (JTL) is the underlying record: it captures every stage transition a customer makes through the journey, along with metadata like timestamps, which branch of a split they took, and which exit segment (if any) removed them. It's the raw audit trail everything else in journey measurement is built from.\n\nThe Milestones Dashboard summarizes that raw data into something reviewable: goal achievements and exit events, aggregated across configurable time windows -- all-time, 7-day, 30-day, and 90-day. This is where the goal conditions defined during setup actually pay off -- without at least one goal segment configured, there's nothing for the Milestones Dashboard to report against beyond raw exits.\n\nPercent-Split Testing is the most structured measurement tool: it compares goal achievement between the paths of a percent split, including any control-group path, and reports the incremental lift one path produced over another -- the actual point of holding out a control group in the first place. This measurement supports a maximum of two goal segments per split node, and like goal conditions generally, it requires batch segments; real-time segments aren't supported for this kind of measurement.",
+        "diagram": ""
+      },
+      {
+        "heading": "Drafting a Journey With AmpAI",
+        "body": "The same Customer Data Assistant introduced in the Building Segments course extends to journeys, and the documentation is explicit that it produces both halves of a journey from one plain-language description: \"a typical workflow might start with using the Customer Data Assistant to create a segment and journey, and then using the Manual edit option to open the specialized editors.\" This is the concrete difference from what a campaign-focused AmpAI request would produce: asking for a campaign audience yields a segment; asking for a journey yields both an entry segment and a populated multi-node canvas -- delays, splits, and Activate nodes assembled to match the description -- because a journey isn't a single send, it's the whole automated sequence covered earlier in this course.\n\nThe documentation's own test case makes this concrete: given the prompt \"Create a win-back journey for churning platinum customers,\" the expected behavior is that the assistant \"creates a segment using your churn + tier definitions, then creates the journey.\" That's two artifacts from one description -- an inclusion segment built from whatever churn and loyalty-tier attributes the tenant has, and a journey canvas wired to use it -- landing you at the Manual edit step with something substantive to review rather than a blank canvas.\n\nThe same limitation noted for segment generation applies here: a custom prompt \"provides context but the Segment assistant and Journey assistant have their own specialized logic,\" meaning the generated journey should be treated as a strong first draft to validate against the JTL and Milestones Dashboard once it's running -- not as a finished, unreviewed sequence. The node-level judgment calls this course covered -- delay durations relative to run cadence, which segments belong on exit versus goal, how many percent-split paths a test actually needs -- are exactly the kind of detail worth checking in Manual edit before a generated journey goes live.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "A journey includes a Delay node set to wait 3 days, and the journey's schedule is set to run once daily. According to Amperity's documentation, what happens to a customer once their 3-day wait period has elapsed?",
+        "options": [
+          "The customer moves to the next node immediately and in real time, independent of the journey's run schedule.",
+          "The customer exits the journey automatically because delay periods that complete outside a scheduled run are dropped.",
+          "The customer does not move forward automatically; progression happens the next time the journey runs on its schedule.",
+          "The customer is moved to the next node only after an administrator manually approves the completed delay."
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "What is the key structural difference between a campaign and a journey, as described in Amperity's documentation?",
+        "options": [
+          "A campaign runs continuously across many nodes while a journey only sends a single message to its audience one time.",
+          "A campaign and a journey are functionally identical, differing only in which page of the application each one gets configured on.",
+          "A campaign always requires an exit condition to be configured, while a journey never supports exit conditions at all.",
+          "A campaign sends a message or offer to an audience, while a journey is a multi-step sequence customers move through over time."
+        ],
+        "correct_index": 3
+      },
+      {
+        "question": "A journey is set up with a goal condition tracking \"made a purchase.\" Per the documentation, what happens to a customer in the journey once they reach that goal segment?",
+        "options": [
+          "The customer is not removed from the journey; reaching a goal segment only records that a milestone was achieved.",
+          "The customer is immediately removed from the journey, the same way that reaching an exit condition normally works for them.",
+          "The customer is moved into a Merge node regardless of which path they were on when the goal was reached.",
+          "The customer's control group assignment resets so they can be re-tested against the same goal segment again later."
+        ],
+        "correct_index": 0
+      }
+    ]
+  },
+  {
+    "id": "amp-sc-use-case-to-audience",
+    "title": "From Use Case to Audience",
+    "type": "course",
+    "level": "intermediate",
+    "track": "Segments, Campaigns & Journeys",
+    "duration_minutes": 20,
+    "content": "Understanding attributes, operators, and AND/OR logic in the abstract is one thing; turning a real business goal into a working segment is another. This course walks through several of Amperity's documented worked examples -- finding dormant customers, isolating the top 20% of customers by revenue, and building a win-back audience -- as concrete segment logic, then closes by comparing the different kinds of attributes (boolean, relative-date, scored, categorical) that show up across these use cases so the pattern generalizes past these four specific examples.",
+    "sections": [
+      {
+        "heading": "Same Skill, Four Business Goals",
+        "body": "Every worked example in Amperity's documentation follows the same shape, which should look familiar from the Building Segments course: open the Segment Editor with the customer 360 database selected, choose one or more attributes and operators that express the business goal as a condition, click Refresh to validate the resulting audience against segment insights, and Save As with a descriptive name. What changes case to case isn't the mechanics -- it's which attribute, from which table, with which operator, expresses a specific real-world definition like \"dormant\" or \"top spender.\"\n\nThat's the actual skill this course is building: business stakeholders describe goals in plain language (\"customers who've stopped buying,\" \"our biggest spenders\"), and translating that into a specific attribute and operator combination is a judgment call informed by what the data actually offers. Often there's more than one reasonable path to the same goal -- a raw date comparison versus a precomputed status field, for instance -- and picking between them is part of what the next few sections cover.\n\nThe four documented use cases referenced across this course are: identifying dormant customers, isolating the top 20% of customers by revenue, identifying early repeat purchasers, and building a win-back audience for lost customers. The next three sections walk through three of them as full worked examples; the final section folds in the fourth as a point of comparison.",
+        "diagram": ""
+      },
+      {
+        "heading": "Worked Example: Finding Dormant Customers",
+        "body": "The business goal here is identifying customers who represent declining engagement and revenue potential -- concretely, people who haven't purchased in a defined window. Amperity's own default definition is precise: \"a dormant customer is a customer who has not made a purchase within the previous 730 days\" (two years).\n\nThe documented primary method builds this as a relative-date comparison: from the Transaction Attributes Extended table, add the Latest Order Datetime attribute, set the operator to \"is after,\" enable the \"Use relative dates\" checkbox, and set the value to today minus 2 years. Read literally, that condition says \"their most recent order happened before two years ago\" -- which, phrased as \"is after\" a relative cutoff, is really excluding anyone whose latest order is more recent than the 730-day threshold, leaving only customers whose last purchase falls outside that window.\n\nThere's also a documented alternative that reaches the same audience through a different table entirely: the Historical Purchaser Lifecycle Status attribute from the Customer Attributes table, using \"is in list\" set to \"Dormant.\" Instead of doing the date math yourself, this relies on a field Amperity has already precomputed into a lifecycle category. Both approaches are documented as valid; the raw-date version is transparent about exactly where the 730-day line sits and is easy to adjust to a different window, while the lifecycle-status version is faster to build and stays consistent with however \"Dormant\" is defined elsewhere in the tenant's reporting. As always, Refresh confirms the resulting count, past-year spend, and reachability before Save As names it something like \"Dormant Customers.\"",
+        "diagram": ""
+      },
+      {
+        "heading": "Worked Example: Isolating the Top 20% by Revenue",
+        "body": "This use case's business goal is two-sided: find which customers represent the top 20% of revenue generated in the past year, and see what share of total revenue that group actually accounts for -- a common way to check how concentrated a brand's revenue is among its best customers.\n\nThe documented segment logic uses the L12M Monetary attribute from the Transaction Attributes Extended table with the \"is in list\" operator, selecting values \"9\" and \"10.\" Those values are RFM scores -- RFM stands for Recency, Frequency, Monetary, a common customer-scoring approach that ranks every customer into deciles (1 through 10) along each of those three dimensions separately. L12M Monetary is the monetary dimension scored specifically against the last 12 months: a customer scored 10 sits in the top decile of revenue generated over that period, and a customer scored 9 sits in the decile just below it. Selecting both 9 and 10 with \"is in list\" captures the top two deciles together, which is exactly the top 20% the business goal asked for -- the RFM scoring scheme and the percentile framing of the goal line up directly once you know deciles are involved.\n\nRefreshing this segment surfaces the metrics the business goal actually needs: how many customers fall in the top 20%, what they spent in the past year in total, how many of them are still active, how many are eligible for future campaigns, and -- the second half of the original goal -- what percentage of total revenue this group represents. Save As with a name like \"Top 20 Percent Customers During Previous Year\" keeps the time window explicit in the segment name itself, since an L12M-scored segment's meaning shifts as the trailing 12-month window moves forward.",
+        "diagram": ""
+      },
+      {
+        "heading": "Worked Example: Winning Back Lost Customers",
+        "body": "A win-back campaign is defined in the documentation as a series of personalized email messages sent to customers who've stopped engaging with a brand, aiming to get them to re-engage -- typically through incentives, product announcements, or personalized recommendations based on past purchases. Its success metric is the win-back percentage: the share of inactive customers who return to make a purchase within the measurement window.\n\nBuilding the audience for this is where the AND logic from the Building Segments course shows up concretely, combining three separate conditions that all have to be true at once. First, Contactable Email from the Customer Attributes table, operator \"is true\" -- there's no point targeting someone with no usable email on file. Second, the documented recommendation adds Is Opted Into Email, also \"is true\" -- contactable is not the same as consented, a distinction this track has flagged before, and a win-back send is exactly the kind of campaign where skipping the opt-in check risks messaging someone who never agreed to receive marketing. Third, Days Since Latest Order from Transaction Attributes Extended, operator \"is greater than or equal to,\" value 730 -- the same two-year inactivity threshold used to define dormancy, just expressed as a days-since count rather than a relative-date comparison against Latest Order Datetime.\n\nJoined with AND, these three conditions narrow the audience to customers who are simultaneously contactable by email, opted in, and inactive for at least 730 days -- dropping any customer who fails even one of the three, which is precisely what AND is supposed to do. The documentation also notes two alternative single-attribute approaches that fold this logic into one precomputed field: Historical Purchaser Lifecycle Status set to \"Dormant,\" or, for tenants with predictive modeling enabled, Predicted Customer Lifecycle Status set to \"Lost.\" As with the dormant-customers example, the choice between building the AND condition explicitly and using a precomputed status attribute is a tradeoff between transparency and speed, not a right-versus-wrong decision.",
+        "diagram": ""
+      },
+      {
+        "heading": "Boolean, Relative-Date, Scored, and Categorical Attributes",
+        "body": "Stepping back across the worked examples in this course, the attributes involved fall into a small number of recognizable shapes, and recognizing which shape you're dealing with speeds up building the next segment that doesn't happen to match a documented use case exactly.\n\nBoolean attributes take a true/false value directly, no additional operator configuration needed beyond \"is true\" or \"is false.\" The early repeat purchasers use case is the clean example: the Early Repeat Purchaser attribute from Transaction Attributes Extended, set to \"is true,\" identifies customers matching Amperity's documented definition -- first-time buyers who returned to make a second purchase within 12 weeks, or 84 days, of their first. The documentation frames this specifically as a leading indicator for overall one-time-to-repeat-customer conversion, useful even though it doesn't capture every returning customer -- only the fast ones.\n\nRelative-date attributes, like Latest Order Datetime in the dormant-customers example, compare a timestamp field against a dynamically shifting reference point (\"today minus 2 years\") rather than a fixed date, so the segment's membership stays current without manual updates. Scored attributes, like L12M Monetary in the top-20%-revenue example, express a customer's relative standing as a decile or similar rank rather than a raw dollar figure, which makes \"is in list\" against a small set of top scores a fast way to express a percentile cutoff. Categorical or picklist attributes, like Historical Purchaser Lifecycle Status, condense more complex underlying logic -- exactly the kind of AND-joined, multi-condition logic built explicitly in the win-back example -- into a single precomputed value you can filter on directly. None of these four shapes is inherently better than another; picking between a precomputed categorical field and building the underlying logic explicitly is the same tradeoff that came up twice in this course, between transparency into exactly what a segment counts and speed of building it.",
+        "diagram": ""
+      }
+    ],
+    "quiz": [
+      {
+        "question": "Per Amperity's documentation, which condition defines the primary method for building a dormant customers segment?",
+        "options": [
+          "Total Value of Orders from Unified Transactions is greater than zero within the previous 730 days of activity.",
+          "Latest Order Datetime from Transaction Attributes Extended is after a relative date of today minus 2 years.",
+          "Days Since Latest Order from Transaction Attributes Extended is less than or equal to 730 days since last purchase.",
+          "Historical Purchaser Lifecycle Status from Customer Attributes is in list and set specifically to the status Active."
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "In the \"top 20% by revenue\" use case, the segment uses the L12M Monetary attribute with the \"is in list\" operator set to values 9 and 10. What do these values represent?",
+        "options": [
+          "Percentile rankings where 9 means the top 9% of spenders and 10 means the top 10% of spenders combined.",
+          "A count of the number of orders placed in the last 12 months, where 9 or 10 orders qualifies a customer.",
+          "RFM monetary scores, where higher deciles indicate customers with the highest revenue in the past year.",
+          "A loyalty tier level assigned to customers who have redeemed at least 9 or 10 reward certificates."
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "The win-back use case combines Contactable Email is true, Is Opted Into Email is true, and Days Since Latest Order >= 730 in a single segment. What does joining these three conditions with AND do to the resulting audience?",
+        "options": [
+          "It returns customers who match any one of the three conditions alone, producing the broadest possible win-back audience.",
+          "It ignores the opt-in condition entirely, since AND only applies to numeric attributes like days since last order.",
+          "It returns every dormant customer regardless of contactability, since AND does not filter on boolean attributes at all.",
+          "It narrows the audience to only customers who satisfy all three conditions: contactable, opted in, and inactive 730-plus days."
+        ],
+        "correct_index": 3
+      }
+    ]
+  },
+  {
+    "id": "amp-connect-how-sources-work",
+    "title": "How Sources Work",
+    "type": "course",
+    "level": "beginner",
+    "track": "Connecting & Activating Data",
+    "duration_minutes": 18,
+    "content": "Amperity documents nearly 250 individual data sources, one page per third-party tool, but almost all of them configure the same underlying mechanism: a connection that pulls data into Amperity on a schedule. This course teaches that pattern directly, using SFTP as the simplest case, S3 and Fivetran as variations on the same pull, and Amperity Bridge as the exception that pulls and pushes data at once without ever copying it.",
+    "sections": [
+      {
+        "heading": "The Source Pattern: One Pull, Many Tools",
+        "body": "Amperity's own documentation defines a source in one sentence: sources are \"connections for Amperity to ingest data from other tools and platforms.\" That single definition covers close to 250 separate integration pages, from CRM systems and email platforms to cloud storage and data providers. Reading all 250 individually would mean re-learning the same handful of decisions again and again, because nearly every one of them is a variation on a single mechanism.\n\nThat mechanism is called a courier. A courier is the connection Amperity configures to actually pull data from a source on your behalf: it holds the hostname, credentials, file path or table name, and everything else needed to reach into the origin system and bring data back. Setting up almost any source follows the same two-phase shape: first you gather the connection details for the tool you're connecting to, then you configure the courier itself and tell it which files or tables to load.\n\nOnce a courier can see data, Amperity still needs to know what to do with it on arrival, and that's where load strategy comes in. Upsert updates any record that already exists and inserts any record that's new, leaving everything else untouched. Truncate and upsert instead deletes every existing record in the target before loading, which is the right choice when the source always hands over a complete snapshot rather than only what changed since last time.\n\nFinally, couriers can run once, manually, or be added to a courier group that runs on a recurring schedule, so the same pull repeats automatically at whatever cadence the business needs. Get details, configure the courier, choose a load strategy, set a schedule -- that four-step shape is what every one of the roughly 250 source pages is really describing, just with different nouns."
+      },
+      {
+        "heading": "SFTP: The Baseline Pull",
+        "body": "SFTP is the simplest version of the pattern above, which makes it a useful baseline before looking at anything more elaborate. Setting one up means gathering a hostname and port, a username and passphrase (or a private key, if that credential type is selected), an optional host public key for validating the SSH connection, and optionally a PGP key if the files arriving from the remote server are encrypted.\n\nData has to live in a specific remote folder, and Amperity is strict about how that folder is written: the path must start with a forward slash, for example /folder/name. From there, files can be chosen by browsing the folder directly or by giving a filename pattern that matches files loaded on a recurring basis, so a new file dropped in that folder tonight gets picked up by tomorrow's scheduled pull without anyone touching the configuration again. Amperity infers the file's delimiter, compression, escape character, quote character, and whether a header row is present, all from a sample file provided during setup.\n\nEverything else follows the general pattern from the previous section exactly: the courier is configured with those connection details, a load strategy of upsert or truncate-and-upsert is chosen depending on whether the remote files are deltas or full snapshots, and the courier either runs manually or joins a courier group on a schedule. SFTP doesn't introduce any new concept -- it's the pattern with the fewest moving parts."
+      },
+      {
+        "heading": "S3 and Fivetran: Same Pattern, Different Plumbing",
+        "body": "Amazon S3 follows the identical shape but swaps out authentication. Rather than a username and passphrase, Amperity uses cross-account role assumption: the customer creates an IAM role inside their own AWS account that grants Amperity temporary, revocable permission to read a specific bucket, instead of ever handing Amperity a long-lived credential. That means the customer keeps direct control of the IAM policy, can manage files in the bucket without going through Amperity, and can revoke access at any time without contacting Amperity at all. Amperity's documentation calls S3 \"the most often used data source across all Amperity tenants,\" and describes its typical uses as one-time file uploads, recurring uploads from systems that lack a direct connector, and Parquet exports from cloud databases.\n\nFivetran adds a genuine wrinkle, but it's a wrinkle in plumbing, not in pattern. Fivetran itself is \"a third-party application that collects data from a wide variety of sources, and then loads that data to Snowflake tables.\" When a company already uses Fivetran to centralize data in Snowflake, or wants access to a source Amperity doesn't natively support, Amperity doesn't connect to the original system at all -- it connects to Snowflake, using its own built-in connector to read the tables Fivetran already populated there. That's a two-hop pull instead of a one-hop pull: Fivetran moves data from the original tool into Snowflake, and a separate Amperity courier then moves it from Snowflake into Amperity.\n\nEven with that extra hop, the direction of travel is unchanged. SFTP, S3, and Fivetran all end the same way: data flows into Amperity's customer database, and nothing flows back out through that same connection. That's true of the overwhelming majority of the roughly 250 sources documented. Bridge is the one that breaks it."
+      },
+      {
+        "heading": "Bridge: When Pull Becomes Two-Way",
+        "body": "Amperity Bridge is described in its own documentation as allowing users to \"share data between Amperity and a data lakehouse using industry-standard data formats,\" and it supports three platforms: Databricks (using a protocol called OpenSharing), Google BigQuery, and Snowflake. The bidirectional claim isn't just marketing language -- the setup itself requires customers to \"configure inbound and outbound shares in Amperity\" for whichever platform they connect, meaning the same integration can move data from the lakehouse into Amperity and from Amperity back out to the lakehouse, rather than only one direction like every source discussed so far.\n\nThe other thing that separates Bridge from a courier is that it doesn't copy anything. SFTP and S3 couriers physically move files into Amperity's own storage before loading them. Bridge instead grants access to data where it already lives: for Databricks, \"OpenSharing generates temporary credentials that allow access to individual data files in cloud storage without copying data,\" and for Snowflake, the same idea is called secure data sharing, enabling \"bi-directional data access between Amperity and Snowflake without copying data.\" Amperity's documentation refers to this as a zero-copy approach -- access to a shared table is controlled without ever replicating the underlying rows.\n\nThe practical effect is live data: because nothing is duplicated, a change made to the source table in the lakehouse is visible to Amperity without waiting for a scheduled courier to run again, which matters most for very large tables that would be expensive to copy on every load."
+      },
+      {
+        "heading": "Picking a Pull Strategy for the Data You Have",
+        "body": "Put together, the four examples in this course cover almost every decision the other roughly 245 source pages ask you to make. If data lives in files on a server you control, that's SFTP or a similar file-based courier. If data already lives in cloud storage, that's an S3-style source authenticated through cross-account role assumption rather than a shared credential. If another tool is already centralizing your data in a warehouse like Snowflake, that's a Fivetran-style two-hop source reading from that warehouse instead of the original system. And if you need live, two-directional access to a lakehouse without ever copying its data, that's Bridge.\n\nNone of those four decisions changes when the tool's name changes. A source page for a CRM platform or an email platform is still choosing between the same authentication styles, the same one-hop-versus-two-hop question, the same upsert-versus-truncate-and-upsert load strategy, and the same manual-versus-scheduled courier group. Once those four choices are familiar, reading any individual source's documentation is mostly confirming which values apply to that specific tool, not learning a new mechanism."
+      }
+    ],
+    "quiz": [
+      {
+        "question": "Which statement best describes the general pattern behind how Amperity sources bring data in?",
+        "options": [
+          "Amperity continuously scans every connected tool's API and imports new records automatically, without ever once needing connection details from the customer.",
+          "Data is pushed out from Amperity to each third-party tool nightly, and the receiving tool alone decides which of those records it will accept.",
+          "Amperity is given connection details for a tool, a courier pulls data on a schedule using upsert or truncate-and-upsert, landing results in the database.",
+          "Every source stages its files in Amazon S3 first, and Amperity then reads only from S3, regardless of where the data originally came from."
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "A source sends a complete, full snapshot of every record each time it runs, rather than only the records that changed. Which load strategy fits, and why?",
+        "options": [
+          "Truncate and upsert, because it clears existing records before loading so the destination matches the latest snapshot, not stale rows.",
+          "Upsert, because it always inserts new rows first and only updates duplicate rows afterward, which is exactly how a full snapshot must be handled.",
+          "Truncate and upsert, because it removes only the specific rows that were deleted from the source file, which is what a snapshot requires.",
+          "Upsert, because it deletes the entire destination table before loading, ensuring snapshot data is never duplicated anywhere inside Amperity."
+        ],
+        "correct_index": 0
+      },
+      {
+        "question": "According to Amperity's documentation, what actually distinguishes Bridge from sources like SFTP, S3, or Fivetran?",
+        "options": [
+          "Bridge only supports Databricks as a platform, while SFTP, S3, and Fivetran can each connect to any cloud data warehouse a customer uses.",
+          "Bridge copies files into Amperity's own storage before they can be used, whereas SFTP and S3 read data directly without ever copying it.",
+          "Bridge only moves data out of Amperity toward an external destination, while SFTP, S3, and Fivetran only ever move data into Amperity.",
+          "Bridge configures inbound and outbound shares and reads data directly without copying it, while the others only pull data into Amperity."
+        ],
+        "correct_index": 3
+      }
+    ]
+  },
+  {
+    "id": "amp-connect-campaigns-destinations",
+    "title": "How Campaigns & Destinations Work",
+    "type": "course",
+    "level": "beginner",
+    "track": "Connecting & Activating Data",
+    "duration_minutes": 18,
+    "content": "Sending data out of Amperity follows two mechanisms, not one: orchestrations that deliver a query's results directly to a destination, and campaigns that build a segment, split it into treatment groups, and send that audience out on a schedule with a validation step first. This course grounds both mechanisms in three representative destinations -- Klaviyo and Braze for marketing automation, and Meta Ads Manager for advertising -- rather than surveying the full list of destination integrations.",
+    "sections": [
+      {
+        "heading": "The Send Pattern: Two Mechanisms, Not One",
+        "body": "Amperity's documentation for the Klaviyo destination lists three distinct ways data can reach it: orchestrations sending query results, orchestrations or campaigns sending audiences, and orchestrations or campaigns sending events. Underneath that list are really only two mechanisms, and the difference between them matters more than which specific destination is on the receiving end.\n\nAn orchestration is the simpler of the two: it runs a query against Amperity's data and sends the result set directly to a destination, on a schedule if needed. There's no audience-building step in between -- the query defines exactly which rows go out, and the destination receives them.\n\nA campaign is built for a different job: sending a segment -- a saved set of customer records selected by shared criteria -- out as an audience. A campaign splits that segment into treatment groups, which are subsets of the audience that can each be pointed at a different destination, message, or experiment condition, and only then sends the resulting audience to one or more destinations on a configured schedule. Campaigns are the mechanism behind audience and event sends; orchestrations are the mechanism behind plain query-result sends."
+      },
+      {
+        "heading": "Klaviyo: Profiles, Locations, and Everything Else",
+        "body": "Klaviyo is described in Amperity's documentation as \"an email platform for targeting, personalizing, measuring, and optimizing email and Facebook campaigns.\" Amperity sends data to it through Klaviyo's REST API, specifically its Update Profile endpoint, using either an API key or OAuth to authenticate.\n\nWhat actually gets sent is shaped by column names. Named profile fields like email, first_name, last_name, external_id, phone_number, organization, title, and image map to Klaviyo's own profile schema. Address-related columns are grouped into a nested location object. Everything else -- any column that isn't a recognized profile or location field -- is automatically bundled into a properties object, so a custom column added on the Amperity side shows up in Klaviyo without any extra mapping step.\n\nOne detail matters more than it looks: email is the field Klaviyo uses to generate a unique customer identifier for each profile. That makes the email column do double duty -- it's both a piece of profile data and the key Klaviyo uses to decide whether an incoming record matches an existing customer or creates a new one, which is why setup requires explicitly designating email as the audience's primary key."
+      },
+      {
+        "heading": "Braze: Attributes, Not Duplicate Records",
+        "body": "Braze's own documentation describes it as \"a marketing automation platform that uses customer profile attributes and segments to build custom experiences, and then map those experiences to campaigns.\" Where Klaviyo organizes incoming data into profile, location, and properties objects, Braze organizes it into two attribute categories: profile attributes, which describe who a customer is (names, birthdates, email addresses, phone numbers), and custom attributes, which describe how that customer has interacted with the brand (purchase history, loyalty status, value tier).\n\nBraze attaches this data to existing customer profiles rather than creating new ones, and it does so efficiently: the integration \"only sends list membership and attribute that have changed since the previous update,\" so a scheduled sync doesn't resend a customer's entire attribute set every time, only what's actually different.\n\nBraze also enforces a constraint that's easy to trip over: its API requires exactly one identifier type per request, chosen from external_id, braze_id, or user_alias. A request that mixes identifier types for the same record isn't merged or reconciled -- it's rejected outright, which is why setup requires picking one identifier type up front rather than leaving it flexible per record."
+      },
+      {
+        "heading": "Meta Ads Manager: Campaigns Built for Audiences",
+        "body": "Meta Ads Manager is where the campaign mechanism from the first section shows up in its fullest form, because advertising audiences have no equivalent to an orchestration's simple query-result send. The workflow starts with the Segment Editor, where a segment is built from any attribute in the customer database, and continues by adding that segment to a campaign, selecting Meta Ads Manager as the destination for at least one treatment group, and configuring a schedule.\n\nBefore the real audience goes anywhere, Amperity's documentation is explicit about validating first: send a sample audience with a very small membership to Meta Ads Manager and confirm it looks correct there before sending the full audience. Only after that check does the full audience get sent, with up to 24 hours allowed before it's available inside Meta Ads Manager for building ads.\n\nMeta Ads Manager also exposes a choice that Klaviyo and Braze don't: which underlying table the audience is built from, Merged Customers or Unified Paid Media, trading off Amperity's \"best profile\" per customer against a fuller multi-record view. That's a targeting decision specific to advertising audiences, not something a query-result orchestration to an email platform ever has to make."
+      },
+      {
+        "heading": "Matching the Send Mechanism to the Job",
+        "body": "Across all three destinations, the mechanism tracks the job, not the vendor. Klaviyo and Braze both primarily receive profile and attribute updates -- data about who a customer is and what they've done -- which fits an orchestration's query-result send or a straightforward campaign audience just as well. Meta Ads Manager only receives audiences, never a raw query result, because an advertising platform has nothing to do with a plain list of rows; it needs a segment, split into treatment groups, validated with a sample before the real send goes out.\n\nThat's the pattern worth carrying into any other destination this course didn't cover: ask whether the job is delivering the current state of a set of records (orchestration) or delivering a built, tested audience for a campaign to act on (campaign), and the right mechanism follows from the answer -- regardless of which of the many destination pages you end up reading."
+      }
+    ],
+    "quiz": [
+      {
+        "question": "Klaviyo's documentation lists orchestrations sending query results separately from orchestrations or campaigns sending audiences and events. What's the practical difference between an orchestration and a campaign here?",
+        "options": [
+          "An orchestration is always a one-time manual export, while a campaign always runs automatically on a schedule with no manual trigger ever available at all.",
+          "An orchestration runs a query and sends results directly to a destination, while a campaign builds a segment into treatment groups and sends an audience.",
+          "An orchestration can only send data to advertising platforms, while a campaign can only ever send data to email and SMS platforms instead.",
+          "An orchestration sends data only after a campaign has already delivered the same audience, acting as a confirmation step before the real send."
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "What constraint does Braze's API enforce on identifiers, and why does it matter for how Amperity sends data?",
+        "options": [
+          "Every request must include all three identifier types together, or Braze cannot match the record to an existing customer profile.",
+          "Braze requires Amperity to generate a brand-new identifier for every record, since it never accepts identifiers created outside its own system.",
+          "Braze accepts any identifier type as long as the values are capitalized consistently, since matching is case-sensitive rather than type-specific.",
+          "Braze's API accepts exactly one identifier type per request, so mixing external_id and braze_id for the same record gets the request rejected."
+        ],
+        "correct_index": 3
+      },
+      {
+        "question": "Before sending a full audience from a segment to Meta Ads Manager, what does Amperity's documentation recommend?",
+        "options": [
+          "Send a sample audience with a very small membership first and confirm it looks correct in Meta Ads Manager before sending the full audience.",
+          "Send the full audience immediately, then rely on Meta Ads Manager's built-in preview mode to check its accuracy after delivery instead of before.",
+          "Skip validation for audiences built from the Unified Paid Media table, since Amperity has already pre-validated that table.",
+          "Wait 24 hours after creating the segment before sending anything, since Meta Ads Manager requires a cooling-off period on new audiences."
+        ],
+        "correct_index": 0
+      }
+    ]
+  },
+  {
+    "id": "amp-connect-choosing-integration",
+    "title": "Choosing the Right Integration",
+    "type": "course",
+    "level": "beginner",
+    "track": "Connecting & Activating Data",
+    "duration_minutes": 15,
+    "content": "Amperity groups its connector documentation into a handful of categories -- CRM & Marketing Automation, Email & SMS, Advertising Platforms, Data Platforms & Cloud Storage, and Analytics & BI -- and the category tells you more about what an integration is for than any individual vendor's name does. This course is a decision guide: given a job to do, which category to reach for, using the source and destination mechanics from the first two courses in this track as the reasoning underneath each answer.",
+    "sections": [
+      {
+        "heading": "Start With the Job, Not the Tool",
+        "body": "The two prior courses in this track established two mechanisms worth remembering here. On the way in, sources pull data through a courier, either directly (SFTP, S3) or through an extra hop (Fivetran), or bidirectionally without copying anything at all (Bridge). On the way out, orchestrations send a query's results directly to a destination, while campaigns build a segment into treatment groups and send it as a validated audience. Every category below is really just a grouping of tools that lean on one or both of those mechanisms for a particular kind of job.\n\nThat's a more useful lens than memorizing which of the roughly 250 documented integrations does what. A team that knows it needs to trigger a message, build an ad audience, or centralize raw data doesn't need to know Klaviyo from Braze or S3 from Fivetran up front -- they need to know which category of tool does that kind of job, and then the specific vendor's documentation fills in the details from a pattern they already understand."
+      },
+      {
+        "heading": "\"I want to trigger email or SMS sends\"",
+        "body": "This job points at Email & SMS -- the category Klaviyo and Braze both belong to, covered in the previous course. These platforms are built to receive profile and attribute data about customers (who they are, what they've done) and use it to trigger or personalize messages, which is why Klaviyo maps incoming columns into profile, location, and properties objects and Braze maps them into profile and custom attributes.\n\nWhether the send goes out as a campaign audience or an orchestration's query result depends on what's actually needed. A one-off list of customers who match a query -- everyone who bought a specific product last month, say -- fits an orchestration. A recurring, segmented send with multiple treatment groups, like a win-back flow tested against a control group, fits a campaign. Either way, the destination category is the same; only the sending mechanism changes."
+      },
+      {
+        "heading": "\"I want to build ad audiences\"",
+        "body": "This job points at Advertising Platforms -- the category Meta Ads Manager belongs to. Unlike Email & SMS destinations, advertising platforms have no orchestration path at all: there's no such thing as sending a plain query result to a Facebook or Instagram ad campaign. Every send is a campaign, because every send is an audience -- a segment split into treatment groups and validated with a small sample before the real send goes out.\n\nExpect this category to also ask a targeting question the others don't: which underlying customer table the audience is built from. Meta Ads Manager's choice between Merged Customers and Unified Paid Media -- trading a single best profile per customer against a fuller multi-record view -- is representative of the kind of decision Advertising Platforms integrations tend to expose, because ad audiences are judged on reach and precision in a way a marketing email list usually isn't."
+      },
+      {
+        "heading": "\"I want to centralize raw data or connect a warehouse I already use\"",
+        "body": "This job points at Data Platforms & Cloud Storage, the category SFTP, S3, Fivetran, and Bridge all belong to. If the data starts as files sitting somewhere -- a vendor's SFTP drop, an S3 bucket, an export from another internal system -- a direct courier-based source is the fit, authenticated either by credentials (SFTP) or cross-account role assumption (S3). If another tool is already centralizing that data into a warehouse like Snowflake, a two-hop source reading from that warehouse is the fit instead of trying to connect to the original system directly.\n\nIf the actual requirement is different -- live, two-directional access to a lakehouse without ever duplicating its data -- that's not a source in the pull sense at all; it's Bridge, still filed under Data Platforms & Cloud Storage but solving a different problem than every other integration in that category. The category groups these together because they're all about where data lives and how Amperity reaches it, not because they all work the same way underneath."
+      },
+      {
+        "heading": "CRM & Marketing Automation and Analytics & BI: The Other Two Categories",
+        "body": "Two categories remain. CRM & Marketing Automation sits close to Email & SMS but usually functions as a source as often as a destination -- a CRM is frequently where customer records originate, not just where messages get sent, so integrations in this category tend to support both directions of the pattern rather than committing to one. Analytics & BI, by contrast, is almost always on the receiving end: these integrations exist to receive query results and aggregated data for reporting and analysis, which makes them a near-pure fit for the orchestration mechanism from the previous course rather than the campaign mechanism.\n\nThe reasoning holds together across all five categories: name the job first -- trigger a message, build an ad audience, centralize files, connect a CRM, or feed a reporting tool -- and the category, and the mechanism underneath it, follow from that job. The vendor is the last detail to fill in, not the first."
+      }
+    ],
+    "quiz": [
+      {
+        "question": "A team wants to send a triggered email when a customer abandons a cart, following the pattern of Email & SMS platforms like Klaviyo and Braze. Which mechanism fits, and why?",
+        "options": [
+          "A source, because a triggered send requires Amperity to first pull historical email engagement data in before any message can go back out.",
+          "A Bridge integration, because only a bidirectional, zero-copy connection can support a real-time triggered message reaching a customer directly and instantly.",
+          "A campaign, because campaigns are built for sending segment-based audiences and events to destinations like Klaviyo or Braze, fitting a triggered send.",
+          "A courier, because couriers are the mechanism Amperity uses to schedule outbound communication to any connected third-party platform."
+        ],
+        "correct_index": 2
+      },
+      {
+        "question": "A team wants to build a lookalike audience for a paid social campaign. Which category fits, and what should they expect to configure?",
+        "options": [
+          "Data Platforms & Cloud Storage, because advertising audiences must be staged as raw files in a warehouse before any ad platform can accept them.",
+          "Advertising Platforms, because these integrations send segment-based audiences through a campaign, validated with a small sample first.",
+          "Analytics & BI, because advertising platforms mainly consume aggregated reporting data rather than individual customer-level audiences.",
+          "CRM & Marketing Automation, because advertising audiences are just customer records sent through the same orchestration used for email sends."
+        ],
+        "correct_index": 1
+      },
+      {
+        "question": "A company already centralizes customer data in Snowflake and wants Amperity to both read from and write back to those tables without duplicating data. Which category are they describing, and which mechanism does it point to?",
+        "options": [
+          "Analytics & BI, because BI tools are the only integrations in Amperity that support two-way data movement with a connected warehouse.",
+          "CRM & Marketing Automation, because the platforms in that category are supposedly built directly on top of Snowflake by default.",
+          "Email & SMS, because Snowflake commonly acts as a staging layer for messages before they ever reach a destination like Klaviyo.",
+          "Data Platforms & Cloud Storage, pointing to a bidirectional, zero-copy connection like Bridge rather than a one-directional pull."
+        ],
+        "correct_index": 3
+      }
+    ]
+  }
+]
