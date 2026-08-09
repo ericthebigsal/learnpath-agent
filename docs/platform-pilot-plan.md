@@ -148,12 +148,13 @@ under Decision gate.
 
 | Track (Course IDs) | Corrections Needed | Correction Type(s) | Notes | Time | Token Cost |
 |---|---|---|---|---|---|
-| 1 — Getting Started (`amp-start-first-data-source`, `amp-start-primary-keys-exclusions`, `amp-start-semantics-pii`, `amp-start-profile-generation`) | 0 logged by human review | — | Quiz guessability self-corrected 8/12 → 0/12 flagged during generation, before human review even started; position spread 3/3/3/3. Grounded specifics pulled from real docs (5-step "add courier" dialog shared by S3/Azure/SFTP, Snowflake Secure Data Sharing constraints, exact output-table column names). | ~14 min (parallel with the other 3 tracks) | not measured |
-| 3 — Customer 360 Data Model (`amp-c360-databases-domain-tables-feeds`, `amp-c360-tour-standard-output-tables`, `amp-c360-semantic-tags-data-types`) | 0 logged by human review | — | Guessability self-corrected 4/9 → 0/9 during generation. Real specifics: feed→domain-table→database pipeline, PII table's actual normalization rules, array/map/struct must-pass-through-a-custom-domain-table constraint. | ~14 min (parallel) | not measured |
-| 4 — Segments, Campaigns & Journeys (`amp-sc-building-segments`, `amp-sc-running-campaigns`, `amp-sc-designing-journeys`, `amp-sc-use-case-to-audience`) | 0 logged by human review | — | Notable discipline, not a defect: the agent hit `send_results.md` returning content unrelated to its filename and used what was actually there rather than inventing plausible send-metrics. AmpAI mentioned only on the 2 courses where a real product feature (Customer Data Assistant) grounds it. | ~14 min (parallel) | not measured |
-| 6 — Connecting & Activating Data (`amp-connect-how-sources-work`, `amp-connect-campaigns-destinations`, `amp-connect-choosing-integration`) | 0 logged by human review | — | Tests the pilot's core curation thesis: ~250 near-duplicate per-integration pages collapsed into 3 conceptual courses. Guessability clean, 2/2/2/3 spread. Real specifics: **courier** as the pull-mechanism term (defined at first use), cross-account role vs. shared credentials, Bridge's zero-copy sharing quoted directly, Klaviyo email-as-identity-key / Braze one-identifier-per-request gotchas. | ~14 min (parallel) | not measured |
+| 1 — Getting Started (`amp-start-first-data-source`, `amp-start-primary-keys-exclusions`, `amp-start-semantics-pii`, `amp-start-profile-generation`) | 0 logged | — | Quiz guessability self-corrected 8/12 → 0/12 flagged during generation, before human review even started; position spread 3/3/3/3. Grounded specifics pulled from real docs (5-step "add courier" dialog shared by S3/Azure/SFTP, Snowflake Secure Data Sharing constraints, exact output-table column names). **Itemized review, 2026-08-09** (`amp-start-first-data-source` only; other 3 courses not yet done): re-fetched the 4 actual S3/Snowflake/SFTP source pages and checked every specific claim. Zero corrections — several matched source near-verbatim (500MB PGP-Parquet preview limit, Snowflake field-case rule, "primary keys/semantic tags not assigned unless it's a custom domain table"). | ~14 min (parallel with the other 3 tracks) | not measured |
+| 3 — Customer 360 Data Model (`amp-c360-databases-domain-tables-feeds`, `amp-c360-tour-standard-output-tables`, `amp-c360-semantic-tags-data-types`) | 0 logged | — | Guessability self-corrected 4/9 → 0/9 during generation. Real specifics: feed→domain-table→database pipeline, PII table's actual normalization rules, array/map/struct must-pass-through-a-custom-domain-table constraint. **Itemized review, 2026-08-09** (`amp-c360-databases-domain-tables-feeds` only; other 2 courses not yet done): re-fetched feeds/domain_tables/databases source pages. Zero corrections — near-verbatim matches on several specific, easy-to-fabricate claims (`_uuid_pk`'s exact purpose, "a custom domain table should be designed to be as static as possible," the SQL-validation-alert-doesn't-block-activation behavior). One ambiguous, unlogged item: the last-updated-file tie-break hierarchy came back 4-tiered in this fetch vs. 3-tiered in the course — not confident enough to call it a real gap vs. extraction noise. | ~14 min (parallel) | not measured |
+| 4 — Segments, Campaigns & Journeys (`amp-sc-building-segments`, `amp-sc-running-campaigns`, `amp-sc-designing-journeys`, `amp-sc-use-case-to-audience`) | **1 logged** | `factual` | Notable discipline, not a defect: the agent hit `send_results.md` returning content unrelated to its filename and used what was actually there rather than inventing plausible send-metrics. AmpAI mentioned only on the 2 courses where a real product feature (Customer Data Assistant) grounds it. **Itemized review, 2026-08-09** (`amp-sc-building-segments` + `amp-sc-designing-journeys`; other 2 courses not yet done): re-fetched 4 segment/AmpAI source pages plus journeys.md/journeys_reference.md. `amp-sc-building-segments` — zero contradictions; the AmpAI Customer Data Assistant quote and the Chicago/Illinois + Madison AND/OR examples matched source near word-for-word. `amp-sc-designing-journeys` — mostly clean and strongly grounded (verbatim journey-vs-campaign definition, exact 10-exit-segment limit, exact schedule-cadence list, exact 10% control-group default, exact Milestones windows), but states twice ("real-time segments aren't supported" for goal conditions and for percent-split testing) — reviewer confirmed this is wrong, the same realtime-Journeys staleness pattern as the Track 6 finding below, now confirmed in a *second, unrelated* course. | ~14 min (parallel) | not measured |
+| 6 — Connecting & Activating Data (`amp-connect-how-sources-work`, `amp-connect-campaigns-destinations`, `amp-connect-choosing-integration`) | **3 logged** | `factual` ×3 | Tests the pilot's core curation thesis: ~250 near-duplicate per-integration pages collapsed into 3 conceptual courses. Guessability clean, 2/2/2/3 spread. Real specifics: **courier** as the pull-mechanism term (defined at first use), cross-account role vs. shared credentials, Bridge's zero-copy sharing quoted directly, Klaviyo email-as-identity-key / Braze one-identifier-per-request gotchas. **Itemized review, 2026-08-09** (`amp-connect-choosing-integration` only; other 2 courses not yet done) found 3 real issues, confirmed by a reviewer with actual Amperity work history: (1) the course states Klaviyo *and* Braze both auto-map incoming columns into named objects — actually Braze requires manual column-to-field-name aliasing by a documented naming convention, it doesn't auto-categorize like Klaviyo; (2) the course opens by claiming "Amperity groups its connector documentation into" 5 named categories (CRM & Marketing Automation / Email & SMS / Advertising Platforms / Data Platforms & Cloud Storage / Analytics & BI) — reviewer confirmed it's a *plausible, logical* grouping but couldn't confirm it's actually Amperity's own stated structure (not in the docs site's own top-level index either); (3) quiz Q1's answer key says a cart-abandonment triggered send maps to a **campaign** — reviewer confirmed this is now wrong: Amperity recently shipped realtime capability in **Journeys**, so a genuine triggered send belongs there. This one isn't a hallucination from nothing — it's the fetched docs (and/or the agent's synthesis of them) lagging a real, recent product change. **Itemized review, 2026-08-09** (`amp-connect-how-sources-work` added; `amp-connect-campaigns-destinations` still not done): re-fetched source_amazon_s3.md and bridge.md. Zero corrections, and it resolves last round's open item — "cross-account role assumption" for S3 auth is now confirmed verbatim ("Amperity requires using cross-account role assumption to manage access to Amazon S3..."). See Decision gate note. | ~14 min (parallel) | not measured |
 | **Merged total (all 14, 42 quiz questions)** | — | — | Zero structural problems. 7% uniquely-longest (below the 25% chance baseline, and better than this app's own catalog). Flat 10/10/10/12 position spread. | ~20 min (dispatch → merged + published) | not measured |
-| Human review (all 14) | not itemized | — | Reviewer is a former Amperity employee (real domain knowledge, not a naive read). Response: "quite nice actually," with no corrections raised against 3 targeted spot-check questions (S3/Azure/Snowflake contrast realism, whether the AmpAI sections read as grounded vs. generic-AI filler, whether the Track 6 pattern-not-page-count approach actually works). Not itemized against source material per-section the way this table's columns assume — see Decision gate note. | ~4 min (read + reply) | n/a |
+| Human review — holistic pass (all 14) | not itemized | — | Reviewer is a former Amperity employee (real domain knowledge, not a naive read). Response: "quite nice actually," with no corrections raised against 3 targeted spot-check questions. Not itemized per-section — superseded for 6 of the 14 courses by the itemized pass below. | ~4 min (read + reply) | n/a |
+| Human review — itemized pass (6 of 14: `amp-start-first-data-source`, `amp-sc-building-segments`, `amp-connect-choosing-integration`, `amp-c360-databases-domain-tables-feeds`, `amp-sc-designing-journeys`, `amp-connect-how-sources-work`) | 4 total (0+0+3+0+1+0) | `factual` ×4 | See per-track rows above. 4 of 6 courses checked out completely clean against re-fetched source, several with near-verbatim matches on specific, easy-to-fabricate claims. 2 of 6 had real issues, and **the realtime-Journeys staleness is now confirmed in 2 separate, unrelated courses** (a quiz answer in `amp-connect-choosing-integration`, and a body claim repeated twice in `amp-sc-designing-journeys`) — this looks like a systemic pattern tied to one specific, recent product launch date, not an isolated fluke. The other issue (Klaviyo/Braze mapping symmetry, the unsourced taxonomy attribution) is unrelated and isolated to one course. 8 of 14 courses still have no itemized pass. | ~55 min total (re-fetch 15 pages across both rounds + compare + write up) | not measured |
 
 - **Correction Type** — `factual` (a claim not actually backed by the
   source material), `tone` (accurate but reads generic / off-voice), or
@@ -192,17 +193,54 @@ evidence `writing-catalog-courses` generalizes rather than being overfit
 to this repo's own subject matter. The human read was positive and came
 from someone with genuine Amperity domain knowledge, not a cold reviewer.
 
-The caveat: that review was a holistic "quite nice actually" plus three
-targeted spot-check questions, not the itemized per-section fact-check
-against source material step 5 actually calls for. Zero corrections
-*logged* is not the same claim as zero corrections *needed* — the pilot
-never generated the data to tell those apart. Treat "0 corrections" in
-the Pilot Log as "not measured," not "measured and clean." **Before
-trusting this verdict enough to greenlight the next-phase build below on
-factual-accuracy grounds alone, run one real itemized human review pass**
-(pick 2-3 courses, read every section against the actual cited doc pages,
-log real correction counts) rather than scaling straight from a vibe
-check.
+**Update, 2026-08-09 — the itemized pass ran (two rounds), the caveat is
+partially closed.** 6 of 14 courses, spanning all 4 pilot tracks, got a
+real itemized review: source pages re-fetched fresh, every specific claim
+checked, results confirmed by a reviewer with actual Amperity work
+history. 4 of 6 came back completely clean, several with claims that
+matched source near word-for-word (Snowflake field-case rules, the exact
+purpose of `_uuid_pk`, SQL-validation-alert behavior, the full journey
+schedule-cadence list). 2 of 6 had real, logged issues — see the Track 4
+and Track 6 rows above.
+
+None of those issues were the "systematic hallucination" the Fail
+criteria describe. Round 1 found an overstated symmetry between two
+similar mechanisms and a plausible-but-unsourced framing claim — real
+editorial misses, not fabrication. But **both rounds also found the same
+underlying problem in two separate, unrelated courses**: a quiz answer in
+`amp-connect-choosing-integration` and a body claim (stated twice) in
+`amp-sc-designing-journeys` both got real-time/triggered-send behavior
+wrong in the same direction, because Amperity recently shipped realtime
+capability in Journeys and the fetched docs (or the generating agent's
+synthesis of them) hadn't caught up. Finding the same staleness twice,
+in courses two different subagents wrote independently, is what turns
+this from "one lucky/unlucky example" into a pattern worth designing
+around.
+
+That's the sharpest finding of the whole pilot: **grounding generation in
+fetched doc text stops the model from inventing specifics that aren't
+anywhere in the source, but it does nothing about specifics that are true
+of the live product yet absent or outdated in the docs it fetched — and
+that failure mode isn't confined to one course, it can ride along with
+whatever the docs happened to be missing at fetch time, wherever that
+topic gets discussed.** No amount of retrieval-grounding closes that gap;
+only a reviewer who actually uses the current product catches it. That's
+a sharper, harder version of the backlog item below about storing raw
+source text per course for provenance: provenance tells you which
+lessons cite which pages so a *later doc edit* can flag staleness, but it
+can't flag a lesson that was already stale *the moment it was fetched*
+because the docs themselves hadn't caught up to the product yet. A real
+product implication: an ingestion pipeline should probably ask a customer
+directly about recent/upcoming feature launches not yet reflected in
+their own docs, rather than trusting doc freshness implicitly.
+
+8 of 14 courses still have no itemized pass. Treat "0 corrections" on
+those as "not measured," not "measured and clean" — the running sample
+(4 clean / 2 with issues, both issue-courses tied to one specific product
+launch) is more suggestive now than after round 1, but still not proof
+the pattern is exhausted. If this verdict needs to support a real
+infrastructure investment decision rather than directional confidence,
+itemize the remaining 8 before committing.
 
 Also logged as a process finding, not a defect: steps 2 and 3 collapsed
 into one in practice — no one hand-wrote a course-shape spec before
