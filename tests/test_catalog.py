@@ -1,9 +1,10 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
-from catalog import get_item, levels_within, load_catalog
-from models import Level, Track
+from catalog import category_name, get_item, levels_within, load_catalog
+from models import Level
 
 DIAGRAMS_DIR = Path(__file__).resolve().parent.parent / "static" / "diagrams"
 
@@ -16,16 +17,23 @@ def test_catalog_loads_with_unique_ids_and_minimum_size():
     assert len(ids) == len(set(ids)), "catalog item ids must be unique"
 
 
-def test_every_track_level_cell_has_at_least_two_course_items():
+def test_catalog_loads_categories():
     catalog = load_catalog()
-    for track in Track:
+    assert len(catalog.categories) == 9
+    category_ids = {c.id for c in catalog.categories}
+    assert "rag" in category_ids
+
+
+def test_every_category_level_cell_has_at_least_two_course_items():
+    catalog = load_catalog()
+    for category in catalog.categories:
         for level in Level:
             count = sum(
                 1
                 for item in catalog.items
-                if item.track == track and item.level == level and item.type.value == "course"
+                if item.category == category.id and item.level == level and item.type.value == "course"
             )
-            assert count >= 2, f"expected >=2 course items for {track.value}/{level.value}, got {count}"
+            assert count >= 2, f"expected >=2 course items for {category.id}/{level.value}, got {count}"
 
 
 def test_catalog_has_bundled_learning_paths_and_capstones():
@@ -94,3 +102,51 @@ def test_levels_within_clamps_at_the_edges():
         Level.INTERMEDIATE,
         Level.ADVANCED,
     ]
+
+
+def test_load_catalog_raises_on_item_referencing_unknown_category(tmp_path):
+    import json
+
+    bad_catalog = {
+        "categories": [{"id": "rag", "name": "RAG", "keywords": []}],
+        "items": [
+            {
+                "id": "x", "title": "X", "type": "course", "level": "beginner",
+                "category": "not-a-real-category", "duration_minutes": 5,
+            }
+        ],
+    }
+    bad_path = tmp_path / "bad_catalog.json"
+    bad_path.write_text(json.dumps(bad_catalog))
+
+    with pytest.raises(ValueError, match="not-a-real-category"):
+        load_catalog(bad_path)
+
+
+def test_load_catalog_accepts_item_referencing_known_category(tmp_path):
+    import json
+
+    good_catalog = {
+        "categories": [{"id": "rag", "name": "RAG", "keywords": []}],
+        "items": [
+            {
+                "id": "x", "title": "X", "type": "course", "level": "beginner",
+                "category": "rag", "duration_minutes": 5,
+            }
+        ],
+    }
+    good_path = tmp_path / "good_catalog.json"
+    good_path.write_text(json.dumps(good_catalog))
+
+    catalog = load_catalog(good_path)
+    assert catalog.items[0].category == "rag"
+
+
+def test_category_name_returns_display_name_for_known_id():
+    catalog = load_catalog()
+    assert category_name(catalog, "rag") == "RAG"
+
+
+def test_category_name_falls_back_to_id_for_unknown_id():
+    catalog = load_catalog()
+    assert category_name(catalog, "not-a-real-category") == "not-a-real-category"
