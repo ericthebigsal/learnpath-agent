@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from models import (
     Catalog,
+    Category,
     CatalogItem,
     CourseSection,
     DroppedItem,
@@ -12,7 +13,6 @@ from models import (
     PlanResponse,
     PlanStep,
     QuizQuestion,
-    Track,
 )
 
 
@@ -35,7 +35,7 @@ def test_course_section_holds_a_diagram_reference():
 def test_catalog_item_defaults_sections_to_empty_list():
     item = CatalogItem(
         id="x", title="X", type=ItemType.COURSE, level=Level.BEGINNER,
-        track=Track.RAG, duration_minutes=10,
+        category="rag", duration_minutes=10,
     )
     assert item.sections == []
 
@@ -43,7 +43,7 @@ def test_catalog_item_defaults_sections_to_empty_list():
 def test_catalog_item_holds_sections():
     item = CatalogItem(
         id="x", title="X", type=ItemType.COURSE, level=Level.BEGINNER,
-        track=Track.RAG, duration_minutes=10,
+        category="rag", duration_minutes=10,
         sections=[CourseSection(heading="Intro", body="Some body text.")],
     )
     assert item.sections[0].heading == "Intro"
@@ -69,13 +69,13 @@ def test_plan_response_holds_dropped_items():
     assert plan.dropped[0].item_id == "x"
 
 
-def test_catalog_item_accepts_valid_enum_values():
+def test_catalog_item_accepts_valid_field_values():
     item = CatalogItem(
         id="rag-fundamentals",
         title="RAG Fundamentals",
         type=ItemType.COURSE,
         level=Level.BEGINNER,
-        track=Track.RAG,
+        category="rag",
         duration_minutes=15,
         content="Retrieval-augmented generation pairs a model with a knowledge source.",
         quiz=[
@@ -89,7 +89,7 @@ def test_catalog_item_accepts_valid_enum_values():
 
     assert item.type == "course"
     assert item.level == "beginner"
-    assert item.track == "RAG"
+    assert item.category == "rag"
     assert item.certification_eligible is False
     assert item.related_item_ids == []
 
@@ -101,21 +101,46 @@ def test_catalog_item_rejects_invalid_enum_value():
             title="Bad",
             type="not-a-real-type",
             level="beginner",
-            track="RAG",
+            category="rag",
             duration_minutes=10,
         )
 
 
-def test_catalog_holds_a_list_of_items():
+def test_catalog_item_requires_category_field():
+    with pytest.raises(ValidationError):
+        CatalogItem(
+            id="bad-2",
+            title="Bad",
+            type=ItemType.COURSE,
+            level=Level.BEGINNER,
+            duration_minutes=10,
+        )
+
+
+def test_category_holds_id_name_and_keywords():
+    category = Category(id="rag", name="RAG", keywords=["retrieval", "vector database"])
+    assert category.id == "rag"
+    assert category.name == "RAG"
+    assert category.keywords == ["retrieval", "vector database"]
+
+
+def test_category_defaults_keywords_to_empty_list():
+    category = Category(id="rag", name="RAG")
+    assert category.keywords == []
+
+
+def test_catalog_holds_categories_and_items():
     catalog = Catalog(
+        categories=[Category(id="rag", name="RAG")],
         items=[
             CatalogItem(
                 id="a", title="A", type=ItemType.VIDEO, level=Level.BEGINNER,
-                track=Track.RAG, duration_minutes=5,
+                category="rag", duration_minutes=5,
             )
-        ]
+        ],
     )
     assert len(catalog.items) == 1
+    assert catalog.categories[0].id == "rag"
 
 
 def test_plan_response_holds_ordered_steps_and_summary():

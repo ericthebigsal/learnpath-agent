@@ -15,16 +15,10 @@ class Level(str, Enum):
     ADVANCED = "advanced"
 
 
-class Track(str, Enum):
-    LLM_FUNDAMENTALS = "LLM Fundamentals"
-    RAG = "RAG"
-    MULTI_AGENT_SYSTEMS = "Multi-Agent Systems"
-    LLM_EVALUATION = "LLM Evaluation & Testing"
-    AGENT_TOOLS_SKILLS = "Agent Tools & Skills"
-    CONTEXT_ENGINEERING = "Context Engineering"
-    LLM_BILLING = "LLM Billing & Cost Models"
-    RESPONSIBLE_AI = "Responsible AI"
-    AI_SECURITY = "AI Security & Risk"
+class Category(BaseModel):
+    id: str
+    name: str
+    keywords: list[str] = Field(default_factory=list)
 
 
 class QuizQuestion(BaseModel):
@@ -44,7 +38,7 @@ class CatalogItem(BaseModel):
     title: str
     type: ItemType
     level: Level
-    track: Track
+    category: str
     duration_minutes: int
     content: str = ""
     sections: list[CourseSection] = Field(default_factory=list)
@@ -54,6 +48,7 @@ class CatalogItem(BaseModel):
 
 
 class Catalog(BaseModel):
+    categories: list[Category]
     items: list[CatalogItem]
 
 
