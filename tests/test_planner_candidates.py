@@ -3,23 +3,23 @@ from models import Level
 from planner import current_level, filter_candidates
 
 
-def test_filter_candidates_matches_track_named_in_goal_text():
+def test_filter_candidates_matches_category_named_in_goal_text():
     catalog = load_catalog()
     candidates = filter_candidates(catalog, "I want to learn about RAG", Level.BEGINNER, set())
 
     assert candidates, "expected at least one candidate"
-    assert all(item.track.value == "RAG" for item in candidates)
+    assert all(item.category == "rag" for item in candidates)
     assert all(item.level in (Level.BEGINNER, Level.INTERMEDIATE) for item in candidates)
 
 
-def test_filter_candidates_falls_back_to_all_tracks_when_goal_names_none():
+def test_filter_candidates_falls_back_to_all_categories_when_goal_names_none():
     catalog = load_catalog()
     candidates = filter_candidates(
         catalog, "I just want to get better at my job", Level.BEGINNER, set()
     )
 
-    tracks_present = {item.track.value for item in candidates}
-    assert len(tracks_present) > 1, "expected multiple tracks when goal names no track"
+    categories_present = {item.category for item in candidates}
+    assert len(categories_present) > 1, "expected multiple categories when goal names none"
 
 
 def test_filter_candidates_excludes_completed_items():
@@ -27,7 +27,7 @@ def test_filter_candidates_excludes_completed_items():
     all_rag_beginner_ids = {
         item.id
         for item in catalog.items
-        if item.track.value == "RAG" and item.level == Level.BEGINNER
+        if item.category == "rag" and item.level == Level.BEGINNER
     }
     one_completed = set(list(all_rag_beginner_ids)[:1])
 
@@ -45,7 +45,7 @@ def test_current_level_bumps_up_after_a_high_score_at_that_level():
     catalog = load_catalog()
     beginner_rag_item = next(
         item for item in catalog.items
-        if item.track.value == "RAG" and item.level == Level.BEGINNER and item.type.value == "course"
+        if item.category == "rag" and item.level == Level.BEGINNER and item.type.value == "course"
     )
     progress = [{"item_id": beginner_rag_item.id, "quiz_score": 95.0}]
 
@@ -56,7 +56,7 @@ def test_current_level_does_not_bump_on_a_low_score():
     catalog = load_catalog()
     beginner_rag_item = next(
         item for item in catalog.items
-        if item.track.value == "RAG" and item.level == Level.BEGINNER and item.type.value == "course"
+        if item.category == "rag" and item.level == Level.BEGINNER and item.type.value == "course"
     )
     progress = [{"item_id": beginner_rag_item.id, "quiz_score": 40.0}]
 

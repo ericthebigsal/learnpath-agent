@@ -4,83 +4,38 @@ import time
 from google.genai import types
 
 from catalog import LEVEL_ORDER, levels_within
-from models import Catalog, CatalogItem, DroppedItem, Level, PlanDiff, PlanResponse, PlanStep, Track
+from models import Catalog, CatalogItem, Category, DroppedItem, Level, PlanDiff, PlanResponse, PlanStep
 
 logger = logging.getLogger(__name__)
 
-TRACK_NAMES = [track.value for track in Track]
 
-# Free-text goals rarely spell out a track's exact name. These keywords catch
-# the common ways learners actually phrase a goal, so the deterministic
-# fallback (and the LLM's candidate list) can stay focused on-topic instead
-# of falling back to every track in the catalog.
-TRACK_KEYWORDS: dict[str, list[str]] = {
-    "LLM Fundamentals": [
-        "fundamentals", "basics", "how llms work", "transformer", "tokenization",
-        "autoregressive", "scaling law", "model card", "open-weight", "open weight",
-    ],
-    "RAG": [
-        "rag", "retrieval", "retrieval-augmented", "vector database", "vector db",
-        "embeddings", "chunking", "reranking", "hybrid search",
-    ],
-    "Multi-Agent Systems": [
-        "multi-agent", "multi agent", "agentic", "swarm", "orchestrator",
-        "orchestration", "task decomposition",
-    ],
-    "LLM Evaluation & Testing": [
-        "eval", "evaluation", "evaluating", "testing", "test set", "benchmark",
-        "llm-as-judge", "llm as judge", "regression test", "red-team", "red team",
-    ],
-    "Agent Tools & Skills": [
-        "tool calling", "function calling", "tool schema", "plugin", "agent tools",
-        "agent skills",
-    ],
-    "Context Engineering": [
-        "context window", "context engineering", "context budget", "memory",
-        "lost in the middle", "context drift",
-    ],
-    "LLM Billing & Cost Models": [
-        "cost", "billing", "pricing", "budget", "spend", "token cost",
-        "prompt caching",
-    ],
-    "Responsible AI": [
-        "ethics", "ethical", "bias", "fairness", "fair", "responsible ai", "privacy",
-        "hallucination", "governance", "compliance", "regulation",
-    ],
-    "AI Security & Risk": [
-        "security", "threat", "prompt injection", "injection", "vulnerability",
-        "attack", "adversarial", "supply chain", "atlas", "owasp",
-    ],
-}
+def match_categories(goal_text: str, categories: list[Category]) -> list[str]:
+    """Return catalog category ids whose name or keywords appear in free-text goal.
 
-
-def match_tracks(goal_text: str) -> list[str]:
-    """Return catalog tracks whose name or known keywords appear in free-text goal.
-
-    Checked in TRACK_NAMES order so results are stable regardless of dict
-    iteration order. Returns [] when nothing -- not even a keyword -- matches,
-    which callers should treat as "don't guess, ask the learner to pick."
+    Checked in `categories` order so results are stable. Returns [] when
+    nothing -- not even a keyword -- matches, which callers should treat
+    as "don't guess, ask the learner to pick."
     """
     goal_lower = goal_text.lower()
     matched = []
-    for name in TRACK_NAMES:
-        keywords = [name.lower()] + TRACK_KEYWORDS.get(name, [])
+    for category in categories:
+        keywords = [category.name.lower()] + category.keywords
         if any(keyword in goal_lower for keyword in keywords):
-            matched.append(name)
+            matched.append(category.id)
     return matched
 
 
 def filter_candidates(
     catalog: Catalog, goal_text: str, level: Level, completed_item_ids: set[str]
 ) -> list[CatalogItem]:
-    matched_tracks = match_tracks(goal_text)
+    matched_categories = match_categories(goal_text, catalog.categories)
     allowed_levels = levels_within(level, spread=1)
 
-    if matched_tracks:
+    if matched_categories:
         candidates = [
             item
             for item in catalog.items
-            if item.track.value in matched_tracks and item.level in allowed_levels
+            if item.category in matched_categories and item.level in allowed_levels
         ]
     else:
         candidates = [item for item in catalog.items if item.level in allowed_levels]
@@ -112,7 +67,7 @@ def rule_based_plan(
         PlanStep(
             item_id=item.id,
             rationale=(
-                f"Fallback rule: {item.level.value} level in {item.track.value}, "
+                f"Fallback rule: {item.level.value} level in {item.category}, "
                 f"{item.duration_minutes} minutes."
             ),
         )
@@ -216,7 +171,7 @@ def build_prompt(
     previous_item_ids: list[str] | None = None,
 ) -> str:
     candidate_lines = "\n".join(
-        f"- {item.id}: {item.title} ({item.track.value}, {item.level.value}, {item.duration_minutes}m)"
+        f"- {item.id}: {item.title} ({item.category}, {item.level.value}, {item.duration_minutes}m)"
         for item in candidates
     )
     if progress:
@@ -319,27 +274,27 @@ def plan_or_replan(
         return rule_based_plan(candidates, previous_item_ids), True, candidate_ids
 
 
-def certification_ready_tracks(catalog: Catalog, progress: list[dict]) -> list[str]:
+def certification_ready_categories(catalog: Catalog, progress: list[dict]) -> list[str]:
     # Only plain `course` items are counted: `learning_path` bundles have no quiz of
     # their own (item.html renders no submit form when item.quiz is empty), so they
     # can never pick up a real progress row through the UI and must be excluded here.
     scores_by_id = {entry["item_id"]: entry["quiz_score"] for entry in progress}
     ready: list[str] = []
 
-    for track_name in TRACK_NAMES:
-        track_items = [
+    for category in catalog.categories:
+        category_items = [
             item
             for item in catalog.items
-            if item.track.value == track_name
+            if item.category == category.id
             and item.type.value == "course"
             and not item.certification_eligible
         ]
-        if not track_items:
+        if not category_items:
             continue
-        if all(item.id in scores_by_id for item in track_items):
-            average = sum(scores_by_id[item.id] for item in track_items) / len(track_items)
+        if all(item.id in scores_by_id for item in category_items):
+            average = sum(scores_by_id[item.id] for item in category_items) / len(category_items)
             if average >= PASSING_THRESHOLD:
-                ready.append(track_name)
+                ready.append(category.name)
 
     return ready
 

@@ -3,11 +3,11 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 from catalog import LEVEL_ORDER, load_catalog
-from models import CatalogItem, DroppedItem, Level, PlanResponse, PlanStep, Track
+from models import CatalogItem, DroppedItem, Level, PlanResponse, PlanStep
 from planner import (
     PASSING_THRESHOLD,
     build_prompt,
-    certification_ready_tracks,
+    certification_ready_categories,
     filter_candidates,
     gemini_plan,
     plan_or_replan,
@@ -43,7 +43,7 @@ def test_rule_based_plan_puts_beginner_items_before_advanced_items():
             title="Advanced item",
             type="course",
             level=Level.ADVANCED,
-            track=Track.RAG,
+            category="rag",
             duration_minutes=10,
         ),
         CatalogItem(
@@ -51,7 +51,7 @@ def test_rule_based_plan_puts_beginner_items_before_advanced_items():
             title="Intermediate item",
             type="course",
             level=Level.INTERMEDIATE,
-            track=Track.RAG,
+            category="rag",
             duration_minutes=10,
         ),
         CatalogItem(
@@ -59,7 +59,7 @@ def test_rule_based_plan_puts_beginner_items_before_advanced_items():
             title="Beginner item",
             type="course",
             level=Level.BEGINNER,
-            track=Track.RAG,
+            category="rag",
             duration_minutes=10,
         ),
     ]
@@ -242,31 +242,31 @@ def test_build_prompt_includes_passing_threshold():
     assert str(PASSING_THRESHOLD) in prompt
 
 
-def test_certification_ready_tracks_empty_with_no_progress():
+def test_certification_ready_categories_empty_with_no_progress():
     catalog = load_catalog()
-    assert certification_ready_tracks(catalog, []) == []
+    assert certification_ready_categories(catalog, []) == []
 
 
-def test_certification_ready_tracks_flags_track_after_all_items_pass():
+def test_certification_ready_categories_flags_category_after_all_items_pass():
     catalog = load_catalog()
     rag_courses = [
         item for item in catalog.items
-        if item.track.value == "RAG" and item.type.value == "course" and not item.certification_eligible
+        if item.category == "rag" and item.type.value == "course" and not item.certification_eligible
     ]
     progress = [{"item_id": item.id, "quiz_score": 80.0} for item in rag_courses]
 
-    assert "RAG" in certification_ready_tracks(catalog, progress)
+    assert "RAG" in certification_ready_categories(catalog, progress)
 
 
-def test_certification_ready_tracks_excludes_track_with_low_average():
+def test_certification_ready_categories_excludes_category_with_low_average():
     catalog = load_catalog()
     rag_courses = [
         item for item in catalog.items
-        if item.track.value == "RAG" and item.type.value == "course" and not item.certification_eligible
+        if item.category == "rag" and item.type.value == "course" and not item.certification_eligible
     ]
     progress = [{"item_id": item.id, "quiz_score": 50.0} for item in rag_courses]
 
-    assert "RAG" not in certification_ready_tracks(catalog, progress)
+    assert "RAG" not in certification_ready_categories(catalog, progress)
 
 
 def test_build_prompt_mentions_previously_planned_items_when_given():
