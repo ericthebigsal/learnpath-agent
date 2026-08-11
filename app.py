@@ -15,8 +15,8 @@ import planner
 import quiz as quiz_module
 import badges
 import review
-from catalog import get_item, load_catalog
-from models import Level, PlanResponse, Track
+from catalog import category_name, get_item, load_catalog
+from models import Level, PlanResponse
 from starter_paths import STARTER_PATHS, get_starter_path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -27,6 +27,7 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 templates.env.globals["css_version"] = int((BASE_DIR / "static" / "style.css").stat().st_mtime)
+templates.env.filters["category_name"] = lambda category_id: category_name(CATALOG, category_id)
 
 db.init_db(DB_PATH)
 
@@ -244,7 +245,7 @@ def current_path(
         {"item": get_item(CATALOG, step["item_id"]), "rationale": step["rationale"]}
         for step in latest_plan["steps"]
     ]
-    ready_tracks = planner.certification_ready_tracks(CATALOG, progress)
+    ready_tracks = planner.certification_ready_categories(CATALOG, progress)
     chosen_ids = {step["item_id"] for step in latest_plan["steps"]}
     candidates = [
         get_item(CATALOG, item_id)
@@ -345,15 +346,15 @@ def explore_open_item(item_id: str, current_user: dict = Depends(get_current_use
 @app.get("/explore", response_class=HTMLResponse)
 def explore(
     request: Request,
-    track: str | None = None,
+    category: str | None = None,
     level: str | None = None,
     active_track_id: int | None = None,
     no_match: bool = False,
     current_user: dict = Depends(get_current_user),
 ):
     items = CATALOG.items
-    if track:
-        items = [item for item in items if item.track.value == track]
+    if category:
+        items = [item for item in items if item.category == category]
     if level:
         items = [item for item in items if item.level.value == level]
 
@@ -373,9 +374,9 @@ def explore(
             "request": request,
             "current_user": current_user,
             "items": items,
-            "tracks": [t.value for t in Track],
+            "categories": CATALOG.categories,
             "levels": [lvl.value for lvl in Level],
-            "selected_track": track or "",
+            "selected_category": category or "",
             "selected_level": level or "",
             "user_tracks": user_tracks,
             "selected_track_id": selected_track_id,

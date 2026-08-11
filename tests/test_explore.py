@@ -103,8 +103,8 @@ def test_explore_lists_all_catalog_items_with_no_filters(client):
     assert "What Is an LLM, Really?" in response.text
 
 
-def test_explore_filters_by_track(client):
-    response = client.get("/explore", params={"track": "RAG"})
+def test_explore_filters_by_category(client):
+    response = client.get("/explore", params={"category": "rag"})
 
     assert response.status_code == 200
     assert "RAG Fundamentals: Retrieval Meets Generation" in response.text
