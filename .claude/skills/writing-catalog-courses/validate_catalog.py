@@ -8,17 +8,23 @@ Run from the repo root (with venv activated):
 
 With no --file, checks this repo's own data/catalog.json and runs the FULL suite,
 including this app's pydantic schema and a real render through its Jinja templates
--- that mode is specific to this app's Track/Level enums and template conventions.
+-- that mode is specific to this app's Category/Level model and template conventions.
+This repo's own catalog.json is an object shaped {"categories": [...], "items": [...]};
+every item's "category" must reference a "categories" entry's "id".
 
 With --file pointing anywhere else (a different tenant's course content, a pilot
 file that was never merged into this repo), the schema/render checks that depend
-on this app's own code are skipped automatically -- there's no Track enum or
+on this app's own code are skipped automatically -- there's no Category model or
 CatalogItem model to import for content that was never written against them.
-What still runs, on ANY catalog-shaped JSON (a list of items with id/title/level/
-content/sections/quiz), is everything that doesn't require this app's code:
-duplicate ids/headings, dangling related_item_ids, quiz option count/bounds/
-duplicates, and the quiz guessability audit. Pass --diagrams-dir to also check
-referenced diagram files exist for external content with its own diagram set.
+External files may be EITHER shape: a bare list of items (no categories, "category"
+treated as an unconstrained free-text label), or the {"categories": [...], "items": [...]}
+object (in which case referential integrity -- every item's category exists in
+categories -- is checked, the same way it is for this repo's own catalog).
+What still runs, on ANY catalog-shaped JSON, is everything that doesn't require
+this app's code: duplicate ids/headings, dangling related_item_ids, quiz option
+count/bounds/duplicates, and the quiz guessability audit. Pass --diagrams-dir to
+also check referenced diagram files exist for external content with its own
+diagram set.
 
 With no arguments (default mode only), trailing positional args narrow the
 quiz-guessability report to just those item ids; structural checks still run
@@ -69,6 +75,30 @@ def portable_structural_checks(data: list[dict]) -> list[str]:
                 problems.append(f"{label}: quiz correct_index {ci!r} out of range")
             if len(set(o.strip().lower() for o in opts)) != len(opts):
                 problems.append(f"{label}: quiz has duplicate option text")
+    return problems
+
+
+def extract_items_and_categories(raw: dict | list) -> tuple[list[dict], list[dict] | None]:
+    """Normalize either catalog shape to (items, categories).
+
+    A bare list (legacy / category-less external content) has no
+    categories -- returns None for that slot, meaning "don't check
+    referential integrity." The {"categories": [...], "items": [...]}
+    object shape always has a categories list, even if it's empty.
+    """
+    if isinstance(raw, list):
+        return raw, None
+    return raw["items"], raw["categories"]
+
+
+def category_reference_checks(items: list[dict], categories: list[dict]) -> list[str]:
+    problems = []
+    known_ids = {c.get("id") for c in categories}
+    for item in items:
+        label = item.get("id", "<no id>")
+        category = item.get("category")
+        if category not in known_ids:
+            problems.append(f"{label}: category {category!r} not in declared categories")
     return problems
 
 
@@ -170,7 +200,8 @@ def main():
     target_ids = set(args.item_ids)
 
     problems = []
-    data = json.loads(target_file.read_text())
+    raw = json.loads(target_file.read_text())
+    items, categories = extract_items_and_categories(raw)
 
     if is_own_catalog:
         problems.extend(full_app_checks(target_ids))
@@ -180,14 +211,20 @@ def main():
               f"render -- running portable checks only.")
         diagrams_dir = args.diagrams_dir
 
-    problems.extend(portable_structural_checks(data))
+    problems.extend(portable_structural_checks(items))
+
+    if categories is not None:
+        problems.extend(category_reference_checks(items, categories))
+        print(f"Categories: {len(categories)} declared, referential integrity checked.")
+    else:
+        print("Categories: none declared in this file, skipping referential-integrity check.")
 
     if diagrams_dir:
-        problems.extend(diagram_check(data, diagrams_dir))
+        problems.extend(diagram_check(items, diagrams_dir))
     else:
         print("Diagram files: skipped (no --diagrams-dir given)")
 
-    quiz_guessability_report(data, target_ids)
+    quiz_guessability_report(items, target_ids)
 
     print()
     if problems:
