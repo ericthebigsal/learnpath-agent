@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Quiz: {{ item.title }} — learnpath-agent{% endblock %}
 {% block content %}
-<p class="eyebrow">{{ item.track.value }} &middot; {{ item.level.value }}</p>
+<p class="eyebrow">{{ item.category | category_name }} &middot; {{ item.level.value }}</p>
 <h1>Quiz: {{ item.title }}</h1>
 
 <form class="quiz" method="post" action="/item/{{ track_id }}/{{ item.id }}/submit">

@@ -24,11 +24,11 @@
 <h2>Browse the catalog</h2>
 <form class="explore-filters" method="get" action="/explore">
   <div>
-    <label for="track">Track</label>
-    <select id="track" name="track">
-      <option value="">All tracks</option>
-      {% for t in tracks %}
-      <option value="{{ t }}" {% if t == selected_track %}selected{% endif %}>{{ t }}</option>
+    <label for="category">Category</label>
+    <select id="category" name="category">
+      <option value="">All categories</option>
+      {% for c in categories %}
+      <option value="{{ c.id }}" {% if c.id == selected_category %}selected{% endif %}>{{ c.name }}</option>
       {% endfor %}
     </select>
   </div>
@@ -65,7 +65,7 @@
       <button type="submit" class="explore-open-title">{{ item.title }}</button>
     </form>
     <div class="trail-tags">
-      <span class="badge">{{ item.track.value }}</span>
+      <span class="badge">{{ item.category | category_name }}</span>
       <span class="badge">{{ item.level.value }}</span>
       <span class="badge">{{ item.duration_minutes }}m</span>
       <span class="badge">{{ item.type.value }}</span>

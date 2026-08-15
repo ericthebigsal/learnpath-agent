@@ -12,7 +12,7 @@
     <div class="trail-body">
       <span class="trail-title">{{ step.item.title }}</span>
       <div class="trail-tags">
-        <span class="badge">{{ step.item.track.value }}</span>
+        <span class="badge">{{ step.item.category | category_name }}</span>
         <span class="badge">{{ step.item.level.value }}</span>
         <span class="badge">{{ step.item.duration_minutes }}m</span>
       </div>

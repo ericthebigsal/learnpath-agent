@@ -26,7 +26,7 @@
     <div class="trail-body">
       <a class="trail-title" href="/item/{{ track_id }}/{{ step.item.id }}">{{ step.item.title }}</a>
       <div class="trail-tags">
-        <span class="badge">{{ step.item.track.value }}</span>
+        <span class="badge">{{ step.item.category | category_name }}</span>
         <span class="badge">{{ step.item.level.value }}</span>
         <span class="badge">{{ step.item.duration_minutes }}m</span>
       </div>
@@ -46,7 +46,7 @@
       <div class="trail-body">
         <span class="trail-title trail-title-ghost">{{ candidate.title }}</span>
         <div class="trail-tags">
-          <span class="badge badge-ghost">{{ candidate.track.value }}</span>
+          <span class="badge badge-ghost">{{ candidate.category | category_name }}</span>
           <span class="badge badge-ghost">{{ candidate.level.value }}</span>
         </div>
         <form method="post" action="/path/{{ track_id }}/add/{{ candidate.id }}">

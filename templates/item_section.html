@@ -2,7 +2,7 @@
 {% block title %}{{ section.heading }} — {{ item.title }} — learnpath-agent{% endblock %}
 {% block body_class %}page-lesson{% endblock %}
 {% block content %}
-<p class="eyebrow">{{ item.track.value }} &middot; {{ item.level.value }}</p>
+<p class="eyebrow">{{ item.category | category_name }} &middot; {{ item.level.value }}</p>
 <h1>{{ item.title }}</h1>
 
 <div class="lesson-layout">
