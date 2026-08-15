@@ -219,7 +219,7 @@ def create_track(
     track = db.create_track(current_user["id"], name, goal_text, starting_level.value, DB_PATH)
     db.update_default_starting_level(current_user["id"], starting_level.value, DB_PATH)
 
-    if not planner.match_tracks(goal_text):
+    if not planner.match_categories(goal_text, CATALOG.categories):
         return RedirectResponse(
             url=f"/explore?active_track_id={track['id']}&no_match=1", status_code=303
         )
