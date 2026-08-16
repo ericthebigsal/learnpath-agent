@@ -1,6 +1,6 @@
 # learnpath-agent
 
-A small FastAPI app that simulates an Amazon-Ads-Academy-shaped course catalog — course/learning-path/video content types, three levels, tagged tracks, a dual certification model — except the content teaches modern AI/agentic concepts (RAG, multi-agent systems, LLM evaluation, agent tooling, context engineering, LLM billing). The centerpiece is an **adaptive learning-path agent**: instead of routing a learner through one of the catalog's fixed "Learning Path" bundles, an LLM plans a personalized sequence from a learner's stated goal and level, and re-plans it after every quiz result.
+A small FastAPI app that simulates an Amazon-Ads-Academy-shaped course catalog — course/learning-path/video content types, three levels, tagged categories, a dual certification model — except the content teaches modern AI/agentic concepts (RAG, multi-agent systems, LLM evaluation, agent tooling, context engineering, LLM billing). The centerpiece is an **adaptive learning-path agent**: instead of routing a learner through one of the catalog's fixed "Learning Path" bundles, an LLM plans a personalized sequence from a learner's stated goal and level, and re-plans it after every quiz result.
 
 ## Why this exists
 
@@ -8,7 +8,7 @@ Static "personalized learning paths" in most real LMS products are personalized 
 
 ## How it works
 
-- `catalog.py` / `data/catalog.json` — ~54 seed items across 7 AI-concept tracks and 3 levels.
+- `catalog.py` / `data/catalog.json` — ~54 seed items across 7 AI-concept categories and 3 levels.
 - `planner.py` — filters the catalog down to a relevant candidate set, then either asks Gemini (structured JSON output validated against a Pydantic schema) to rank/sequence them with rationale, or falls back to a deterministic rule-based planner if the API call fails or rate-limits.
 - `db.py` — SQLite-backed account and track state: your tracks' goals, progress, and every past plan with its rationale.
 - `app.py` — seven FastAPI screens: register → login → dashboard → current path → item + quiz → path-updated diff → plan history / catalog browse.

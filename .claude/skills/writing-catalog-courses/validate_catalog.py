@@ -88,7 +88,7 @@ def extract_items_and_categories(raw: dict | list) -> tuple[list[dict], list[dic
     """
     if isinstance(raw, list):
         return raw, None
-    return raw["items"], raw["categories"]
+    return raw["items"], raw.get("categories")
 
 
 def category_reference_checks(items: list[dict], categories: list[dict]) -> list[str]:

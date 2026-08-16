@@ -9,10 +9,14 @@ description: Use when writing or expanding course content -- sections, quizzes, 
 
 Course content that merely compiles isn't done. This repo's catalog has repeatedly shipped content with the same three defects: quizzes gradeable without reading the lesson, key terms used to explain something without ever being explained themselves, and diagrams that render fine in isolation but break inside the site's actual container. A fresh agent given no guidance reproduces all three on the first try (verified: baseline test scored 2/3 quiz questions with the correct answer as the uniquely-longest option, clustered 2/3 at the same position). This skill is the checklist that prevents that.
 
+## Catalog Schema
+
+`data/catalog.json` is an object shaped `{"categories": [...], "items": [...]}`, not a bare list. A new category needs its own entry in the top-level `categories` array (with `id`, `name`, `keywords`) before any item can reference it via that item's `category` field -- an item referencing an undeclared category id makes `load_catalog()` raise at import time, so this has to happen first, not as cleanup afterward.
+
 ## When to Use
 
-- Adding a new course item to an existing track
-- Creating a new track from scratch
+- Adding a new course item to an existing category
+- Creating a new category from scratch
 - Deepening or auditing an existing item for quality
 - Reviewing someone else's (or an agent's) catalog PR
 
@@ -49,7 +53,7 @@ python -m pytest -q
 
 Against this repo's own `data/catalog.json` (the default, no `--file` needed), the validator checks: pydantic schema load, duplicate ids/headings, dangling `related_item_ids`, missing diagram files, quiz guessability (see #2), and renders every section and quiz page through the actual Jinja templates used in production (`item_section.html`, `item_quiz.html`) — this is what catches the diagram overflow/collision bugs, not eyeballing the SVG source.
 
-The validator also works against course content that was never written for this app — `--file path/to/other-catalog.json` (optionally `--diagrams-dir path/to/svgs`) runs the portable checks (duplicate ids/headings, dangling related ids, quiz option/index validity, quiz guessability, diagram existence) without importing this app's own `Track`/`Level` enums or templates, since external content was never written against them. Use this for pilot content, a different tenant's catalog, or anything not destined for this repo's `data/catalog.json`.
+The validator also works against course content that was never written for this app — `--file path/to/other-catalog.json` (optionally `--diagrams-dir path/to/svgs`) runs the portable checks (duplicate ids/headings, dangling related ids, quiz option/index validity, quiz guessability, diagram existence) without importing this app's own `Category`/`Level` enums or templates, since external content was never written against them. Use this for pilot content, a different tenant's catalog, or anything not destined for this repo's `data/catalog.json`.
 
 If you changed an existing item's quiz and its `correct_index` values shifted, grep the test suite for hardcoded answer submissions against that item's id (`grep -rn "answer_0" tests/`) — a prior pass broke 6 tests this way by rebalancing a quiz without checking who depended on the old indices.
 
