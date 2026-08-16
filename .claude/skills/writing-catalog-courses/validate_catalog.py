@@ -141,7 +141,7 @@ def diagram_check(data: list[dict], diagrams_dir: Path) -> list[str]:
 
 def full_app_checks(target_ids: set[str]) -> list[str]:
     """Only valid against this repo's own data/catalog.json -- needs its pydantic
-    models (Track/Level enums) and its Jinja templates to mean anything."""
+    models (Category/Level) and its Jinja templates to mean anything."""
     problems = []
     from catalog import load_catalog
 
